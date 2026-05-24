@@ -291,6 +291,67 @@ body.night.rebakery-post .navbar-main {
         max-width: 100%;
         flex: none;
     }
+
+    body.rebakery-post .post-navigation {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    body.rebakery-post .post-navigation .level-start,
+    body.rebakery-post .post-navigation .level-end {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    body.rebakery-post .post-navigation a {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1.5rem minmax(0, 1fr) 1.5rem;
+        align-items: center;
+        justify-content: stretch;
+        padding: 0.75rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.72);
+        line-height: 1.5;
+        text-align: center;
+    }
+
+    body.rebakery-post .post-navigation .article-nav-prev i {
+        grid-column: 1;
+        justify-self: start;
+    }
+
+    body.rebakery-post .post-navigation .article-nav-prev span {
+        grid-column: 2;
+    }
+
+    body.rebakery-post .post-navigation .article-nav-next span {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    body.rebakery-post .post-navigation .article-nav-next i {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    body.rebakery-post .post-navigation span.level-item {
+        flex-shrink: 1;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    body.night.rebakery-post .post-navigation a {
+        background: rgba(40, 44, 52, 0.72);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        body.rebakery-post:not(.light) .post-navigation a {
+            background: rgba(40, 44, 52, 0.72);
+        }
+    }
 }
 
 @media screen and (min-width: 1024px) {
