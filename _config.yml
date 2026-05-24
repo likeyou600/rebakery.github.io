@@ -3,9 +3,9 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 這裡可以改成你的 Blog 名稱
-subtitle: 這裡可以改成你的副標題
-description: 這裡可以改成你的網站描述，例如：紀錄生活、筆記、工作問題以及學習心得。
+title: Bakery's Blog
+subtitle: 不是麵包店，是某人的部落格
+description: 大概不會有啥技術分享，就簡單紀錄一下
 keywords: Blog, Notes, Life, Software, Development
 author: Bakery Chen
 language:
@@ -102,6 +102,17 @@ theme: icarus
 # Requires hexo-generator-sitemap if you want to generate sitemap.xml.
 sitemap:
   path: sitemap.xml
+
+# RSS / Atom feed
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  hub:
+  content: true
+  content_limit:
+  content_limit_delim: " "
+  order_by: -date
 
 # External link SEO
 # Requires hexo-filter-nofollow if you want to add nofollow to external links.

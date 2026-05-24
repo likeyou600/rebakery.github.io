@@ -6,30 +6,30 @@ variant: default
 
 # Path or URL to the website's logo
 logo:
-  text: 這裡可以改成你的 Blog 名稱
+  text: Bakery's Blog
 
 # Page metadata configurations
 head:
-  favicon: /img/favicon.svg
+  favicon: /img/favicon.ico
   manifest:
-    name: 這裡可以改成你的 Blog 名稱
+    name: Bakery's Blog
     short_name: Blog
     start_url:
     theme_color:
     background_color:
     display: standalone
     icons:
-      - src: /img/favicon.svg
-        sizes: 512x512
-        type: image/svg+xml
+      - src: /img/favicon.ico
+        sizes: 16x16 32x32 48x48 64x64 128x128 256x256
+        type: image/x-icon
   open_graph:
     title:
     type: blog
     url:
-    image:
-    site_name: 這裡可以改成你的 Blog 名稱
+    image: /img/avatar.png
+    site_name: Bakery's Blog
     author:
-    description: 這裡可以改成你的網站簡介，例如：紀錄生活、筆記、工作問題以及一些學習心得。
+    description: 大概不會有啥技術分享，就簡單紀錄一下
     twitter_card:
     twitter_id:
     twitter_site:
@@ -42,11 +42,11 @@ head:
     url:
     author:
     publisher:
-    publisher_logo:
-    image:
+    publisher_logo: /img/avatar.png
+    image: /img/avatar.png
   meta:
     - ""
-  rss:
+  rss: /atom.xml
 
 # Page top navigation bar configurations
 navbar:
@@ -54,13 +54,13 @@ navbar:
     Home: /
     Archives: /archives
     Collections: /collections
-    Categories: /categories
-    Tags: /tags
+    # Categories: /categories
+    # Tags: /tags
     About: /about
 
 # Page footer configurations
 footer:
-  copyright: rebakery.net
+  copyright: 灑下香錦葵，喚醒梅林遺留的試煉
   links:
     Creative Commons:
       icon: fab fa-creative-commons
@@ -75,7 +75,7 @@ article:
     theme: vs2015
     clipboard: true
     fold: unfolded
-  readtime: true
+  readtime: false
   update_time: true
   licenses:
     Creative Commons:
@@ -93,6 +93,27 @@ search:
   type: insight
   index_pages: true
 
+# Enable table of contents widget on posts and pages.
+toc: true
+
+# Comment plugin configurations
+# Giscus uses GitHub Discussions as the comment backend.
+# Enable Discussions and install the Giscus app, then replace repoId/categoryId below.
+comment:
+  type: giscus
+  repo: likeyou600/rebakery.github.io
+  repoId: R_kgDOSmQ7-w
+  category: Announcements
+  categoryId: DIC_kwDOSmQ7-84C9vs8
+  mapping: pathname
+  strict: false
+  reactionsEnabled: true
+  emitMetadata: false
+  inputPosition: bottom
+  theme: preferred_color_scheme
+  lang: zh-TW
+  lazy: true
+
 # Donate plugin configurations
 # Add your own donation settings only if you want to show donation buttons.
 donates: []
@@ -100,19 +121,19 @@ donates: []
 # Sidebar configurations
 sidebar:
   left:
-    sticky: false
+    sticky: true
   right:
-    sticky: false
+    sticky: true
 
 # Sidebar widget configurations
 widgets:
   - position: left
     type: profile
-    author: 這裡可以改成你的名字
-    author_title: 這裡可以改成你的職稱或一句介紹
-    location: 這裡可以改成你的所在地
-    avatar:
-    avatar_rounded: false
+    author: Bakery Chen
+    author_title: 找工作中的 Engineer
+    location: Taiwan
+    avatar: /img/avatar.png
+    avatar_rounded: true
     gravatar:
     follow_link:
     social_links:
@@ -121,10 +142,10 @@ widgets:
         url: https://github.com/likeyou600
       Linkedin:
         icon: fab fa-linkedin
-        url: https://www.linkedin.com/in/your-profile
+        url: https://www.linkedin.com/in/bakery3uu3/
       Email:
         icon: fas fa-envelope
-        url: mailto:your-email@example.com
+        url: mailto:bakery3uu3@gmail.com
       RSS:
         icon: fas fa-rss
         url: /atom.xml
@@ -133,13 +154,13 @@ widgets:
     index: true
     collapsed: true
     depth: 3
-  - position: left
-    type: links
-    links:
-      這裡可以放你的作品集: https://example.com
-      這裡可以放你的 GitHub: https://github.com/your-username
-  - position: left
-    type: archives
+  # - position: left
+  #   type: links
+  #   links:
+  #     這裡可以放你的作品集: https://example.com
+  #     這裡可以放你的 GitHub: https://github.com/your-username
+  # - position: left
+  #   type: archives
   - position: right
     type: categories
   - position: right
