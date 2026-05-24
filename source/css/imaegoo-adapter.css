@@ -16,6 +16,34 @@ textarea,
     white-space: pre-line;
 }
 
+.rebakery-deploy-badge {
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.rebakery-deploy-badge img {
+    display: inline-block;
+    height: 20px;
+}
+
+.rebakery-published-at {
+    display: block;
+    margin-top: 0.25rem;
+    color: #7a7a7a;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+body.night .rebakery-published-at {
+    color: #a8a8a8;
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not(.light) .rebakery-published-at {
+        color: #a8a8a8;
+    }
+}
+
 #night-nav {
     display: flex;
     align-items: center;

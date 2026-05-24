@@ -117,6 +117,66 @@
         });
     }
 
+    function placeDeployBadge() {
+        var profile = document.querySelector('.widget[data-type="profile"]');
+        var content = profile && profile.querySelector('.card-content');
+        var badge;
+
+        if (!profile || !content || profile.querySelector('.rebakery-deploy-badge')) {
+            return;
+        }
+
+        badge = document.createElement('p');
+        badge.className = 'is-size-7 rebakery-deploy-badge';
+        badge.innerHTML = '<a href="https://github.com/likeyou600/rebakery.github.io/actions/workflows/deploy.yml" target="_blank" rel="noopener"><img alt="Deploy status" src="https://github.com/likeyou600/rebakery.github.io/actions/workflows/deploy.yml/badge.svg?branch=main"></a><span class="rebakery-published-at">Last published: loading...</span>';
+
+        content.appendChild(badge);
+        updatePublishedAt(badge.querySelector('.rebakery-published-at'));
+    }
+
+    function updatePublishedAt(target) {
+        if (!target || target.dataset.loaded === 'true' || typeof fetch !== 'function') {
+            return;
+        }
+
+        target.dataset.loaded = 'true';
+
+        fetch('https://api.github.com/repos/likeyou600/rebakery.github.io/releases/latest', {
+            headers: {
+                Accept: 'application/vnd.github+json'
+            }
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Unable to load latest release');
+                }
+
+                return response.json();
+            })
+            .then(function (release) {
+                var publishedAt = release && release.published_at;
+                var date;
+
+                if (!publishedAt) {
+                    throw new Error('Latest release has no published_at');
+                }
+
+                date = new Date(publishedAt);
+                target.textContent = 'Last published: ' + new Intl.DateTimeFormat('zh-TW', {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).format(date);
+            })
+            .catch(function () {
+                target.textContent = 'Last published: unavailable';
+            });
+    }
+
     function placeMobileToc() {
         var body = document.body;
         var staleToc = document.querySelector('body > #toc[data-rebakery-mobile-toc="true"]');
@@ -297,6 +357,7 @@
         markPageType();
         placeColumns();
         placeHomeWidgets();
+        placeDeployBadge();
         placeMobileToc();
         placeNightButton();
         toggleCatalogueButton();
