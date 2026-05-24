@@ -37,14 +37,49 @@
         var navbarEnd = document.querySelector('.navbar-main .navbar-end');
         var search = document.querySelector('.navbar-main .navbar-end .search');
 
-        if (!nightNav || !navbarEnd) {
+        if (!navbarEnd) {
             return;
+        }
+
+        if (!nightNav) {
+            nightNav = document.createElement('a');
+            nightNav.className = 'navbar-item night';
+            nightNav.id = 'night-nav';
+            nightNav.title = 'Night Mode';
+            nightNav.href = 'javascript:;';
+            nightNav.innerHTML = '<i class="fas fa-moon" id="night-icon"></i>';
+        }
+
+        if (nightNav.dataset.rebakeryNightBound !== 'true') {
+            nightNav.dataset.rebakeryNightBound = 'true';
+            nightNav.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                if (typeof window.rebakerySwitchNight === 'function') {
+                    window.rebakerySwitchNight();
+                }
+            });
         }
 
         if (search && search.parentNode === navbarEnd) {
             navbarEnd.insertBefore(nightNav, search.nextSibling);
         } else {
             navbarEnd.appendChild(nightNav);
+        }
+    }
+
+    function toggleCatalogueButton() {
+        var body = document.body;
+        var catalogue = document.querySelector('.navbar-main .catalogue');
+
+        if (!body || !catalogue) {
+            return;
+        }
+
+        if (body.classList.contains('rebakery-post')) {
+            catalogue.style.display = '';
+        } else {
+            catalogue.style.display = 'none';
         }
     }
 
@@ -80,6 +115,115 @@
                 right.appendChild(widget);
             }
         });
+    }
+
+    function placeMobileToc() {
+        var body = document.body;
+        var staleToc = document.querySelector('body > #toc[data-rebakery-mobile-toc="true"]');
+
+        if (body && staleToc) {
+            staleToc.remove();
+        }
+    }
+
+    function removeMobileTocModal() {
+        var modal = document.getElementById('rebakery-toc-modal');
+        var mask = document.getElementById('rebakery-toc-mask');
+
+        if (modal) {
+            modal.remove();
+        }
+
+        if (mask) {
+            mask.remove();
+        }
+    }
+
+    function closeMobileTocModal() {
+        removeMobileTocModal();
+    }
+
+    function openMobileTocModal() {
+        var sourceToc = document.querySelector('.column-right #toc');
+        var sourceMenu = sourceToc && sourceToc.querySelector('.menu');
+        var body = document.body;
+        var modal;
+        var mask;
+        var menu;
+
+        if (!body || !body.classList.contains('rebakery-post') || !sourceMenu) {
+            return;
+        }
+
+        removeMobileTocModal();
+
+        mask = document.createElement('div');
+        mask.id = 'rebakery-toc-mask';
+        mask.addEventListener('click', closeMobileTocModal);
+
+        modal = document.createElement('div');
+        modal.id = 'rebakery-toc-modal';
+        modal.className = 'card widget';
+
+        menu = sourceMenu.cloneNode(true);
+        Array.prototype.forEach.call(menu.querySelectorAll('a'), function (link) {
+            var rawHref = link.getAttribute('data-href') || link.getAttribute('href') || '';
+            var targetId = rawHref.charAt(0) === '#' ? decodeURIComponent(rawHref.slice(1)) : '';
+
+            if (!targetId) {
+                return;
+            }
+
+            link.setAttribute('href', '#' + targetId);
+
+            link.addEventListener('click', function (event) {
+                var target = document.getElementById(targetId);
+
+                event.preventDefault();
+
+                if (target && typeof target.scrollIntoView === 'function') {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+
+                    if (history.pushState) {
+                        history.pushState(null, '', '#' + targetId);
+                    } else {
+                        location.hash = targetId;
+                    }
+                }
+
+                closeMobileTocModal();
+            });
+        });
+
+        modal.appendChild(menu);
+        body.appendChild(mask);
+        body.appendChild(modal);
+    }
+
+    function bindMobileTocModal() {
+        if (document.body.dataset.rebakeryTocModal === 'true') {
+            return;
+        }
+
+        document.body.dataset.rebakeryTocModal = 'true';
+
+        document.addEventListener('click', function (event) {
+            if (!event.target.closest('.navbar-main .catalogue')) {
+                return;
+            }
+
+            if (!document.body.classList.contains('rebakery-post')) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            openMobileTocModal();
+        }, true);
     }
 
     function getThemeMode() {
@@ -153,7 +297,10 @@
         markPageType();
         placeColumns();
         placeHomeWidgets();
+        placeMobileToc();
         placeNightButton();
+        toggleCatalogueButton();
+        bindMobileTocModal();
         watchThemeChanges();
         retryGiscusThemeSync();
     }

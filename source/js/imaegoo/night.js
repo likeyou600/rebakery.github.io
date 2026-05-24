@@ -31,6 +31,9 @@
       localStorage.setItem('night', isNight);
   }
 
+  window.rebakerySwitchNight = switchNight;
+  window.rebakeryApplyNight = applyNight;
+
   findNightNav();
   isNight && applyNight(isNight);
 }());
