@@ -12,6 +12,10 @@ textarea,
     font-family: "Noto Sans TC", BlinkMacSystemFont, -apple-system, "Segoe UI", sans-serif;
 }
 
+.widget[data-type="profile"] .is-size-6.is-block {
+    white-space: pre-line;
+}
+
 #night-nav {
     display: flex;
     align-items: center;

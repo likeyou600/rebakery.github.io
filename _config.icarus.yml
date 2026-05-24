@@ -26,7 +26,7 @@ head:
     title:
     type: blog
     url:
-    image: /img/avatar.png
+    image: /img/avatar-transparent.png
     site_name: Bakery's Blog
     author:
     description: 大概不會有啥技術分享，就簡單紀錄一下
@@ -42,8 +42,8 @@ head:
     url:
     author:
     publisher:
-    publisher_logo: /img/avatar.png
-    image: /img/avatar.png
+    publisher_logo: /img/avatar-transparent.png
+    image: /img/avatar-transparent.png
   meta:
     - ""
   rss: /atom.xml
@@ -130,16 +130,18 @@ widgets:
   - position: left
     type: profile
     author: Bakery Chen
-    author_title: 找工作中的 Engineer
+    author_title: |-
+      找工作中的 Engineer
+      大概不會有啥技術分享，就簡單紀錄一下
     location: Taiwan
-    avatar: /img/avatar.png
+    avatar: /img/avatar-transparent.png
     avatar_rounded: true
     gravatar:
     follow_link:
     social_links:
       Github:
         icon: fab fa-github
-        url: https://github.com/likeyou600
+        url: https://github.com/likeyou600/rebakery.github.io
       Linkedin:
         icon: fab fa-linkedin
         url: https://www.linkedin.com/in/bakery3uu3/
