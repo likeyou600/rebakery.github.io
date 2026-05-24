@@ -16,24 +16,46 @@
       }
   }
 
-  function findNightNav() {
+  function bindNightNav() {
       nightNav = document.getElementById('night-nav');
       if (!nightNav) {
+          return false;
+      }
+
+      if (nightNav.dataset.rebakeryNightBound === 'true') {
+          return true;
+      }
+
+      nightNav.dataset.rebakeryNightBound = 'true';
+      nightNav.addEventListener('click', switchNight);
+      return true;
+  }
+
+  function findNightNav() {
+      if (!bindNightNav()) {
           setTimeout(findNightNav, 100);
-      } else {
-          nightNav.addEventListener('click', switchNight);
       }
   }
 
-  function switchNight() {
-      isNight = isNight ? isNight.toString() !== 'true' : true;
+  function switchNight(event) {
+      if (event) {
+          event.preventDefault();
+      }
+
+      isNight = !document.body.classList.contains('night');
       applyNight(isNight);
+      localStorage.setItem('night', isNight);
+  }
+
+  if (isNight === null) {
+      isNight = 'true';
       localStorage.setItem('night', isNight);
   }
 
   window.rebakerySwitchNight = switchNight;
   window.rebakeryApplyNight = applyNight;
+  window.rebakeryBindNightNav = bindNightNav;
 
   findNightNav();
-  isNight && applyNight(isNight);
+  applyNight(isNight);
 }());

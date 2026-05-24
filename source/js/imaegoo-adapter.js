@@ -50,21 +50,14 @@
             nightNav.innerHTML = '<i class="fas fa-moon" id="night-icon"></i>';
         }
 
-        if (nightNav.dataset.rebakeryNightBound !== 'true') {
-            nightNav.dataset.rebakeryNightBound = 'true';
-            nightNav.addEventListener('click', function (event) {
-                event.preventDefault();
-
-                if (typeof window.rebakerySwitchNight === 'function') {
-                    window.rebakerySwitchNight();
-                }
-            });
-        }
-
         if (search && search.parentNode === navbarEnd) {
             navbarEnd.insertBefore(nightNav, search.nextSibling);
         } else {
             navbarEnd.appendChild(nightNav);
+        }
+
+        if (typeof window.rebakeryBindNightNav === 'function') {
+            window.rebakeryBindNightNav();
         }
     }
 
