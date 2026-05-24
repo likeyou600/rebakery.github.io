@@ -82,11 +82,80 @@
         });
     }
 
+    function getThemeMode() {
+        if (document.body.classList.contains('night')) {
+            return 'dark';
+        }
+
+        if (document.body.classList.contains('light')) {
+            return 'light';
+        }
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+
+        return 'light';
+    }
+
+    function syncGiscusTheme() {
+        var iframe = document.querySelector('iframe.giscus-frame');
+
+        if (!iframe || !iframe.contentWindow) {
+            return;
+        }
+
+        iframe.contentWindow.postMessage({
+            giscus: {
+                setConfig: {
+                    theme: getThemeMode()
+                }
+            }
+        }, 'https://giscus.app');
+    }
+
+    function watchThemeChanges() {
+        if (!document.body || document.body.dataset.rebakeryThemeWatcher === 'true') {
+            return;
+        }
+
+        document.body.dataset.rebakeryThemeWatcher = 'true';
+
+        new MutationObserver(syncGiscusTheme).observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        if (window.matchMedia) {
+            var colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            if (colorScheme.addEventListener) {
+                colorScheme.addEventListener('change', syncGiscusTheme);
+            } else if (colorScheme.addListener) {
+                colorScheme.addListener(syncGiscusTheme);
+            }
+        }
+    }
+
+    function retryGiscusThemeSync() {
+        var attempts = 0;
+        var timer = setInterval(function () {
+            attempts += 1;
+            syncGiscusTheme();
+
+            if (document.querySelector('iframe.giscus-frame') || attempts >= 20) {
+                clearInterval(timer);
+            }
+        }, 250);
+    }
+
     function applyAdapters() {
         markPageType();
         placeColumns();
         placeHomeWidgets();
         placeNightButton();
+        watchThemeChanges();
+        retryGiscusThemeSync();
     }
 
     if (document.readyState === 'loading') {
