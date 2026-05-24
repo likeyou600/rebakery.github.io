@@ -1,0 +1,32 @@
+html,
+body,
+button,
+input,
+select,
+textarea,
+.navbar,
+.card,
+.content,
+.title,
+.subtitle {
+    font-family: "Noto Sans TC", BlinkMacSystemFont, -apple-system, "Segoe UI", sans-serif;
+}
+
+#night-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+}
+
+body.night #night-nav {
+    background: transparent;
+    color: #c0c0c0;
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not(.light) #night-nav {
+        background: transparent;
+        color: #c0c0c0;
+    }
+}
