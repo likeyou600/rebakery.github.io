@@ -8,8 +8,6 @@ cover: '/gallery/cover/default.png'
 thumbnail: '/gallery/cover/default.png'
 tags:
     - GB-Project
-    - firmware
-    - stm32
 categories:
     - Firmware
 ---
