@@ -141,24 +141,24 @@
 
         target.dataset.loaded = 'true';
 
-        fetch('https://api.github.com/repos/likeyou600/rebakery.github.io/releases/latest', {
+        fetch('https://api.github.com/repos/likeyou600/rebakery.github.io/commits/gh-pages-2', {
             headers: {
                 Accept: 'application/vnd.github+json'
             }
         })
             .then(function (response) {
                 if (!response.ok) {
-                    throw new Error('Unable to load latest release');
+                    throw new Error('Unable to load GitHub Pages commit');
                 }
 
                 return response.json();
             })
-            .then(function (release) {
-                var publishedAt = release && release.published_at;
+            .then(function (commit) {
+                var publishedAt = commit && commit.commit && commit.commit.committer && commit.commit.committer.date;
                 var date;
 
                 if (!publishedAt) {
-                    throw new Error('Latest release has no published_at');
+                    throw new Error('GitHub Pages commit has no date');
                 }
 
                 date = new Date(publishedAt);
