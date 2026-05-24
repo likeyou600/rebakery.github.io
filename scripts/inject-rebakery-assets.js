@@ -9,6 +9,28 @@ hexo.extend.injector.register('head_end', `
 `);
 
 hexo.extend.injector.register('body_begin', `
+<script>
+(function () {
+  var path = window.location.pathname.replace(/\\/index\\.html$/, '/');
+  var className = '';
+
+  if (path === '/' || path === '') {
+    className = 'rebakery-home';
+  } else if (path.indexOf('/archives') === 0) {
+    className = 'rebakery-archives';
+  } else if (path.indexOf('/collections') === 0) {
+    className = 'rebakery-collections';
+  } else if (path.indexOf('/about') === 0) {
+    className = 'rebakery-about';
+  } else if (/^\\/\\d{8}\\//.test(path)) {
+    className = 'rebakery-post';
+  }
+
+  if (className) {
+    document.body.classList.add(className);
+  }
+}());
+</script>
 <canvas id="universe"></canvas>
 `);
 

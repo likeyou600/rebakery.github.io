@@ -30,3 +30,155 @@ body.night #night-nav {
         color: #c0c0c0;
     }
 }
+
+body.night .navbar-main {
+    background-color: rgba(40, 44, 52, 0.5);
+}
+
+body.night .navbar-main .navbar-container,
+body.night .navbar-main .navbar-brand,
+body.night .navbar-main .navbar-menu,
+body.night .navbar-main .navbar-start,
+body.night .navbar-main .navbar-end {
+    background-color: transparent;
+}
+
+body.night .navbar-main .navbar-item,
+body.night .navbar-main .navbar-link,
+body.night .navbar-main .navbar-burger {
+    color: #c0c0c0;
+}
+
+body.night .navbar-main .navbar-item:hover,
+body.night .navbar-main .navbar-item:focus,
+body.night .navbar-main .navbar-link:hover,
+body.night .navbar-main .navbar-link:focus,
+body.night .navbar-main .navbar-burger:hover {
+    color: #ffffff;
+    background-color: rgba(63, 69, 82, 0.95);
+}
+
+body.night .navbar-main .navbar-item.is-active {
+    color: #8ab4f8;
+    background-color: rgba(63, 69, 82, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not(.light) .navbar-main {
+        background-color: rgba(40, 44, 52, 0.5);
+    }
+
+    body:not(.light) .navbar-main .navbar-container,
+    body:not(.light) .navbar-main .navbar-brand,
+    body:not(.light) .navbar-main .navbar-menu,
+    body:not(.light) .navbar-main .navbar-start,
+    body:not(.light) .navbar-main .navbar-end {
+        background-color: transparent;
+    }
+
+    body:not(.light) .navbar-main .navbar-item,
+    body:not(.light) .navbar-main .navbar-link,
+    body:not(.light) .navbar-main .navbar-burger {
+        color: #c0c0c0;
+    }
+
+    body:not(.light) .navbar-main .navbar-item:hover,
+    body:not(.light) .navbar-main .navbar-item:focus,
+    body:not(.light) .navbar-main .navbar-link:hover,
+    body:not(.light) .navbar-main .navbar-link:focus,
+    body:not(.light) .navbar-main .navbar-burger:hover {
+        color: #ffffff;
+        background-color: rgba(63, 69, 82, 0.95);
+    }
+
+    body:not(.light) .navbar-main .navbar-item.is-active {
+        color: #8ab4f8;
+        background-color: rgba(63, 69, 82, 0.7);
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    .columns {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .column-left {
+        order: 1 !important;
+    }
+
+    .column-main {
+        order: 2 !important;
+    }
+
+    .column-right {
+        order: 3 !important;
+    }
+
+    .column-right-shadow {
+        display: none !important;
+    }
+
+    body.rebakery-home .column-right {
+        display: block !important;
+    }
+
+    body.rebakery-home .column-right .widget {
+        display: none;
+    }
+
+    body.rebakery-home .column-right .widget[data-type="tags"],
+    body.rebakery-home .column-right .widget[data-type="categories"],
+    body.rebakery-home .column-right .widget[data-type="recent-posts"] {
+        display: block;
+    }
+
+    body.rebakery-home .column-right .widget[data-type="tags"] {
+        order: 1;
+    }
+
+    body.rebakery-home .column-right .widget[data-type="categories"] {
+        order: 2;
+    }
+
+    body.rebakery-home .column-right .widget[data-type="recent-posts"] {
+        order: 3;
+    }
+
+    body.rebakery-home .column-right {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    body.rebakery-archives .column-left,
+    body.rebakery-archives .column-right,
+    body.rebakery-collections .column-left,
+    body.rebakery-collections .column-right,
+    body.rebakery-about .column-left,
+    body.rebakery-about .column-right,
+    body.rebakery-post .column-left,
+    body.rebakery-post .column-right {
+        display: none !important;
+    }
+
+    body.rebakery-archives .column-main,
+    body.rebakery-collections .column-main,
+    body.rebakery-about .column-main,
+    body.rebakery-post .column-main {
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .column-left,
+    .column-right {
+        position: sticky;
+        top: 5rem;
+        align-self: flex-start;
+        max-height: calc(100vh - 6rem);
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+}
