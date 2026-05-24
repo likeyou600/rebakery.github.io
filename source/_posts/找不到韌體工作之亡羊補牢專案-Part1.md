@@ -1,19 +1,29 @@
 ---
-title: 找不到韌體工作之亡羊補牢專案
+title: 找不到韌體工作之亡羊補牢專案-Part1
 date: 2026-05-25 02:26
-slug: smallll-project
-permalink: 20260525/smallll-project/
+slug: GB-Project-Part1
+permalink: 20260525/GB-Project-Part1/
+asset_folder: 找不到韌體工作之亡羊補牢專案
 cover: '/gallery/cover/work.png'
 thumbnail: '/gallery/cover/work.png'
-tags: firmware
+tags: 
+    - GB-Project
+    - firmware
+    - stm32
 categories:
-  - Firmware
+    - Firmware
 ---
 
 由於面試不順利，決定來亡羊補牢，補點小專案
-一次性放了那麼多東西，最好是弄的完 : )
+一次性加了那麼多東西，最好是組的起來 : )
 
 <!-- more -->
+---
+## 系列文章
+
+- Part 1：專案規劃與準備清單
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part2 'Part 2：開發環境與 FreeRTOS 架構' %}
+
 ---
 ## 目的
 這個專案主要是為了補強 STM32 韌體開發能力，練習內容包含：
@@ -36,7 +46,8 @@ categories:
 Game Boy 風格的互動電子寵物裝置
 可以顯示像素風寵物畫面，支援按鍵操作、BLE 靠近偵測、NFC touch 互動、感測器輸入、音效、震動回饋與資料儲存。
 
-![](ChatGPT_image.png)
+ChatGPT生成的示意圖
+![](找不到韌體工作之亡羊補牢專案/ChatGPT_image.png)
 
 ---
 ## 準備的物品
@@ -59,3 +70,4 @@ Game Boy 風格的互動電子寵物裝置
 | 按鍵配件   | **12×12mm 輕觸開關用圓形按鍵帽，白色，10 顆**                        | 按鍵手感、外觀原型                                 | NT$2     | [淘寶](https://item.taobao.com/item.htm?id=568451377652&mi_id=0000Xy3kQMuSJgE5NFLRbc89pDRqBF3Xknt84E0xToun9F0)  |
 | 原型接線   | **MB-102 透明麵包板， 165×55mm，2 片**                               | 模組整合、快速測試、原型接線                       | NT$24    | [淘寶](https://item.taobao.com/item.htm?id=522572405070&mi_id=0000TliBLEr7bitnb1g3BJBtxuk-azyk8G4xW2bLkccPf9A)  |
 | 原型接線   | **21cm 杜邦線組，40P 彩排線，母對母 / 公對公 / 母對公各 1 組**       | 開發板、麵包板與模組接線                           | NT$58    | [淘寶](https://item.taobao.com/item.htm?id=558182761958&mi_id=0000ZLpDM_1_yXS5i7AO6paFaX3ahsQwG9XXOlAFREM2zi8)  |
+

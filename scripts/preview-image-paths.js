@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 
 function escapeAttribute(value) {
@@ -31,6 +32,7 @@ hexo.extend.filter.register('after_post_render', function rewritePreviewImagePat
   }
 
   const postName = path.basename(data.source, path.extname(data.source));
+  const assetFolder = data.asset_folder || postName;
   const publicPath = `/${data.path.replace(/index\.html$/, '').replace(/^\/+/, '')}`;
 
   if (!postName || !publicPath) {
@@ -40,14 +42,21 @@ hexo.extend.filter.register('after_post_render', function rewritePreviewImagePat
   function getSitePath(rawSrc) {
     const originalSrc = decodeSmallHtmlEntities(rawSrc.trim()).replace(/\\/g, '/');
     const decodedSrc = decodeUrlPath(originalSrc);
-    const prefix = `${postName}/`;
-    const encodedPrefix = encodeURI(prefix);
+    const prefixes = [`${assetFolder}/`, `${postName}/`];
     let filename = '';
 
-    if (decodedSrc.startsWith(prefix)) {
-      filename = decodedSrc.slice(prefix.length);
-    } else if (originalSrc.startsWith(encodedPrefix)) {
-      filename = decodeUrlPath(originalSrc.slice(encodedPrefix.length));
+    for (const prefix of prefixes) {
+      const encodedPrefix = encodeURI(prefix);
+
+      if (decodedSrc.startsWith(prefix)) {
+        filename = decodedSrc.slice(prefix.length);
+        break;
+      }
+
+      if (originalSrc.startsWith(encodedPrefix)) {
+        filename = decodeUrlPath(originalSrc.slice(encodedPrefix.length));
+        break;
+      }
     }
 
     return filename ? encodeURI(`${publicPath}${filename}`) : '';
@@ -94,4 +103,40 @@ hexo.extend.filter.register('after_post_render', function rewritePreviewImagePat
   data.more = rewrite(data.more);
 
   return data;
+});
+
+function walkFiles(directory) {
+  if (!fs.existsSync(directory)) {
+    return [];
+  }
+
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(item => {
+    const itemPath = path.join(directory, item.name);
+
+    if (item.isDirectory()) {
+      return walkFiles(itemPath);
+    }
+
+    return item.isFile() ? [itemPath] : [];
+  });
+}
+
+hexo.extend.generator.register('rebakery_post_assets', function registerPostAssets(locals) {
+  return locals.posts.data.flatMap(post => {
+    if (!post.asset_folder || !post.source || !post.path) {
+      return [];
+    }
+
+    const assetsDirectory = path.join(hexo.source_dir, '_posts', post.asset_folder);
+    const postDirectory = post.path.replace(/index\.html$/, '');
+
+    return walkFiles(assetsDirectory).map(filePath => {
+      const relativePath = path.relative(assetsDirectory, filePath).replace(/\\/g, '/');
+
+      return {
+        path: `${postDirectory}${relativePath}`,
+        data: () => fs.createReadStream(filePath)
+      };
+    });
+  });
 });
