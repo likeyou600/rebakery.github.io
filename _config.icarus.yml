@@ -51,12 +51,12 @@ head:
 # Page top navigation bar configurations
 navbar:
   menu:
-    Home: /
-    Archives: /archives
-    Collections: /collections
+    主頁: /
+    時光機: /archives
+    主題整理: /collections
     # Categories: /categories
     # Tags: /tags
-    About: /about
+    關於我: /about
 
 # Page footer configurations
 footer:
