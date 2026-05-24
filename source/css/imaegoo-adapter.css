@@ -176,6 +176,7 @@ body.night .navbar-main .navbar-item.is-active {
 }
 
 @media screen and (min-width: 1024px) {
+
     .column-left,
     .column-right {
         position: sticky;
@@ -184,5 +185,57 @@ body.night .navbar-main .navbar-item.is-active {
         max-height: calc(100vh - 6rem);
         overflow-y: auto;
         scrollbar-width: thin;
+    }
+
+    /* 文章表格：文字不換行，超出時橫向捲動 */
+    body.rebakery-post .article .content table {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    body.rebakery-post .article .content table th,
+    body.rebakery-post .article .content table td {
+        white-space: nowrap;
+    }
+
+    /* 保留左右欄，但加寬整體版面 */
+    body.rebakery-post .container {
+        width: 96vw !important;
+        max-width: 1500px !important;
+    }
+
+    /* 維持三欄 flex 版面 */
+    body.rebakery-post .columns {
+        display: flex !important;
+        align-items: flex-start;
+    }
+
+    /* 左右欄固定寬度，不隱藏 */
+    body.rebakery-post .column-left,
+    body.rebakery-post .column-right {
+        flex: 0 0 340px !important;
+        width: 340px !important;
+        max-width: 340px !important;
+    }
+
+    /* 中間文章欄吃剩餘空間 */
+    body.rebakery-post .column-main {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+
+    /* 文章卡片與內容不要再限制寬度 */
+    body.rebakery-post .column-main .card,
+    body.rebakery-post .column-main .article,
+    body.rebakery-post .column-main .content,
+    body.rebakery-post .column-main .article-entry,
+    body.rebakery-post .column-main .post-body {
+        width: 100% !important;
+        max-width: none !important;
     }
 }
