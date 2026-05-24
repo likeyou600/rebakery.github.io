@@ -227,6 +227,18 @@ body.night.rebakery-post .navbar-main {
         display: none !important;
     }
 
+    body.rebakery-post .rebakery-post-widgets {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    body.rebakery-post .rebakery-post-widgets .widget {
+        display: block !important;
+        margin: 0;
+    }
+
     body.rebakery-post .widget.card#toc {
         display: none !important;
         position: fixed !important;

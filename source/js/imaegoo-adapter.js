@@ -110,6 +110,40 @@
         });
     }
 
+    function placePostWidgets() {
+        var body = document.body;
+        var main = document.querySelector('.column-main');
+        var comments = document.getElementById('comments');
+        var right = document.querySelector('.column-right');
+        var container;
+
+        if (!body || !body.classList.contains('rebakery-post') || !main || !right) {
+            return;
+        }
+
+        container = main.querySelector('.rebakery-post-widgets');
+
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'rebakery-post-widgets';
+
+            if (comments && comments.parentNode === main) {
+                comments.insertAdjacentElement('afterend', container);
+            } else {
+                main.appendChild(container);
+            }
+        }
+
+        ['tags', 'categories', 'recent-posts'].forEach(function (type) {
+            var widget = right.querySelector('.widget[data-type="' + type + '"]') ||
+                container.querySelector('.widget[data-type="' + type + '"]');
+
+            if (widget && widget.parentNode !== container) {
+                container.appendChild(widget);
+            }
+        });
+    }
+
     function placeDeployBadge() {
         var profile = document.querySelector('.widget[data-type="profile"]');
         var content = profile && profile.querySelector('.card-content');
@@ -296,19 +330,38 @@
     }
 
     function syncGiscusTheme() {
-        var iframe = document.querySelector('iframe.giscus-frame');
+        var iframes = document.querySelectorAll('iframe.giscus-frame');
+        var theme = getThemeMode();
 
-        if (!iframe || !iframe.contentWindow) {
+        if (!iframes.length) {
             return;
         }
 
-        iframe.contentWindow.postMessage({
-            giscus: {
-                setConfig: {
-                    theme: getThemeMode()
-                }
+        Array.prototype.forEach.call(iframes, function (iframe) {
+            if (!iframe.contentWindow) {
+                return;
             }
-        }, 'https://giscus.app');
+
+            iframe.contentWindow.postMessage({
+                giscus: {
+                    setConfig: {
+                        theme: theme
+                    }
+                }
+            }, 'https://giscus.app');
+        });
+    }
+
+    function retryGiscusThemeSync() {
+        var attempts = 0;
+        var timer = setInterval(function () {
+            attempts += 1;
+            syncGiscusTheme();
+
+            if (attempts >= 20) {
+                clearInterval(timer);
+            }
+        }, 250);
     }
 
     function watchThemeChanges() {
@@ -327,29 +380,22 @@
             var colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
             if (colorScheme.addEventListener) {
-                colorScheme.addEventListener('change', syncGiscusTheme);
+                colorScheme.addEventListener('change', retryGiscusThemeSync);
             } else if (colorScheme.addListener) {
-                colorScheme.addListener(syncGiscusTheme);
+                colorScheme.addListener(retryGiscusThemeSync);
             }
         }
-    }
 
-    function retryGiscusThemeSync() {
-        var attempts = 0;
-        var timer = setInterval(function () {
-            attempts += 1;
-            syncGiscusTheme();
+        window.addEventListener('rebakery:theme-change', retryGiscusThemeSync);
 
-            if (document.querySelector('iframe.giscus-frame') || attempts >= 20) {
-                clearInterval(timer);
-            }
-        }, 250);
+        document.addEventListener('giscus:loaded', retryGiscusThemeSync);
     }
 
     function applyAdapters() {
         markPageType();
         placeColumns();
         placeHomeWidgets();
+        placePostWidgets();
         placeDeployBadge();
         placeMobileToc();
         placeNightButton();

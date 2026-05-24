@@ -14,6 +14,8 @@
           document.body.classList.remove('night');
           document.body.classList.add('light');
       }
+
+      window.dispatchEvent(new CustomEvent('rebakery:theme-change'));
   }
 
   function bindNightNav() {
