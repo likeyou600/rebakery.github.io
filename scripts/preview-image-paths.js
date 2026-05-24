@@ -31,7 +31,7 @@ hexo.extend.filter.register('after_post_render', function rewritePreviewImagePat
   }
 
   const postName = path.basename(data.source, path.extname(data.source));
-  const publicPath = `/${data.path.replace(/index\.html$/, '')}`;
+  const publicPath = `/${data.path.replace(/index\.html$/, '').replace(/^\/+/, '')}`;
 
   if (!postName || !publicPath) {
     return data;

@@ -29,7 +29,7 @@ head:
     image: /img/avatar-transparent.png
     site_name: Bakery's Blog
     author:
-    description: 大概不會有啥技術分享，就簡單紀錄一下
+    description:
     twitter_card:
     twitter_id:
     twitter_site:
@@ -105,7 +105,7 @@ comment:
   repoId: R_kgDOSmQ7-w
   category: Announcements
   categoryId: DIC_kwDOSmQ7-84C9vs8
-  mapping: pathname
+  mapping: og:title
   strict: false
   reactionsEnabled: true
   emitMetadata: false
