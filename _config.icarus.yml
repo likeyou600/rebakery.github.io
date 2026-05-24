@@ -60,7 +60,7 @@ navbar:
 
 # Page footer configurations
 footer:
-  copyright:
+  copyright: rebakery.net
   links:
     Creative Commons:
       icon: fab fa-creative-commons
