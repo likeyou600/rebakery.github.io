@@ -193,7 +193,7 @@ plugins:
   katex: false
   mathjax: false
   outdated_browser: false
-  pjax: true
+  pjax: false
   progressbar: true
   statcounter:
     project:
