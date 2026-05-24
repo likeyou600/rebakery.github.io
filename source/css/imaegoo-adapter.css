@@ -21,14 +21,8 @@ textarea,
     text-align: center;
 }
 
-.rebakery-deploy-badge img {
-    display: inline-block;
-    height: 20px;
-}
-
 .rebakery-published-at {
     display: block;
-    margin-top: 0.25rem;
     color: #7a7a7a;
     font-size: 0.85rem;
     line-height: 1.4;

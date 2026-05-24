@@ -128,7 +128,7 @@
 
         badge = document.createElement('p');
         badge.className = 'is-size-7 rebakery-deploy-badge';
-        badge.innerHTML = '<a href="https://github.com/likeyou600/rebakery.github.io/actions/workflows/deploy.yml" target="_blank" rel="noopener"><img alt="Deploy status" src="https://github.com/likeyou600/rebakery.github.io/actions/workflows/deploy.yml/badge.svg?branch=main"></a><span class="rebakery-published-at">Last published: loading...</span>';
+        badge.innerHTML = '<span class="rebakery-published-at">Last updated: loading...</span>';
 
         content.appendChild(badge);
         updatePublishedAt(badge.querySelector('.rebakery-published-at'));
@@ -162,7 +162,7 @@
                 }
 
                 date = new Date(publishedAt);
-                target.textContent = 'Last published: ' + new Intl.DateTimeFormat('zh-TW', {
+                target.textContent = 'Last updated: ' + new Intl.DateTimeFormat('zh-TW', {
                     timeZone: 'Asia/Taipei',
                     year: 'numeric',
                     month: '2-digit',
@@ -173,7 +173,7 @@
                 }).format(date);
             })
             .catch(function () {
-                target.textContent = 'Last published: unavailable';
+                target.textContent = 'Last updated: unavailable';
             });
     }
 
