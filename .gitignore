@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Hexo generated files
+public/
+db.json
+.deploy_git/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local editor and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Cache and temp files
+.cache/
+.tmp/
+tmp/

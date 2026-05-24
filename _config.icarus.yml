@@ -1,0 +1,185 @@
+# Version of the configuration file
+version: 5.1.0
+
+# Icarus theme variant, can be "default" or "cyberpunk"
+variant: default
+
+# Path or URL to the website's logo
+logo:
+  text: 這裡可以改成你的 Blog 名稱
+
+# Page metadata configurations
+head:
+  favicon: /img/favicon.svg
+  manifest:
+    name: 這裡可以改成你的 Blog 名稱
+    short_name: Blog
+    start_url:
+    theme_color:
+    background_color:
+    display: standalone
+    icons:
+      - src: /img/favicon.svg
+        sizes: 512x512
+        type: image/svg+xml
+  open_graph:
+    title:
+    type: blog
+    url:
+    image:
+    site_name: 這裡可以改成你的 Blog 名稱
+    author:
+    description: 這裡可以改成你的網站簡介，例如：紀錄生活、筆記、工作問題以及一些學習心得。
+    twitter_card:
+    twitter_id:
+    twitter_site:
+    google_plus:
+    fb_admins:
+    fb_app_id:
+  structured_data:
+    title:
+    description:
+    url:
+    author:
+    publisher:
+    publisher_logo:
+    image:
+  meta:
+    - ""
+  rss:
+
+# Page top navigation bar configurations
+navbar:
+  menu:
+    Home: /
+    Archives: /archives
+    Collections: /collections
+    Categories: /categories
+    Tags: /tags
+    About: /about
+
+# Page footer configurations
+footer:
+  copyright:
+  links:
+    Creative Commons:
+      icon: fab fa-creative-commons
+      url: https://creativecommons.org/
+    Attribution 4.0 International:
+      icon: fab fa-creative-commons-by
+      url: https://creativecommons.org/licenses/by/4.0/
+
+# Article related configurations
+article:
+  highlight:
+    theme: vs2015
+    clipboard: true
+    fold: unfolded
+  readtime: true
+  update_time: true
+  licenses:
+    Creative Commons:
+      icon: fab fa-creative-commons
+      url: https://creativecommons.org/
+    Attribution:
+      icon: fab fa-creative-commons-by
+      url: https://creativecommons.org/licenses/by/4.0/
+    Noncommercial:
+      icon: fab fa-creative-commons-nc
+      url: https://creativecommons.org/licenses/by-nc/4.0/
+
+# Search plugin configurations
+search:
+  type: insight
+  index_pages: true
+
+# Donate plugin configurations
+# Add your own donation settings only if you want to show donation buttons.
+donates: []
+
+# Sidebar configurations
+sidebar:
+  left:
+    sticky: false
+  right:
+    sticky: false
+
+# Sidebar widget configurations
+widgets:
+  - position: left
+    type: profile
+    author: 這裡可以改成你的名字
+    author_title: 這裡可以改成你的職稱或一句介紹
+    location: 這裡可以改成你的所在地
+    avatar:
+    avatar_rounded: false
+    gravatar:
+    follow_link:
+    social_links:
+      Github:
+        icon: fab fa-github
+        url: https://github.com/your-username
+      Linkedin:
+        icon: fab fa-linkedin
+        url: https://www.linkedin.com/in/your-profile
+      Email:
+        icon: fas fa-envelope
+        url: mailto:your-email@example.com
+      RSS:
+        icon: fas fa-rss
+        url: /atom.xml
+  - position: right
+    type: toc
+    index: true
+    collapsed: true
+    depth: 3
+  - position: left
+    type: links
+    links:
+      這裡可以放你的作品集: https://example.com
+      這裡可以放你的 GitHub: https://github.com/your-username
+  - position: left
+    type: archives
+  - position: right
+    type: categories
+  - position: right
+    type: recent_posts
+  - position: right
+    type: tags
+    order_by: name
+    amount:
+    show_count: true
+
+# Plugin configurations
+plugins:
+  animejs: false
+  back_to_top: true
+  baidu_analytics:
+    tracking_id:
+  bing_webmaster:
+    tracking_id:
+  busuanzi: false
+  cnzz:
+    id:
+    web_id:
+  gallery: true
+  google_analytics:
+    tracking_id:
+  hotjar:
+    site_id:
+  katex: false
+  mathjax: false
+  outdated_browser: false
+  pjax: true
+  progressbar: true
+  statcounter:
+    project:
+    security:
+  twitter_conversion_tracking:
+    pixel_id:
+
+# CDN provider settings
+providers:
+  cdn: jsdelivr
+  fontcdn: google
+  iconcdn: fontawesome
