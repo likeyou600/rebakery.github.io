@@ -121,6 +121,10 @@
             return;
         }
 
+        if (!window.matchMedia || !window.matchMedia('(max-width: 1023px)').matches) {
+            return;
+        }
+
         container = main.querySelector('.rebakery-post-widgets');
 
         if (!container) {
