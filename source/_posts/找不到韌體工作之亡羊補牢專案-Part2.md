@@ -23,6 +23,31 @@ Part 2 先開坑，這篇預計會整理開發環境、專案架構，以及 Fre
 
 ---
 ## 預計整理
+[STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)
+[STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html)
+  - 用 STM32CubeMX 的版本，STM32CubeMX2是新MCU用的
+
+---
+## 實作過程
+
+### 開專案
+
+#### STM32CubeMX
+1. Start My Project from Board
+2. Board Selector -> NUCLEO-F767ZI
+3. Project Manager
+   - Project Name: gb_f767zi
+   - Project Location: `\Desktop\gb_project\firmware`
+   - Toolchain / IDE: STM32CubeIDE
+4. Generate Code
+
+#### STM32CubeIDE
+1. File -> Import
+2. Existing Projects into Workspace
+3. Select root directory:
+   - `\Desktop\gb_project\firmware\gb_f767zi`
+4. Finish
+
 
 - STM32CubeIDE / CubeMX 專案設定
 - FreeRTOS task 分工
