@@ -148,6 +148,134 @@
         });
     }
 
+    function localizePagination() {
+        var previous = document.querySelectorAll('.pagination-previous');
+        var next = document.querySelectorAll('.pagination-next');
+
+        Array.prototype.forEach.call(previous, function (item) {
+            var link = item.querySelector('a');
+
+            if (link) {
+                link.textContent = '上一頁';
+            } else {
+                item.textContent = '上一頁';
+            }
+
+            item.setAttribute('aria-label', '上一頁');
+        });
+
+        Array.prototype.forEach.call(next, function (item) {
+            var link = item.querySelector('a');
+
+            if (link) {
+                link.textContent = '下一頁';
+            } else {
+                item.textContent = '下一頁';
+            }
+
+            item.setAttribute('aria-label', '下一頁');
+        });
+    }
+
+    function compactMobilePagination() {
+        var paginations = document.querySelectorAll('.pagination');
+        var isMobile = window.matchMedia && window.matchMedia('(max-width: 1023px)').matches;
+
+        Array.prototype.forEach.call(paginations, function (pagination) {
+            var list = pagination.querySelector('.pagination-list');
+            var items = list ? Array.prototype.slice.call(list.children) : [];
+            var currentIndex = -1;
+            var currentPage = -1;
+            var totalPage = 0;
+            var pageItems;
+            var ellipsisItems;
+            var firstVisible;
+            var lastVisible;
+
+            if (!list || list.dataset.rebakeryCompacted === 'true') {
+                return;
+            }
+
+            pageItems = items.filter(function (item) {
+                return item.querySelector('.pagination-link');
+            });
+            ellipsisItems = items.filter(function (item) {
+                return item.querySelector('.pagination-ellipsis');
+            });
+
+            pageItems.forEach(function (item, index) {
+                var pageNumber = Number(item.textContent.trim());
+
+                if (Number.isFinite(pageNumber)) {
+                    totalPage = Math.max(totalPage, pageNumber);
+                }
+
+                if (item.querySelector('.pagination-link.is-current')) {
+                    currentIndex = index;
+                    currentPage = pageNumber;
+                }
+            });
+
+            if (currentIndex === -1 || currentPage === -1 || totalPage <= 7) {
+                if (isMobile && pagination) {
+                    pagination.classList.add('rebakery-pagination-compact');
+                }
+
+                list.dataset.rebakeryCompacted = 'true';
+                return;
+            }
+
+            firstVisible = Math.max(1, currentPage - 1);
+            lastVisible = Math.min(totalPage, currentPage + 1);
+
+            pageItems.forEach(function (item, index) {
+                var pageNumber = Number(item.textContent.trim());
+                var shouldShow = pageNumber === 1 ||
+                    pageNumber === totalPage ||
+                    (pageNumber >= firstVisible && pageNumber <= lastVisible);
+
+                item.style.display = shouldShow ? '' : 'none';
+            });
+
+            ellipsisItems.forEach(function (item) {
+                item.remove();
+            });
+
+            insertPaginationEllipsis(list, pageItems);
+
+            list.dataset.rebakeryCompacted = 'true';
+        });
+    }
+
+    function insertPaginationEllipsis(list, pageItems) {
+        var visibleItems = pageItems.filter(function (item) {
+            return item.style.display !== 'none';
+        });
+
+        visibleItems.forEach(function (item, index) {
+            var next = visibleItems[index + 1];
+            var currentPage;
+            var nextPage;
+            var ellipsis;
+
+            if (!next) {
+                return;
+            }
+
+            currentPage = Number(item.textContent.trim());
+            nextPage = Number(next.textContent.trim());
+
+            if (!Number.isFinite(currentPage) || !Number.isFinite(nextPage) || nextPage - currentPage <= 1) {
+                return;
+            }
+
+            ellipsis = document.createElement('li');
+            ellipsis.className = 'rebakery-pagination-ellipsis';
+            ellipsis.innerHTML = '<span class="pagination-ellipsis">&hellip;</span>';
+            list.insertBefore(ellipsis, next);
+        });
+    }
+
     function placeDeployBadge() {
         var profile = document.querySelector('.widget[data-type="profile"]');
         var content = profile && profile.querySelector('.card-content');
@@ -400,6 +528,8 @@
         placeColumns();
         placeHomeWidgets();
         placePostWidgets();
+        localizePagination();
+        compactMobilePagination();
         placeDeployBadge();
         placeMobileToc();
         placeNightButton();

@@ -162,6 +162,76 @@ body.night.rebakery-post .navbar-main {
         flex-direction: column;
     }
 
+    .pagination {
+        display: grid;
+        grid-template-columns: 4.25rem minmax(0, 1fr) 4.25rem;
+        justify-items: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pagination-list {
+        display: flex !important;
+        justify-content: center;
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        overflow: hidden;
+        margin: 0;
+        flex-wrap: nowrap;
+    }
+
+    .pagination-list.is-hidden-mobile {
+        display: flex !important;
+    }
+
+    .pagination-previous,
+    .pagination-next {
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .pagination-previous {
+        grid-column: 1;
+        grid-row: 1;
+        justify-self: start;
+    }
+
+    .pagination-next {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    .pagination-link,
+    .pagination-ellipsis {
+        min-width: 1.85rem;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+    }
+
+    .rebakery-pagination-ellipsis {
+        display: flex;
+    }
+
+    .pagination.rebakery-pagination-compact {
+        display: flex;
+        justify-content: center;
+    }
+
+    .pagination.rebakery-pagination-compact .pagination-previous,
+    .pagination.rebakery-pagination-compact .pagination-next {
+        width: auto;
+    }
+
+    .pagination.rebakery-pagination-compact .pagination-list {
+        position: static;
+        width: auto;
+        transform: none;
+    }
+
     .column-left {
         order: 1 !important;
     }
@@ -376,6 +446,61 @@ body.night.rebakery-post .navbar-main {
         max-height: calc(100vh - 6rem);
         overflow-y: auto;
         scrollbar-width: thin;
+    }
+
+    body.night .column-left,
+    body.night .column-right {
+        scrollbar-color: #5f6673 rgba(40, 44, 52, 0.58);
+    }
+
+    body.night .column-left::-webkit-scrollbar,
+    body.night .column-right::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    body.night .column-left::-webkit-scrollbar-track,
+    body.night .column-right::-webkit-scrollbar-track {
+        background: rgba(40, 44, 52, 0.58);
+    }
+
+    body.night .column-left::-webkit-scrollbar-thumb,
+    body.night .column-right::-webkit-scrollbar-thumb {
+        background: #5f6673;
+        border-radius: 8px;
+    }
+
+    body.night .column-left::-webkit-scrollbar-thumb:hover,
+    body.night .column-right::-webkit-scrollbar-thumb:hover {
+        background: #788191;
+    }
+
+    @media (prefers-color-scheme: dark) {
+
+        body:not(.light) .column-left,
+        body:not(.light) .column-right {
+            scrollbar-color: #5f6673 rgba(40, 44, 52, 0.58);
+        }
+
+        body:not(.light) .column-left::-webkit-scrollbar,
+        body:not(.light) .column-right::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        body:not(.light) .column-left::-webkit-scrollbar-track,
+        body:not(.light) .column-right::-webkit-scrollbar-track {
+            background: rgba(40, 44, 52, 0.58);
+        }
+
+        body:not(.light) .column-left::-webkit-scrollbar-thumb,
+        body:not(.light) .column-right::-webkit-scrollbar-thumb {
+            background: #5f6673;
+            border-radius: 8px;
+        }
+
+        body:not(.light) .column-left::-webkit-scrollbar-thumb:hover,
+        body:not(.light) .column-right::-webkit-scrollbar-thumb:hover {
+            background: #788191;
+        }
     }
 
     /* 文章表格：文字不換行，超出時橫向捲動 */
