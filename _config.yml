@@ -105,6 +105,10 @@ pagination_dir: page
 include:
 exclude:
 ignore:
+  - "**/_unused/**"
+  - "**/*.draft.md"
+  - "**/*.tmp"
+  - "**/*.bak"
 
 # Extensions
 theme: icarus
