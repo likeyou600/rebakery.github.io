@@ -50,17 +50,33 @@ marked:
   postAsset: true
 relative_link: false
 future: true
-syntax_highlighter: highlight.js
+syntax_highlighter: shiki
 highlight:
-  line_number: true
+  enable: false
+  line_number: false
   auto_detect: false
   tab_replace: ""
   wrap: true
   hljs: false
 prismjs:
   preprocess: true
-  line_number: true
+  line_number: false
   tab_replace: ""
+shiki:
+  themes:
+    light: github-dark-dimmed
+    dark: github-dark-dimmed
+  code_collapse:
+    enable: false
+  toolbar_items:
+    lang: true
+    title: true
+    wrapToggle: true
+    copyButton: true
+    shrinkButton: false
+  exclude_languages:
+    - mermaid
+  enable_transformers: true
 
 # Home page setting
 index_generator:

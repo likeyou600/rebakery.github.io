@@ -8,9 +8,13 @@
 
   function applyNight(value) {
       if (value.toString() === 'true') {
+          document.documentElement.classList.remove('light');
+          document.documentElement.classList.add('night');
           document.body.classList.remove('light');
           document.body.classList.add('night');
       } else {
+          document.documentElement.classList.remove('night');
+          document.documentElement.classList.add('light');
           document.body.classList.remove('night');
           document.body.classList.add('light');
       }

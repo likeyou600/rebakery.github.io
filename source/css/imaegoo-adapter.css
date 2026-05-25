@@ -19,6 +19,20 @@ textarea,
     --rebakery-heading-h3: rgb(64, 160, 43);
     --rebakery-heading-h4: rgb(23, 146, 153);
     --rebakery-heading-h5: rgb(114, 135, 253);
+    --rebakery-code-bg: #1f2430;
+    --rebakery-code-panel: #252b39;
+    --rebakery-code-border: rgba(120, 130, 150, 0.26);
+    --rebakery-code-text: #d7dae0;
+    --rebakery-code-muted: #8790a3;
+    --rebakery-inline-code-bg: rgba(210, 15, 57, 0.08);
+    --rebakery-inline-code-text: #b42343;
+    --hl-border-color: #444c56;
+    --hl-bg: #22272e;
+    --hl-bg1: rgba(34, 39, 46, 0.4);
+    --hl-color: #adbac7;
+    --hl-tools-bg: #2d333b;
+    --hl-tools-color: #768390;
+    --hl-tools-hover-color: #539bf5;
 }
 
 body.night {
@@ -27,6 +41,20 @@ body.night {
     --rebakery-heading-h3: rgb(166, 227, 161);
     --rebakery-heading-h4: rgb(148, 226, 213);
     --rebakery-heading-h5: rgb(180, 190, 254);
+    --rebakery-code-bg: #181c25;
+    --rebakery-code-panel: #202634;
+    --rebakery-code-border: rgba(172, 184, 205, 0.18);
+    --rebakery-code-text: #d7dae0;
+    --rebakery-code-muted: #8d97aa;
+    --rebakery-inline-code-bg: rgba(243, 139, 168, 0.14);
+    --rebakery-inline-code-text: rgb(243, 139, 168);
+    --hl-border-color: #444c56;
+    --hl-bg: #22272e;
+    --hl-bg1: rgba(34, 39, 46, 0.4);
+    --hl-color: #adbac7;
+    --hl-tools-bg: #2d333b;
+    --hl-tools-color: #768390;
+    --hl-tools-hover-color: #539bf5;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -36,6 +64,20 @@ body.night {
         --rebakery-heading-h3: rgb(166, 227, 161);
         --rebakery-heading-h4: rgb(148, 226, 213);
         --rebakery-heading-h5: rgb(180, 190, 254);
+        --rebakery-code-bg: #181c25;
+        --rebakery-code-panel: #202634;
+        --rebakery-code-border: rgba(172, 184, 205, 0.18);
+        --rebakery-code-text: #d7dae0;
+        --rebakery-code-muted: #8d97aa;
+        --rebakery-inline-code-bg: rgba(243, 139, 168, 0.14);
+        --rebakery-inline-code-text: rgb(243, 139, 168);
+        --hl-border-color: #444c56;
+        --hl-bg: #22272e;
+        --hl-bg1: rgba(34, 39, 46, 0.4);
+        --hl-color: #adbac7;
+        --hl-tools-bg: #2d333b;
+        --hl-tools-color: #768390;
+        --hl-tools-hover-color: #539bf5;
     }
 }
 
@@ -109,6 +151,250 @@ body.night .article .content h5 a,
 body:not(.light) .article .content h5,
 body:not(.light) .article .content h5 a {
     color: var(--rebakery-heading-h5);
+}
+
+.article .content p + ul,
+.article .content p + ol {
+    margin-top: -0.6em;
+}
+
+.article .content ul,
+.article .content ol {
+    margin-top: 0.45em;
+    margin-bottom: 0.85em;
+}
+
+.article .content li + li {
+    margin-top: 0.25em;
+}
+
+.article .content :not(pre) > code {
+    padding: 0.12em 0.38em;
+    border-radius: 5px;
+    color: var(--rebakery-inline-code-text);
+    background: var(--rebakery-inline-code-bg);
+    font-size: 0.92em;
+}
+
+.article .content figure.highlight {
+    overflow: hidden;
+    margin: 1.25rem 0 !important;
+    border: 1px solid var(--rebakery-code-border);
+    border-radius: 8px;
+    background: var(--rebakery-code-bg);
+    box-shadow: 0 12px 28px rgba(15, 18, 25, 0.16);
+}
+
+.article .content figure.highlight figcaption {
+    min-height: 2.15rem;
+    padding: 0.45rem 3rem 0.45rem 0.9rem;
+    border-bottom: 1px solid var(--rebakery-code-border);
+    color: var(--rebakery-code-muted);
+    background: var(--rebakery-code-panel);
+}
+
+.article .content figure.highlight figcaption span {
+    color: var(--rebakery-code-text);
+}
+
+.article .content figure.highlight .copy {
+    position: absolute;
+    top: 0.38rem;
+    right: 0.45rem;
+    z-index: 2;
+    width: 2rem;
+    height: 1.45rem;
+    border: 1px solid var(--rebakery-code-border);
+    border-radius: 6px;
+    color: var(--rebakery-code-muted);
+    background: rgba(255, 255, 255, 0.06);
+    opacity: 1;
+}
+
+.article .content figure.highlight .copy:hover {
+    color: var(--rebakery-code-text);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.article .content figure.highlight .highlight-body {
+    overflow: auto;
+    background: var(--rebakery-code-bg);
+    scrollbar-width: thin;
+}
+
+.article .content figure.highlight .highlight-body::-webkit-scrollbar {
+    height: 0.55rem;
+}
+
+.article .content figure.highlight .highlight-body::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(135, 144, 163, 0.55);
+}
+
+.article .content figure.highlight table,
+.article .content figure.highlight pre {
+    margin: 0 !important;
+    background: transparent;
+}
+
+.article .content figure.highlight table {
+    width: 100%;
+}
+
+.article .content figure.highlight .code pre,
+.article .content figure.highlight > pre {
+    padding: 1rem 1.15rem;
+}
+
+.article .content figure.highlight .gutter {
+    min-width: 3.1rem;
+    border-right: 1px solid var(--rebakery-code-border);
+    color: var(--rebakery-code-muted);
+    background: var(--rebakery-code-panel);
+    user-select: none;
+}
+
+.article .content figure.highlight .gutter pre {
+    padding: 1rem 0.75rem;
+}
+
+.article .content figure.highlight .line,
+.article .content figure.highlight code .hljs {
+    line-height: 1.62;
+}
+
+.article .content figure.highlight .marked {
+    background: rgba(250, 179, 135, 0.12);
+}
+
+.article .content figure.shiki {
+    overflow: hidden;
+    margin: 1.25rem 0 !important;
+    border: 1px solid var(--hl-border-color) !important;
+    border-radius: 8px !important;
+    background: var(--hl-bg);
+    box-shadow: 0 12px 28px rgba(15, 18, 25, 0.16);
+}
+
+.article .content figure.shiki .shiki-tools {
+    min-height: 2.2rem;
+    padding: 0 0.85rem;
+    border-bottom: 1px solid var(--hl-border-color);
+    font-family: "Noto Sans TC", BlinkMacSystemFont, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 600;
+    background: var(--hl-tools-bg);
+}
+
+.article .content figure.shiki .traffic-light {
+    width: 0.68rem;
+    height: 0.68rem;
+}
+
+.article .content figure.shiki .code-lang,
+.article .content figure.shiki .code-title {
+    font-size: 0.78rem;
+    letter-spacing: 0;
+}
+
+.article .content figure.shiki .code-title {
+    color: var(--hl-color);
+    font-family: "Source Code Pro", Consolas, "SFMono-Regular", monospace;
+}
+
+.article .content figure.shiki .code-lang:empty,
+.article .content figure.shiki .expand {
+    display: none;
+}
+
+.article .content figure.shiki .shiki-tools .right {
+    gap: 0.65rem;
+}
+
+.article .content figure.shiki iconify-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--hl-tools-color);
+    font-family: "Font Awesome 6 Free";
+    font-size: 0.88rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.article .content figure.shiki iconify-icon:hover {
+    color: var(--hl-tools-hover-color);
+}
+
+.article .content figure.shiki iconify-icon.copy-button::before {
+    content: "\f0c5";
+}
+
+.article .content figure.shiki iconify-icon.toggle-wrap::before {
+    content: "\f338";
+}
+
+.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki {
+    overflow-x: hidden;
+    white-space: pre-wrap !important;
+}
+
+.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki > code,
+.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki > code > span.line {
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+}
+
+.article .content figure.shiki .toggle-wrap.wrap-active {
+    color: var(--hl-tools-hover-color);
+}
+
+.article .content figure.shiki pre.shiki {
+    margin: 0 !important;
+    padding: 1rem 1.15rem;
+    overflow: auto;
+    background: var(--hl-bg) !important;
+    scrollbar-width: thin;
+}
+
+.article .content figure.shiki pre.shiki::-webkit-scrollbar {
+    height: 0.55rem;
+}
+
+.article .content figure.shiki pre.shiki::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(118, 131, 144, 0.55);
+}
+
+.article .content figure.shiki pre.shiki > code {
+    font-family: "Source Code Pro", Consolas, "SFMono-Regular", Menlo, monospace;
+    font-size: 0.92rem;
+}
+
+.article .content figure.shiki pre.shiki > code > span.line {
+    line-height: 1.62;
+}
+
+.article .content figure.shiki:not(.rebakery-line-numbers) pre.shiki > code > span.line::before {
+    content: none;
+    width: 0;
+    margin-right: 0;
+}
+
+.article .content figure.shiki.rebakery-line-numbers pre.shiki {
+    padding-left: 0;
+}
+
+.article .content figure.shiki.rebakery-line-numbers pre.shiki > code > span.line::before {
+    width: 2.6rem;
+    margin-right: 1rem;
+    padding-right: 0.8rem;
+    color: #768390;
+    border-right: 1px solid rgba(68, 76, 86, 0.75);
 }
 
 .widget[data-type="profile"] .is-size-6.is-block {

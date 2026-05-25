@@ -72,8 +72,8 @@ footer:
 # Article related configurations
 article:
   highlight:
-    theme: vs2015
-    clipboard: true
+    theme:
+    clipboard: false
     fold: unfolded
   readtime: false
   update_time: true
@@ -153,9 +153,9 @@ widgets:
         url: /atom.xml
   - position: right
     type: toc
-    index: true
-    collapsed: true
-    depth: 3
+    index: false
+    collapsed: false
+    depth: 4
   # - position: left
   #   type: links
   #   links:
