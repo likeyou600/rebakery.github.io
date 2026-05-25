@@ -41,6 +41,8 @@ hexo.extend.injector.register('body_end', `
 <script src="/js/imaegoo/night.js"></script>
 <script src="/js/imaegoo-adapter.js"></script>
 <script src="/js/imaegoo/universe.js"></script>
+<script data-goatcounter="https://rebakery.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 <!-- Cloudflare Web Analytics -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"82c49522b87744b79020391148c3329f"}'></script>
 <!-- End Cloudflare Web Analytics -->
