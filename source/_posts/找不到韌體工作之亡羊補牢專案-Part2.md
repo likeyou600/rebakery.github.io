@@ -31,8 +31,12 @@ Part 1 講了一堆偉大的規劃，越來越覺得做不起來了。
 - 規劃專案資料夾結構，為後續 driver / app / board 分層做準備
 
 ---
-## 下載連結
-[此專案下載連結](https://github.com/likeyou600/gb_project/releases/tag/Part2)
+## 專案下載
+
+本篇文章對應的完整範例專案已整理在 GitHub Release 中，
+如果想直接對照程式碼或跳過環境建立流程，可以從以下連結下載
+
+[🍦下載本篇範例專案-Part 2🍦](https://github.com/likeyou600/gb_project/releases/tag/Part2)
 
 ---
 ## 建立 STM32CubeIDE / CubeMX / FreeRTOS專案
@@ -210,7 +214,7 @@ LOG_ERROR(...)
 STM32 裡直接使用 `printf()` 時，預設不會自動從 UART 輸出。  
 所以需要把 C library 的 `_write()` 函式導到 UART。
 在 `Core/Src/syscalls.c` 裡找到 `_write()`，修改成：
-{% codeblock lang:c line_number:true %}
+{% codeblock Core/Src/syscalls.c lang:c line_number:true %}
 上面補上
 #include "stm32f7xx_hal.h"
 #include "usart.h"
@@ -235,14 +239,14 @@ Core/Inc/usart.h
 {% endcodeblock %}
 
 例如 `Core/Inc/usart.h` 裡可能會看到：
-{% codeblock lang:c line_number:true %}
+{% codeblock Core/Inc/usart.h lang:c line_number:true %}
 extern UART_HandleTypeDef huart3;
 {% endcodeblock %}
 
 #### 測試 printf 輸出
 完成 retarget 後，可以先在 FreeRTOS scheduler 啟動前測試一次：
 {% codeblock lang:c line_number:true %}
-printf("[00000000][main ][INFO] system boot\r\n");
+printf("[00000000][main][INFO] system boot\r\n");
 {% endcodeblock %}
 
 #### PC 端 terminal 設定
@@ -282,10 +286,11 @@ Flow Ctrl : None
 
 概念如下：
 
-{% codeblock lang:c line_number:true %}
+{% codeblock App\Tasks\Src\heartbeat_task.c lang:c line_number:true %}
 void heartbeat_task(void *argument)
 {
-    while (1)
+    (void)argument;
+    for (;;)
     {
         HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
         osDelay(500);
@@ -302,12 +307,14 @@ void heartbeat_task(void *argument)
 
 初期只需要確認 UART log 可以輸出：
 
-{% codeblock lang:c line_number:true %}
+{% codeblock App\Tasks\Src\debug_task.c lang:c line_number:true %}
 void debug_task(void *argument)
 {
+    (void)argument;
+
     uint32_t counter = 0;
 
-    while (1)
+    for (;;)
     {
         printf("[%08lu][rtos ][INFO] debug_task alive counter=%lu\r\n",
                HAL_GetTick(),
@@ -319,6 +326,49 @@ void debug_task(void *argument)
 {% endcodeblock %}
 
 ### 確認 FreeRTOS scheduler 正常運作
+因為 CubeMX 專案是這個流程
+`main.c -> osKernelInitialize() -> MX_FREERTOS_Init() -> osKernelStart()`
+把 task 建立放在 freertos.c 的 USER CODE BEGIN RTOS_THREADS 最符合 CubeMX 的做法。
+{% codeblock Core\Src\main.c lang:c line_number:true %}
+int main(void){
+    ...
+    /* Init scheduler */
+    osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
+    MX_FREERTOS_Init();
+
+    /* Start scheduler */
+    osKernelStart();
+    ...
+}
+{% endcodeblock %}
+
+{% codeblock Core\Src\freertos.c lang:c line_number:true %}
+/* Private variables ---------------------------------------------------------*/
+/* USER CODE BEGIN Variables */
+osThreadId_t heartbeatTaskHandle;
+const osThreadAttr_t heartbeatTask_attributes = {
+  .name = "heartbeat",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+
+osThreadId_t debugTaskHandle;
+const osThreadAttr_t debugTask_attributes = {
+  .name = "debug",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+
+/* USER CODE END Variables */
+
+void MX_FREERTOS_Init(void) {
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  heartbeatTaskHandle = osThreadNew(heartbeat_task, NULL, &heartbeatTask_attributes);
+  debugTaskHandle = osThreadNew(debug_task, NULL, &debugTask_attributes);
+  /* USER CODE END RTOS_THREADS */
+}
+{% endcodeblock %}
 
 目前最小系統完成後，預期會看到兩個現象：
 
@@ -326,9 +376,9 @@ void debug_task(void *argument)
 2. UART terminal 每 1 秒輸出一次 debug log
 
 {% codeblock lang:text line_number:false %}
-[00001000][rtos ][INFO] debug_task alive counter=0
-[00002000][rtos ][INFO] debug_task alive counter=1
-[00003000][rtos ][INFO] debug_task alive counter=2
+[00001000][rtos][INFO] debug_task alive counter=0
+[00002000][rtos][INFO] debug_task alive counter=1
+[00003000][rtos][INFO] debug_task alive counter=2
 {% endcodeblock %}
 
 這樣就代表 Part 2 的基礎環境已經成立。
@@ -394,7 +444,7 @@ gb_project/
 #### 1. 加入 Source Folder
 .cproject 裡有兩組 `<sourceEntries>`，Debug 和 Release 都要加入。
 
-{% codeblock lang:xml line_number:true %}
+{% codeblock .cproject lang:xml line_number:true %}
 <cconfiguration id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug>
 <cconfiguration id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release>
     <sourceEntries>
@@ -433,7 +483,7 @@ gb_project/
 一般 STM32 專案主要會用到 C compiler include paths。不過 CubeIDE 會把 **C** 和 **Assembler** 的 include paths 分開管理，所以建議 Debug / Release 兩邊，以及 C / Assembler 兩種 include paths 都一起加上，設定會比較一致，也比較不容易漏掉。
 
 
-{% codeblock lang:xml line_number:true %}
+{% codeblock .cproject lang:xml line_number:true %}
 <cconfiguration id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug>
 <cconfiguration id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release>
     <tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler>
