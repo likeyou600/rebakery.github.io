@@ -4,8 +4,8 @@ date: 2026-05-25 03:00
 slug: GB-Project-Part2
 permalink: 20260525/GB-Project-Part2/
 asset_folder: 找不到韌體工作之亡羊補牢專案
-cover: '/gallery/cover/default.png'
-thumbnail: '/gallery/cover/default.png'
+cover: '/gallery/cover/part2.png'
+thumbnail: '/gallery/cover/part2.png'
 tags:
     - GB-Project
 categories:
