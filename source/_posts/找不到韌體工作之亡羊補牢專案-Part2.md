@@ -101,7 +101,13 @@ gb_project/
 {% endcodeblock %}
 
 ## FreeRTOS task 架構分工
-
+- **input task**：負責按鍵掃描、debounce 與輸入事件
+- **display task**：負責畫面更新、sprite / UI refresh
+- **game task**：負責寵物狀態、互動邏輯與事件處理
+- **BLE / NFC task**：負責外部模組通訊與資料解析
+- **sensor task**：負責週期性讀取 IMU 與環境感測器
+- **storage task**：負責外部 Flash 存取、紀錄與狀態保存
+- **audio / haptic task**：負責音效與震動回饋
 
 ---
 ## 下載連結
