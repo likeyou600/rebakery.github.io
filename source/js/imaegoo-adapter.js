@@ -89,6 +89,57 @@
         }
     }
 
+    function placeFloatingTocButton() {
+        var body = document.body;
+        var button = document.getElementById('rebakery-floating-toc');
+
+        if (!body || !body.classList.contains('rebakery-post')) {
+            if (button) {
+                button.remove();
+            }
+
+            return;
+        }
+
+        if (!button) {
+            button = document.createElement('button');
+            button.id = 'rebakery-floating-toc';
+            button.type = 'button';
+            button.title = 'Catalogue';
+            button.setAttribute('aria-label', 'Catalogue');
+            button.innerHTML = '<i class="fas fa-list-ul"></i>';
+            body.appendChild(button);
+        }
+
+        updateFloatingTocPosition();
+    }
+
+    function updateFloatingTocPosition() {
+        var body = document.body;
+        var navbar = document.querySelector('.navbar-main');
+        var offset = 10;
+        var top;
+
+        if (!body || !body.classList.contains('rebakery-post') || !navbar) {
+            return;
+        }
+
+        top = Math.max(16, Math.round(navbar.getBoundingClientRect().bottom + offset));
+        body.style.setProperty('--rebakery-floating-toc-top', top + 'px');
+    }
+
+    function bindFloatingTocPosition() {
+        if (!document.body || document.body.dataset.rebakeryFloatingToc === 'true') {
+            return;
+        }
+
+        document.body.dataset.rebakeryFloatingToc = 'true';
+        window.addEventListener('scroll', updateFloatingTocPosition, {
+            passive: true
+        });
+        window.addEventListener('resize', updateFloatingTocPosition);
+    }
+
     function placeColumns() {
         var columns = document.querySelector('.section .columns');
         var left = document.querySelector('.column-left');
@@ -541,7 +592,7 @@
         document.body.dataset.rebakeryTocModal = 'true';
 
         document.addEventListener('click', function (event) {
-            if (!event.target.closest('.navbar-main .catalogue')) {
+            if (!event.target.closest('.navbar-main .catalogue, #rebakery-floating-toc')) {
                 return;
             }
 
@@ -647,6 +698,8 @@
         placeMobileToc();
         placeNightButton();
         toggleCatalogueButton();
+        placeFloatingTocButton();
+        bindFloatingTocPosition();
         bindBackToTopVisibility();
         bindMobileTocModal();
         watchThemeChanges();

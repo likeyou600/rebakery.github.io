@@ -153,8 +153,8 @@ body:not(.light) .article .content h5 a {
     color: var(--rebakery-heading-h5);
 }
 
-.article .content p + ul,
-.article .content p + ol {
+.article .content p+ul,
+.article .content p+ol {
     margin-top: -0.6em;
 }
 
@@ -164,7 +164,7 @@ body:not(.light) .article .content h5 a {
     margin-bottom: 0.85em;
 }
 
-.article .content li + li {
+.article .content li+li {
     margin-top: 0.25em;
 }
 
@@ -198,7 +198,7 @@ body.rebakery-scrolled #back-to-top {
     }
 }
 
-.article .content :not(pre) > code {
+.article .content :not(pre)>code {
     padding: 0.12em 0.38em;
     border-radius: 5px;
     color: var(--rebakery-inline-code-text);
@@ -272,7 +272,7 @@ body.rebakery-scrolled #back-to-top {
 }
 
 .article .content figure.highlight .code pre,
-.article .content figure.highlight > pre {
+.article .content figure.highlight>pre {
     padding: 1rem 1.15rem;
 }
 
@@ -370,8 +370,8 @@ body.rebakery-scrolled #back-to-top {
     white-space: pre-wrap !important;
 }
 
-.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki > code,
-.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki > code > span.line {
+.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki>code,
+.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki>code>span.line {
     width: auto !important;
     min-width: 0 !important;
     white-space: pre-wrap !important;
@@ -400,16 +400,16 @@ body.rebakery-scrolled #back-to-top {
     background: rgba(118, 131, 144, 0.55);
 }
 
-.article .content figure.shiki pre.shiki > code {
+.article .content figure.shiki pre.shiki>code {
     font-family: "Source Code Pro", Consolas, "SFMono-Regular", Menlo, monospace;
     font-size: 0.92rem;
 }
 
-.article .content figure.shiki pre.shiki > code > span.line {
+.article .content figure.shiki pre.shiki>code>span.line {
     line-height: 1.62;
 }
 
-.article .content figure.shiki:not(.rebakery-line-numbers) pre.shiki > code > span.line::before {
+.article .content figure.shiki:not(.rebakery-line-numbers) pre.shiki>code>span.line::before {
     content: none;
     width: 0;
     margin-right: 0;
@@ -419,7 +419,7 @@ body.rebakery-scrolled #back-to-top {
     padding-left: 0;
 }
 
-.article .content figure.shiki.rebakery-line-numbers pre.shiki > code > span.line::before {
+.article .content figure.shiki.rebakery-line-numbers pre.shiki>code>span.line::before {
     width: 2.6rem;
     margin-right: 1rem;
     padding-right: 0.8rem;
@@ -544,6 +544,10 @@ body.night.rebakery-post .navbar-main {
     body.rebakery-post:not(.light) .navbar-main {
         background-color: rgba(40, 44, 52, 0.82);
     }
+}
+
+#rebakery-floating-toc {
+    display: none;
 }
 
 @media screen and (max-width: 1023px) {
@@ -692,6 +696,37 @@ body.night.rebakery-post .navbar-main {
     body.rebakery-home .column-right {
         display: flex !important;
         flex-direction: column;
+    }
+
+    body.rebakery-post .navbar-main .catalogue {
+        display: none !important;
+    }
+
+    body.rebakery-post #rebakery-floating-toc {
+        position: fixed;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        top: var(--rebakery-floating-toc-top, calc(env(safe-area-inset-top) + 4.75rem));
+        right: max(1rem, env(safe-area-inset-right));
+        z-index: 80;
+        width: 3rem;
+        height: 3rem;
+        padding: 0;
+        border: 1px solid rgba(40, 44, 52, 0.94);
+        border-radius: 999px;
+        color: #f4f6fb;
+        background: rgba(40, 44, 52, 0.82);
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(10px);
+        cursor: pointer;
+    }
+
+    body.rebakery-post #rebakery-floating-toc:hover,
+    body.rebakery-post #rebakery-floating-toc:focus {
+        color: #ffffff;
+        background: rgba(40, 44, 52, 0.94);
+        outline: none;
     }
 
     body.rebakery-archives .column-left,
