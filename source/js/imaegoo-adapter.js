@@ -32,6 +32,19 @@
         }
     }
 
+    function markDevTitle() {
+        var hostname = window.location.hostname;
+        var prefix = '[ 開發環境!!! ] ';
+
+        if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+            return;
+        }
+
+        if (document.title.indexOf(prefix) !== 0) {
+            document.title = prefix + document.title;
+        }
+    }
+
     function placeNightButton() {
         var nightNav = document.getElementById('night-nav');
         var navbarEnd = document.querySelector('.navbar-main .navbar-end');
@@ -622,6 +635,7 @@
     }
 
     function applyAdapters() {
+        markDevTitle();
         markPageType();
         placeColumns();
         placeHomeWidgets();
