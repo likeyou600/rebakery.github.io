@@ -168,6 +168,21 @@ body:not(.light) .article .content h5 a {
     margin-top: 0.25em;
 }
 
+.article .content .rebakery-search-hit {
+    padding: 0.08em 0.2em;
+    border-radius: 4px;
+    color: #1f2430;
+    background: rgba(255, 221, 87, 0.9);
+    box-shadow: 0 0 0 3px rgba(255, 221, 87, 0.22);
+}
+
+body.night .article .content .rebakery-search-hit,
+body:not(.light) .article .content .rebakery-search-hit {
+    color: #1f2430;
+    background: rgba(250, 179, 135, 0.95);
+    box-shadow: 0 0 0 3px rgba(250, 179, 135, 0.24);
+}
+
 .card-image .image.is-7by3 {
     padding-top: 56.25%;
 }

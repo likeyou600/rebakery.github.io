@@ -685,6 +685,213 @@
         document.addEventListener('giscus:loaded', retryGiscusThemeSync);
     }
 
+    function getSearchKeywords() {
+        var input = document.querySelector('.searchbox-input');
+
+        return input ? input.value.trim() : '';
+    }
+
+    function getInternalSearchUrl(href, keywords) {
+        var url;
+
+        if (!href || !keywords) {
+            return href;
+        }
+
+        try {
+            url = new URL(href, window.location.origin);
+        } catch (error) {
+            return href;
+        }
+
+        if (url.origin !== window.location.origin) {
+            return href;
+        }
+
+        url.searchParams.set('rebakery_search', keywords);
+        return url.pathname + url.search + url.hash;
+    }
+
+    function enhanceSearchResultLinks() {
+        var keywords = getSearchKeywords();
+
+        Array.prototype.forEach.call(document.querySelectorAll('.searchbox-result-item'), function (link) {
+            var href = link.getAttribute('href');
+            var enhancedHref = getInternalSearchUrl(href, keywords);
+
+            if (enhancedHref) {
+                link.setAttribute('href', enhancedHref);
+            }
+        });
+    }
+
+    function bindSearchJump() {
+        if (!document.body || document.body.dataset.rebakerySearchJump === 'true') {
+            return;
+        }
+
+        document.body.dataset.rebakerySearchJump = 'true';
+
+        document.addEventListener('input', function (event) {
+            if (event.target.closest('.searchbox-input')) {
+                setTimeout(enhanceSearchResultLinks, 0);
+            }
+        }, true);
+
+        document.addEventListener('click', function (event) {
+            var link = event.target.closest('.searchbox-result-item');
+            var keywords;
+            var href;
+
+            if (!link) {
+                return;
+            }
+
+            keywords = getSearchKeywords();
+            href = getInternalSearchUrl(link.getAttribute('href'), keywords);
+
+            if (href) {
+                link.setAttribute('href', href);
+                saveSearchJump(href, keywords);
+            }
+        }, true);
+
+        document.addEventListener('keydown', function (event) {
+            var active;
+            var keywords;
+            var href;
+
+            if (event.key !== 'Enter') {
+                return;
+            }
+
+            active = document.querySelector('.searchbox-result-item.active');
+
+            if (!active) {
+                return;
+            }
+
+            keywords = getSearchKeywords();
+            href = getInternalSearchUrl(active.getAttribute('href'), keywords);
+
+            if (href) {
+                active.setAttribute('href', href);
+                saveSearchJump(href, keywords);
+            }
+        }, true);
+    }
+
+    function saveSearchJump(href, keywords) {
+        var url;
+
+        if (!keywords || !window.sessionStorage) {
+            return;
+        }
+
+        try {
+            url = new URL(href, window.location.origin);
+            window.sessionStorage.setItem('rebakery_search_jump', JSON.stringify({
+                path: url.pathname,
+                keywords: keywords,
+                time: Date.now()
+            }));
+        } catch (error) {
+            return;
+        }
+    }
+
+    function consumeSearchJumpKeywords() {
+        var queryKeywords = new URLSearchParams(window.location.search).get('rebakery_search');
+        var stored;
+
+        if (queryKeywords) {
+            return queryKeywords;
+        }
+
+        if (!window.sessionStorage) {
+            return '';
+        }
+
+        try {
+            stored = JSON.parse(window.sessionStorage.getItem('rebakery_search_jump') || 'null');
+        } catch (error) {
+            return '';
+        }
+
+        if (!stored || stored.path !== window.location.pathname || Date.now() - stored.time > 60000) {
+            return '';
+        }
+
+        return stored.keywords || '';
+    }
+
+    function jumpToSearchKeyword() {
+        var keywords = consumeSearchJumpKeywords();
+        var keyword = keywords.split(/\s+/).filter(Boolean)[0];
+        var content = document.querySelector('.article .content');
+        var marker;
+
+        if (!keyword || !content || content.dataset.rebakerySearchHighlighted === keyword) {
+            return;
+        }
+
+        marker = markFirstTextMatch(content, keyword);
+
+        if (!marker) {
+            return;
+        }
+
+        content.dataset.rebakerySearchHighlighted = keyword;
+
+        setTimeout(function () {
+            marker.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }, 120);
+    }
+
+    function markFirstTextMatch(root, keyword) {
+        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+            acceptNode: function (node) {
+                var parent = node.parentElement;
+
+                if (!parent || !node.nodeValue.trim()) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                if (parent.closest('script, style, pre, code, figure, .rebakery-search-hit')) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                if (node.nodeValue.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        });
+        var node = walker.nextNode();
+        var index;
+        var range;
+        var marker;
+
+        if (!node) {
+            return null;
+        }
+
+        index = node.nodeValue.toLowerCase().indexOf(keyword.toLowerCase());
+        range = document.createRange();
+        range.setStart(node, index);
+        range.setEnd(node, index + keyword.length);
+
+        marker = document.createElement('mark');
+        marker.className = 'rebakery-search-hit';
+        range.surroundContents(marker);
+
+        return marker;
+    }
+
     function applyAdapters() {
         markDevTitle();
         markPageType();
@@ -702,6 +909,9 @@
         bindFloatingTocPosition();
         bindBackToTopVisibility();
         bindMobileTocModal();
+        bindSearchJump();
+        enhanceSearchResultLinks();
+        jumpToSearchKeyword();
         watchThemeChanges();
         retryGiscusThemeSync();
     }
