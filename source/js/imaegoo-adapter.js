@@ -625,11 +625,12 @@
 
     function syncGiscusTheme() {
         var iframes = document.querySelectorAll('iframe.giscus-frame');
+        var scripts = document.querySelectorAll('script[src*="giscus.app/client.js"]');
         var theme = getThemeMode();
 
-        if (!iframes.length) {
-            return;
-        }
+        Array.prototype.forEach.call(scripts, function (script) {
+            script.setAttribute('data-theme', theme);
+        });
 
         Array.prototype.forEach.call(iframes, function (iframe) {
             if (!iframe.contentWindow) {
@@ -683,6 +684,23 @@
         window.addEventListener('rebakery:theme-change', retryGiscusThemeSync);
 
         document.addEventListener('giscus:loaded', retryGiscusThemeSync);
+
+        new MutationObserver(function (mutations) {
+            var hasGiscusChange = mutations.some(function (mutation) {
+                return Array.prototype.some.call(mutation.addedNodes, function (node) {
+                    return node.nodeType === 1 &&
+                        (node.matches && node.matches('iframe.giscus-frame, .giscus, script[src*="giscus.app/client.js"]') ||
+                            node.querySelector && node.querySelector('iframe.giscus-frame, .giscus, script[src*="giscus.app/client.js"]'));
+                });
+            });
+
+            if (hasGiscusChange) {
+                retryGiscusThemeSync();
+            }
+        }).observe(document.body, {
+            childList: true,
+            subtree: true
+        });
     }
 
     function getSearchKeywords() {

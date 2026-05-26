@@ -64,7 +64,7 @@ prismjs:
   tab_replace: ""
 shiki:
   themes:
-    light: github-dark-dimmed
+    light: github-light
     dark: github-dark-dimmed
   code_collapse:
     enable: false
