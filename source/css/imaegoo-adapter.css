@@ -168,6 +168,26 @@ body:not(.light) .article .content h5 a {
     margin-top: 0.25em;
 }
 
+#back-to-top {
+    z-index: 70;
+    pointer-events: none;
+}
+
+#back-to-top.fade-in,
+body.rebakery-scrolled #back-to-top {
+    pointer-events: auto;
+}
+
+@media screen and (min-width: 1024px) {
+    body.rebakery-scrolled #back-to-top.rise-up {
+        opacity: 0.94;
+    }
+
+    body.rebakery-scrolled #back-to-top.rise-up:hover {
+        opacity: 1;
+    }
+}
+
 .article .content :not(pre) > code {
     padding: 0.12em 0.38em;
     border-radius: 5px;
