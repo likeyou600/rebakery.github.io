@@ -70,7 +70,20 @@ logger_task
 USART3 debug console
 {% endcodeblock %}
 
+### LOG 格式定義
+{% codeblock lang:text line_number:false %}
+[00001234][input][INFO] event=BTN_A_SHORT
+[00001240][game ][INFO] state=IDLE action=FEED
+[00001255][lcd  ][WARN] spi_timeout retry=1
+{% endcodeblock %}
 
+欄位是：
+
+- `timestamp`：系統時間，單位先用 ms
+- `module`：log 來源，例如 `main`、`rtos`、`lcd`、`game`
+- `level`：`INFO`、`WARN`、`ERR`
+- `message`：實際訊息
+- 
 ### Logger 架構設計
 
 ### 建立 log queue

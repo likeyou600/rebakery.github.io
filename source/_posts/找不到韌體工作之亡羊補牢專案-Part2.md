@@ -172,45 +172,19 @@ CubeMX 設定位置：
 2. 切到 Pinout & Configuration
 3. 左側選擇 Connectivity -> USART3
 4. 確認上方 Mode 為 `Asynchronous`
+![](找不到韌體工作之亡羊補牢專案/Asynchronous.png) 
 5. 下方 Parameter Settings
 6. 確認設定為常見的 `115200 8N1`：
-{% codeblock lang:text line_number:false %}
-Baud Rate : 115200
-Word Length : 8 Bits
-Parity : None
-Stop Bits : 1
-{% endcodeblock %}
+![](找不到韌體工作之亡羊補牢專案/115200.png)
 7. 接著右側的Pinout view
+![](找不到韌體工作之亡羊補牢專案/PD89.png)
 ```text
 PD8  -> USART3_TX
 PD9  -> USART3_RX
 ```
-![](找不到韌體工作之亡羊補牢專案/PD89.png)
 
-#### LOG 格式定義
-{% codeblock lang:text line_number:false %}
-[00001234][input][INFO] event=BTN_A_SHORT
-[00001240][game ][INFO] state=IDLE action=FEED
-[00001255][lcd  ][WARN] spi_timeout retry=1
-{% endcodeblock %}
-
-欄位是：
-
-- `timestamp`：系統時間，單位先用 ms
-- `module`：log 來源，例如 `main`、`rtos`、`lcd`、`game`
-- `level`：`INFO`、`WARN`、`ERR`
-- `message`：實際訊息
 ---
-
 ### UART printf retarget
-修改 `_write()` 輸出 log 是最簡單的方法，但這是 early debug 用法，會 blocking。
-現在沒問題，之後多 task logging 再包成 log service。
-```
-LOG_INFO(...)
-LOG_WARN(...)
-LOG_ERROR(...)
-```
-
 STM32 裡直接使用 `printf()` 時，預設不會自動從 UART 輸出。  
 所以需要把 C library 的 `_write()` 函式導到 UART。
 在 `Core/Src/syscalls.c` 裡找到 `_write()`，修改成：
@@ -238,7 +212,7 @@ Core/Src/usart.c
 Core/Inc/usart.h
 {% endcodeblock %}
 
-例如 `Core/Inc/usart.h` 裡可能會看到：
+`Core/Inc/usart.h` 裡可能會看到：
 {% codeblock Core/Inc/usart.h lang:c line_number:true %}
 extern UART_HandleTypeDef huart3;
 {% endcodeblock %}
