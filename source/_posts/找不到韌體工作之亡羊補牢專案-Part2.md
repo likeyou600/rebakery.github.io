@@ -454,3 +454,9 @@ gb_project/
         <listOptionValue builtIn="false" value="../Components/pn532/Inc"/>
 {% endcodeblock %}
 
+## 本篇小結
+Codex 太神啦，居然自動幫我把 .cproject 改好了。
+
+以前做 FSW 的時候，通常不太需要在專案初期特別考慮這些設定，但這次才發現，像是：
+`Generate peripheral initialization as a pair of '.c/.h' files per peripheral`
+這種選項其實還滿有趣的。會影響程式碼產生的結構，也會影響後續維護、模組切分跟版本管理的方式。
