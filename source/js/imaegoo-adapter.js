@@ -608,11 +608,21 @@
     }
 
     function getThemeMode() {
+        var savedMode = window.localStorage && window.localStorage.getItem('night');
+
         if (document.body.classList.contains('night')) {
             return 'dark';
         }
 
         if (document.body.classList.contains('light')) {
+            return 'light';
+        }
+
+        if (savedMode === 'true' || savedMode === null) {
+            return 'dark';
+        }
+
+        if (savedMode === 'false') {
             return 'light';
         }
 
