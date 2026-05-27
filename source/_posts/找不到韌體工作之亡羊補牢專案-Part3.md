@@ -24,6 +24,8 @@ Part 2 終於把環境搭起來了🍵，接下來就是
 
 ---
 ## 本篇目標
+queue、mutex、semaphore、software timer、task priority 與 stack 檢查
+
 - Log service
   - 建立非同步 `logger_task`，統一處理 UART log 輸出
   - 使用 queue 將各 task 的 log message 傳給 `logger_task`
@@ -41,59 +43,123 @@ Part 2 終於把環境搭起來了🍵，接下來就是
 ## Log Service：logger_task
 
 ### 為什麼需要 logger_task
-Part 2 已經可以透過 UART 印出 log，但目前還是直接在 task 裡呼叫 `printf()`。
+Part 2 已經可以透過 USART3 / ST-LINK Virtual COM Port 印出 log。  
+如果每個 task 都直接呼叫 `printf()` 或 `HAL_UART_Transmit()`，小範例還可以接受，但專案變大後會有幾個問題：
 
-這種方式在小範例很方便，但專案變大後會有幾個問題：
-  - 多個 task 同時印 log，輸出可能交錯
-  - `HAL_UART_Transmit()` 是 blocking，會卡住呼叫它的 task
-  - driver、app、task 如果都直接印 log，之後會很難管理
-  - 無法統一 log 格式、log level 與 timestamp
+- 多個 task 同時印 log，輸出可能交錯
+- `HAL_UART_Transmit()` 是 blocking，會卡住呼叫它的 task
+- driver、service、task 如果都直接操作 UART，之後會很難管理
+- log 格式、log level、timestamp 不容易統一
 
-因此先做一個小型 log service，用這個 log service 練習 FreeRTOS 裡最常用的 queue、mutex、semaphore、software timer、task priority 與 stack 檢查。
+所以目前先做一個小型 log service。
 
 ### Logger 資料流
-{% codeblock lang:c line_number:true %}
-producer_task
-worker_task
-timer_callback
-    |
-    | LOG_INFO(...)
-    v
-log service
-    |
-    | osMessageQueuePut(log_queue, ...) xQueueSend(log_queue, ...)
-    v
-logger_task
-    |
-    | printf / HAL_UART_Transmit
-    v
-USART3 debug console
+{% codeblock lang:c line_number:false %}
+🌕Init side:🌕
+    app_main_init()
+        |
+        | log_service_init()
+        |   -> osMessageQueueNew(APP_LOG_QUEUE_DEPTH,
+        |                        sizeof(log_service_message_t),
+        |                        NULL)
+        v
+    log queue ready
+------------------------
+🌗Producer side:🌗
+    debug_task
+    heartbeat_task
+    其他未來的 task
+        |
+        | #include "Log/log_service.h"
+        | LOG_INFO(...)
+        | LOG_WARN(...)
+        | LOG_ERROR(...)
+        v
+    log_service_submit()
+        |
+        | osMessageQueuePut(logQueueHandle, ...)
+        v
+    log queue
+------------------------
+🌚Consumer side:🌚
+    logger_task
+        |
+        | log_service_process()
+        |   -> osMessageQueueGet(logQueueHandle, ...)
+        |   -> format log line
+        |   -> board_uart_write_debug()
+        |      -> HAL_UART_Transmit()
+        v
+    USART3 / ST-LINK Virtual COM Port
+{% endcodeblock %}
+### 資料夾結構
+{% codeblock lang:sh line_number:false %}
+App/
+├─ Services/
+│  └─ Log/
+│     ├─ log_service.c
+│     └─ log_service.h
+└─ Tasks/
+   ├─ Inc/
+   │  ├─ logger_task.h
+   └─ Src/
+      ├─ logger_task.c
 {% endcodeblock %}
 
 ### LOG 格式定義
 {% codeblock lang:text line_number:false %}
-[00001234][input][INFO] event=BTN_A_SHORT
-[00001240][game ][INFO] state=IDLE action=FEED
-[00001255][lcd  ][WARN] spi_timeout retry=1
+[00001234][INFO ][RTOS-debug_task] debug_task alive counter=0
+[00001240][WARN ][game] state=IDLE action=FEED
+[00001255][ERROR][lcd] spi_timeout retry=1
 {% endcodeblock %}
 
-欄位是：
+欄位如下：
 
-- `timestamp`：系統時間，單位先用 ms
-- `module`：log 來源，例如 `main`、`rtos`、`lcd`、`game`
-- `level`：`INFO`、`WARN`、`ERR`
-- `message`：實際訊息
-- 
-### Logger 架構設計
+- `timestamp`：系統時間，目前使用 `HAL_GetTick()`，單位是 ms
+- `level`：log 等級，目前有 `INFO`、`WARN`、`ERROR`
+- `module`：log 來源，例如 `MAIN`、`RTOS`、`LCD`、`GAME`...
+- `message`：實際訊息內容
+  
+### Logger 參數設定
+{% codeblock App/Inc/app_config.h lang:c line_number:false %}
+//是否啟用 log service
+#define APP_LOG_ENABLE 1
 
-### 建立 log queue
+//log queue 最多暫存幾筆 log message
+#define APP_LOG_QUEUE_DEPTH 8
 
-### 實作 logger_task
+//module 名稱最大長度，包含字串結尾 '\0'
+#define APP_LOG_MODULE_NAME_MAX_LEN 32
+
+//message 最大長度，包含字串結尾 '\0'
+#define APP_LOG_MESSAGE_MAX_LEN 80
+{% endcodeblock %}
 
 ### LOG_INFO / LOG_WARN / LOG_ERROR 巨集
+目前在 `log_service.h` 裡定義：
+
+{% codeblock Services/Log/log_service.h lang:c line_number:false %}
+#define LOG_INFO(module, format, ...) \
+  log_service_submit(APP_LOG_LEVEL_INFO, module, format, ##__VA_ARGS__)
+
+#define LOG_WARN(module, format, ...) \
+  log_service_submit(APP_LOG_LEVEL_WARN, module, format, ##__VA_ARGS__)
+
+#define LOG_ERROR(module, format, ...) \
+  log_service_submit(APP_LOG_LEVEL_ERROR, module, format, ##__VA_ARGS__)
+{% endcodeblock %}
+
+{% codeblock anywhere lang:c line_number:false %}
+#include "Log/log_service.h"
+
+使用方式：
+LOG_INFO("RTOS-log_service", "debug_task alive counter=%lu", counter++);
+LOG_WARN("LCD", "spi_timeout retry=%lu", retry);
+LOG_ERROR("GAME", "invalid_state=%lu", state);
+
+{% endcodeblock %}
 
 ---
-
 ## Task 間同步實驗
 
 ### Queue 實驗：producer_task 與 logger_task

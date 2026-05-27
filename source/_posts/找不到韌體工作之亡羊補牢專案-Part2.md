@@ -99,7 +99,7 @@ Part 1 講了一堆偉大的規劃，越來越覺得做不起來了。
 
 ### 5. 此時的資料夾架構
 
-{% codeblock lang:sh line_number:true %}
+{% codeblock lang:sh line_number:false %}
 gb_project/
 └─ firmware/
    └─ gb_f767zi/
@@ -213,13 +213,13 @@ Core/Inc/usart.h
 {% endcodeblock %}
 
 `Core/Inc/usart.h` 裡可能會看到：
-{% codeblock Core/Inc/usart.h lang:c line_number:true %}
+{% codeblock Core/Inc/usart.h lang:c line_number:false %}
 extern UART_HandleTypeDef huart3;
 {% endcodeblock %}
 
 #### 測試 printf 輸出
 完成 retarget 後，可以先在 FreeRTOS scheduler 啟動前測試一次：
-{% codeblock lang:c line_number:true %}
+{% codeblock lang:c line_number:false %}
 printf("[00000000][main][INFO] system boot\r\n");
 {% endcodeblock %}
 
@@ -303,7 +303,7 @@ void debug_task(void *argument)
 因為 CubeMX 專案是這個流程
 `main.c -> osKernelInitialize() -> MX_FREERTOS_Init() -> osKernelStart()`
 把 task 建立放在 freertos.c 的 USER CODE BEGIN RTOS_THREADS 最符合 CubeMX 的做法。
-{% codeblock Core\Src\main.c lang:c line_number:true %}
+{% codeblock Core\Src\main.c lang:c line_number:false %}
 int main(void){
     ...
     /* Init scheduler */
@@ -316,7 +316,7 @@ int main(void){
 }
 {% endcodeblock %}
 
-{% codeblock Core\Src\freertos.c lang:c line_number:true %}
+{% codeblock Core\Src\freertos.c lang:c line_number:false %}
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 osThreadId_t heartbeatTaskHandle;
@@ -374,7 +374,7 @@ CubeMX 產生的 `Core/` 和 `Drivers/` 先盡量保持乾淨。
 
 目前先規劃成這樣：
 
-{% codeblock lang:sh line_number:true %}
+{% codeblock lang:sh line_number:false %}
 gb_project/
 └─ firmware/
    └─ gb_f767zi/
@@ -386,10 +386,8 @@ gb_project/
       │  ├─ Inc/
       │  │  ├─ app_main.h
       │  │  ├─ app_config.h
-      │  │  └─ app_log.h
       │  ├─ Src/
       │  │  ├─ app_main.c
-      │  │  └─ app_log.c
       │  ├─ Tasks/              # FreeRTOS task / thread 邏輯
       │  ├─ Services/           # 跨功能服務，例如 log、storage、input manager
       │  ├─ Game/               # 遊戲規則、狀態機、場景流程
@@ -426,7 +424,7 @@ gb_project/
 #### 1. 加入 Source Folder
 .cproject 裡有兩組 `<sourceEntries>`，Debug 和 Release 都要加入。
 
-{% codeblock .cproject lang:xml line_number:true %}
+{% codeblock .cproject lang:xml line_number:false %}
 <cconfiguration id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug>
 <cconfiguration id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release>
     <sourceEntries>
@@ -464,8 +462,7 @@ gb_project/
 
 一般 STM32 專案主要會用到 C compiler include paths。不過 CubeIDE 會把 **C** 和 **Assembler** 的 include paths 分開管理，所以建議 Debug / Release 兩邊，以及 C / Assembler 兩種 include paths 都一起加上，設定會比較一致，也比較不容易漏掉。
 
-
-{% codeblock .cproject lang:xml line_number:true %}
+{% codeblock .cproject lang:xml line_number:false %}
 <cconfiguration id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug>
 <cconfiguration id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release>
     <tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler>
@@ -473,7 +470,7 @@ gb_project/
 
         <listOptionValue builtIn="false" value="../App/Inc"/>
         <listOptionValue builtIn="false" value="../App/Tasks/Inc"/>
-        <listOptionValue builtIn="false" value="../App/Services/Inc"/>
+        <listOptionValue builtIn="false" value="../App/Services"/>
         <listOptionValue builtIn="false" value="../App/Game/Inc"/>
         <listOptionValue builtIn="false" value="../App/UI/Inc"/>
 
@@ -484,6 +481,18 @@ gb_project/
         <listOptionValue builtIn="false" value="../Components/bme280/Inc"/>
         <listOptionValue builtIn="false" value="../Components/w25q128/Inc"/>
         <listOptionValue builtIn="false" value="../Components/pn532/Inc"/>
+{% endcodeblock %}
+
+上面可以注意到 Services 並沒有 Inc 資料夾，
+因為目前希望是以各 Service 當作子資料夾，
+裡面會同時存放 .c/.h，比方說 Services/Log/log_service.c/.h
+因此就會變成需要
+{% codeblock lang:c%}
+要寫成
+#include "Log/log_service.h"
+------------------------
+而不能寫成：
+#include "log_service.h"
 {% endcodeblock %}
 
 ## 本篇小結
