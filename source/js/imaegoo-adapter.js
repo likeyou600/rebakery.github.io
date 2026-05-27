@@ -920,6 +920,80 @@
         return marker;
     }
 
+    function enhanceLazyVideos() {
+        Array.prototype.forEach.call(document.querySelectorAll('video.rebakery-lazy-video'), function (video) {
+            if (video.dataset.rebakeryVideoEnhanced === 'true') {
+                return;
+            }
+
+            video.dataset.rebakeryVideoEnhanced = 'true';
+            video.setAttribute('preload', 'none');
+            video.setAttribute('playsinline', '');
+
+            wrapLazyVideo(video);
+            addLazyVideoButton(video);
+        });
+    }
+
+    function wrapLazyVideo(video) {
+        var wrapper;
+
+        if (video.parentElement && video.parentElement.classList.contains('rebakery-video-frame')) {
+            return;
+        }
+
+        wrapper = document.createElement('figure');
+        wrapper.className = 'rebakery-video-frame';
+        video.parentNode.insertBefore(wrapper, video);
+        wrapper.appendChild(video);
+    }
+
+    function addLazyVideoButton(video) {
+        var wrapper = video.parentElement;
+        var button;
+
+        if (!wrapper || wrapper.querySelector('.rebakery-video-load')) {
+            return;
+        }
+
+        button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'rebakery-video-load';
+        button.innerHTML = '<i class="fas fa-play"></i><span>載入影片</span>';
+
+        button.addEventListener('click', function () {
+            loadLazyVideo(video, true);
+        });
+
+        wrapper.appendChild(button);
+    }
+
+    function loadLazyVideo(video, shouldPlay) {
+        var sources = video.querySelectorAll('source[data-src]');
+        var wrapper = video.parentElement;
+        var button = wrapper && wrapper.querySelector('.rebakery-video-load');
+
+        if (video.dataset.rebakeryVideoLoaded !== 'true') {
+            Array.prototype.forEach.call(sources, function (source) {
+                source.setAttribute('src', source.getAttribute('data-src'));
+                source.removeAttribute('data-src');
+            });
+
+            if (button) {
+                button.remove();
+            }
+
+            video.dataset.rebakeryVideoLoaded = 'true';
+            video.load();
+        }
+
+        if (shouldPlay && typeof video.play === 'function') {
+            video.play().catch(function () {
+                return null;
+            });
+        }
+    }
+
     function applyAdapters() {
         markDevTitle();
         markPageType();
@@ -940,6 +1014,7 @@
         bindSearchJump();
         enhanceSearchResultLinks();
         jumpToSearchKeyword();
+        enhanceLazyVideos();
         watchThemeChanges();
         retryGiscusThemeSync();
     }

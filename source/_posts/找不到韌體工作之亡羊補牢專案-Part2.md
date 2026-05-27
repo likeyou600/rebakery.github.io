@@ -225,12 +225,12 @@ printf("[00000000][main][INFO] system boot\r\n");
 
 #### PC 端 terminal 設定
 電腦端可以使用任一種 serial terminal，例如：
-- STM32CubeIDE 內建 terminal
+- vscode extensions - Serial Monitor
+![](找不到韌體工作之亡羊補牢專案/SerialMonitor.png)
 - PuTTY
 - MobaXterm
 
 設定如下：
-
 {% codeblock lang:text line_number:false %}
 Port      : ST-LINK Virtual COM Port 對應的 COM port
 Baud rate : 115200
@@ -347,6 +347,12 @@ void MX_FREERTOS_Init(void) {
 目前最小系統完成後，預期會看到兩個現象：
 
 1. 板上 LED 每 500 ms 閃爍一次
+
+<video class="rebakery-lazy-video" controls preload="none" playsinline controlslist="nodownload" poster="IMG_9082-poster.png">
+  <source data-src="IMG_9082.MP4" type="video/mp4">
+  你的瀏覽器不支援影片播放。
+</video>
+
 2. UART terminal 每 1 秒輸出一次 debug log
 
 {% codeblock lang:text line_number:false %}
@@ -354,6 +360,8 @@ void MX_FREERTOS_Init(void) {
 [00002000][rtos][INFO] debug_task alive counter=1
 [00003000][rtos][INFO] debug_task alive counter=2
 {% endcodeblock %}
+![](找不到韌體工作之亡羊補牢專案/SerialMonitor.png)
+
 
 這樣就代表 Part 2 的基礎環境已經成立。
 
