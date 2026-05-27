@@ -20,7 +20,7 @@ Part 2 終於把環境搭起來了🍵，接下來就是
 ## 系列文章
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part1 'Part 1：專案規劃與準備清單' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part2 'Part 2：開發環境與 FreeRTOS 架構' %}
-- Part 3：FreeRTOS Queue 與 Logger Service
+- Part 3：Logger Service 與 FreeRTOS 除錯觀察
 
 ---
 ## 本篇目標
@@ -32,6 +32,7 @@ Part 2 終於把環境搭起來了🍵，接下來就是
 - 除錯與觀察
   - 觀察 task priority 對 `logger_task` 與 `heartbeat_task` 的影響
   - 使用 stack high water mark 檢查 task stack 使用量
+  - Debug GPIO / 邏輯分析儀試用
 
 ---
 ## 專案下載
