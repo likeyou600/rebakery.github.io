@@ -21,7 +21,7 @@ Part 1 講了一堆偉大的規劃，越來越覺得做不起來了。
 
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part1 'Part 1：專案規劃與準備清單' %}
 - Part 2：開發環境與 FreeRTOS 架構
-- {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：FreeRTOS 任務、同步與除錯實驗' %}
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：FreeRTOS Queue 與 Logger Service' %}
 
 ---
 ## 本篇目標
@@ -500,4 +500,4 @@ Codex 太神啦，居然自動幫我把 .cproject 改好了。
 
 以前做 FSW 的時候，通常不太需要在專案初期特別考慮這些設定，但這次才發現，像是：
 `Generate peripheral initialization as a pair of '.c/.h' files per peripheral`
-這種選項其實還滿有趣的。會影響程式碼產生的結構，也會影響後續維護、模組切分跟版本管理的方式。
+這種會影響 Project 架構的選項，其實還滿有趣的。
