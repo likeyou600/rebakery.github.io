@@ -25,7 +25,7 @@ categories:
 
 ---
 ## 本篇目標
-  
+ GPIO、debounce、short/long press、EXTI、input event queue。
 - FreeRTOS 同步實驗
   - 使用 software timer 產生週期性事件
   - 使用 User Button + EXTI 練習 ISR notify

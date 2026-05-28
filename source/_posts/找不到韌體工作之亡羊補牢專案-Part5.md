@@ -20,7 +20,8 @@ categories:
 ## 系列文章
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part1 'Part 1：專案規劃與準備清單' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part2 'Part 2：開發環境與 FreeRTOS 架構' %}
-- Part 3：Logger Service 與 FreeRTOS 除錯觀察
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part4：輸入系統：按鍵、五向鍵與事件佇列' %}
 - Part 5: SPI bus mutex、display task
 ---
 ## 本篇目標
