@@ -17,6 +17,7 @@ Part 2 終於把環境搭起來了🍵，接下來就是
 
 <!-- more -->
 ---
+# Logger Service 與 FreeRTOS 除錯觀察
 ## 系列文章
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part1 'Part 1：專案規劃與準備清單' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part2 'Part 2：開發環境與 FreeRTOS 架構' %}
