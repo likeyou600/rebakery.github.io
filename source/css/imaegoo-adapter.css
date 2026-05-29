@@ -189,6 +189,12 @@ body:not(.light) .article .content .rebakery-search-hit {
     box-shadow: 0 0 0 3px rgba(250, 179, 135, 0.24);
 }
 
+.article .content img.rebakery-sized-image {
+    display: block;
+    height: auto;
+    border-radius: 8px;
+}
+
 .article .content .rebakery-video-frame {
     position: relative;
     overflow: hidden;

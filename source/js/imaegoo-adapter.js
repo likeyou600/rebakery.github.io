@@ -994,6 +994,38 @@
         }
     }
 
+    function enhanceSizedImages() {
+        Array.prototype.forEach.call(document.querySelectorAll('.article .content img[title]'), function (image) {
+            var title = image.getAttribute('title') || '';
+            var match = title.match(/(?:^|\s)(?:w|width)\s*:\s*([0-9.]+(?:%|px|rem|em|vw)?)/i);
+            var width;
+            var parent;
+
+            if (!match) {
+                return;
+            }
+
+            width = match[1];
+
+            if (/^[0-9.]+$/.test(width)) {
+                width += 'px';
+            }
+
+            image.classList.add('rebakery-sized-image');
+            image.style.width = '100%';
+            image.style.maxWidth = '100%';
+            image.style.height = 'auto';
+            image.removeAttribute('title');
+
+            parent = image.closest('a.gallery-item') || image;
+            parent.style.display = 'block';
+            parent.style.width = width;
+            parent.style.maxWidth = '100%';
+            parent.style.marginLeft = 'auto';
+            parent.style.marginRight = 'auto';
+        });
+    }
+
     function applyAdapters() {
         markDevTitle();
         markPageType();
@@ -1015,6 +1047,7 @@
         enhanceSearchResultLinks();
         jumpToSearchKeyword();
         enhanceLazyVideos();
+        enhanceSizedImages();
         watchThemeChanges();
         retryGiscusThemeSync();
     }

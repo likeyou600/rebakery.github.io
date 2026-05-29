@@ -28,10 +28,13 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 - Part 4：Input System：GPIO、Debounce 與 Event Queue
 ---
 ## 前言
-這一篇的目標不是單純讀到 GPIO high / low，而是建立一個 input system。
+按鈕跟鍵盤系統其實不是只有按下跟沒按這麼簡單。
 
-硬體按鍵會先經過 debounce，再被轉成 `input_event_t`，最後丟進 FreeRTOS queue。  
-後面的 `game_task` 不需要知道按鍵接在哪個 GPIO，只要處理像 `INPUT_UP_SHORT`、`INPUT_A_LONG` 這類事件即可。
+以鍵盤來說，光是電路層面就可能會遇到鬼鍵、多鍵同時按下這些問題。比較完整的鍵盤裡面還會有自己的 MCU 或控制器，負責掃描按鍵矩陣、做 debounce（防彈跳）跟 rollover（多鍵同時輸入），最後才把整理好的按鍵結果送給電腦。
+
+所以如果我們是在 STM32 上自己接按鈕，那這些事情就不能期待電腦或遊戲系統幫你處理，而是要自己在韌體裡做一套輸入系統。這套系統要先把底層細節處理掉，像是 debounce、輸入序列、長按短按判斷等等。
+
+最後再把結果整理成一層介面給遊戲系統用。這樣遊戲邏輯就不用自己去管底層 GPIO 或按鍵掃描，只要知道玩家現在做了什麼操作就好。
 
 ---
 ## 本篇目標
@@ -51,7 +54,7 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 
 ### 五向導航按鍵模組
 
-![](找不到韌體工作之亡羊補牢專案/5d_button.png)
+![五向導航按鍵模組](找不到韌體工作之亡羊補牢專案/5d_button.png "w:60%")
 
 預計用途：
 - `COM`：common pin
@@ -62,7 +65,7 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 
 ### 12×12 輕觸開關
 
-![](找不到韌體工作之亡羊補牢專案/normal_button.png)
+![12×12 輕觸開關](找不到韌體工作之亡羊補牢專案/normal_button.png "w:45%")
 
 預計用途：
 - `A`：確認 / 互動
@@ -74,7 +77,7 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 目前第一版會先用 internal pull-up，按下時讀到低電位。
 
 ### Joystick Shield
-![](找不到韌體工作之亡羊補牢專案/game_button.png)
+![Joystick Shield](找不到韌體工作之亡羊補牢專案/game_button.png "w:70%")
 
 這塊原本是 Arduino 用的 Joystick Shield，上面有類比搖桿和多顆按鍵。
 
@@ -112,26 +115,25 @@ INPUT_MENU_SHORT
 GPIO input / EXTI
     |
     v
-input driver
+board_input wrapper
     |
     v
-debounce
+input_task debounce
     |
     v
-input_event_t
+input_service_post_event()
     |
     v
 input_event_queue
     |
     v
-game_task，之後 Part 6 實作
+game_task(之後 Part 6 實作) / input_debug_task
 {% endcodeblock %}
 
 目前 Part 4 先不實作真正的 `game_task`，只用 Part 3 的 `logger_task` 印出 input event。
 
-### input_event_t 設計
-先定義一個簡單的 input event。
-
+### input 事件設計
+按鈕事件
 {% codeblock lang:c line_number:true %}
 typedef enum
 {
@@ -161,9 +163,6 @@ typedef struct
     uint32_t timestamp;
 } input_event_t;
 {% endcodeblock %}
-
-第一版可以先只做 `INPUT_ACTION_SHORT`。
-等基本按鍵穩定後，再補 `PRESS`、`RELEASE`、`LONG`。
 
 ### input_event_queue 設計
 

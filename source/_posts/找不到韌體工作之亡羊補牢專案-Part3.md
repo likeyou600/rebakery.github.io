@@ -23,6 +23,11 @@ Part 2 終於把環境搭起來了🍵，接下來就是
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part2 'Part 2：開發環境與 FreeRTOS 架構' %}
 - Part 3：Logger Service 與 FreeRTOS 除錯觀察
 <!-- - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Debounce 與 Event Queue' %} -->
+---
+## 前言
+系統跑起來之後，下一個最常做的事情就是印 log，
+你不印點東西出來，基本上就是在通靈。
+雖然說當下寫這篇，就算接邏輯分析儀也像在通靈，看不出個所以然ㄏㄏ
 
 ---
 ## 本篇目標
