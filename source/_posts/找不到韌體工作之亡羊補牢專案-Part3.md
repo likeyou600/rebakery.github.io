@@ -33,7 +33,7 @@ Part 2 終於把環境搭起來了🍵，接下來就是
 ## 本篇目標
 - Log service
   - 建立非同步 `logger_task`，統一處理 UART log 輸出
-  - 使用 queue 實作 producer / consumer 模型
+  - 使用 FreeRTOS queue 實作 log 的 producer / consumer 模型
   - 讓各 task 透過 `LOG_INFO()`、`LOG_WARN()`、`LOG_ERROR()` 將 log message 送進 `log_queue`
 
 - 除錯與觀察
@@ -541,8 +541,7 @@ GPIO 切換越快，訊號邊緣越陡，也比較容易帶來 EMI 或雜訊問�
 
 這樣邏輯分析儀才有共同參考電位，量到的 High / Low 才會正確。
 
-![NUCLEO-F767ZI 接腳圖左](找不到韌體工作之亡羊補牢專案/board_left.png)
-![NUCLEO-F767ZI 接腳圖右](找不到韌體工作之亡羊補牢專案/board_right.png)
+![NUCLEO-F767ZI 接腳圖右-PF12](找不到韌體工作之亡羊補牢專案/board_right_pf12.png)
 
 #### 使用邏輯分析儀觀察執行時間
 搭配 `busy_task` 測試：

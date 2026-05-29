@@ -14,7 +14,7 @@ categories:
 
 Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 雖然除錯很重要啦，但，沒有接任何外部設備就超無聊。
-這 Part 就把買的一堆不同類型按鈕、搖桿試著接接看!!
+這 Part 就把買的一堆不同類型按鍵、搖桿試著接接看!!
 
 <!-- more -->
 
@@ -28,28 +28,29 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 - Part 4：Input System：GPIO、Debounce 與 Event Queue
 ---
 ## 前言
-按鈕跟鍵盤系統其實不是只有按下跟沒按這麼簡單。
+按鍵跟鍵盤系統其實不是只有按下跟沒按這麼簡單。
 
 以鍵盤來說，光是電路層面就可能會遇到鬼鍵、多鍵同時按下這些問題。比較完整的鍵盤裡面還會有自己的 MCU 或控制器，負責掃描按鍵矩陣、做 debounce（防彈跳）跟 rollover（多鍵同時輸入），最後才把整理好的按鍵結果送給電腦。
 
-所以如果我們是在 STM32 上自己接按鈕，那這些事情就不能期待電腦或遊戲系統幫你處理，而是要自己在韌體裡做一套輸入系統。這套系統要先把底層細節處理掉，像是 debounce、輸入序列、長按短按判斷等等。
+所以如果我們是在 STM32 上自己接按鍵，那這些事情就不能期待電腦或遊戲系統幫你處理，而是要自己在韌體裡做一套輸入系統。這套系統要先把底層細節處理掉，像是 debounce、輸入序列、長按短按判斷等等。
 
 最後再把結果整理成一層介面給遊戲系統用。這樣遊戲邏輯就不用自己去管底層 GPIO 或按鍵掃描，只要知道玩家現在做了什麼操作就好。
 
 ---
 ## 本篇目標
-- 整理目前手上的輸入模組：五向鍵、輕觸開關、Joystick Shield
-- 使用 GPIO input 讀取按鍵狀態
-- 使用 polling + timestamp 實作第一版 debounce
-- 定義 `input_event_t`，將實體按鍵轉成軟體事件
-- 使用 FreeRTOS queue 建立 `input_event_queue`
-- 使用 Part 3 的 `logger_task` 觀察按鍵事件
-- 初步規劃 short press / long press 的處理方式
-- 使用 User Button + EXTI 練習從 interrupt 通知 `input_task`
-- 補一版 EXTI + software timer debounce 的事件驅動做法
-
+- Input Service
+  - 認識並測試五向鍵、輕觸開關與 Joystick Shield 的基本輸入方式
+  - 建立獨立的 `input_task`，透過 polling 週期性掃描按鍵狀態
+  - 使用 FreeRTOS queue 實作 input event 的 producer / consumer 模型
+  - 讓其他 task 透過 `input_service_get_event()` 取得 input event
+  - 使用 timestamp debounce 實作第一版按鍵防彈跳處理
+  - 使用 NUCLEO-F767ZI User Button + EXTI，練習從 interrupt 通知 `input_task`
+  - 實作 EXTI + software timer debounce，練習事件驅動式的 debounce 做法
 ---
-
+## 注意事項
+操作到這 Part 時，我們已經加了太多 task 同時運作
+因此先把 FreeRTOS HEAP SIZE 從預設的 15360 Bytes，加到 32768 Bytes
+![FreeRTOS HEAP SIZE 設定](找不到韌體工作之亡羊補牢專案/rtos_heap_size.png)
 ## 目前有的輸入模組
 
 ### 五向導航按鍵模組
@@ -57,24 +58,17 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 ![五向導航按鍵模組](找不到韌體工作之亡羊補牢專案/5d_button.png)
 
 預計用途：
-- `COM`：common pin
+- `COM`：GND
 - `UP / DOWN / LEFT / RIGHT`：方向操作
 - `MID`：確認鍵
 - `SET`：選單鍵
 - `RST`：目前先不一定使用，避免和系統 reset 混淆
 
 ### 12×12 輕觸開關
-
 ![12×12 輕觸開關](找不到韌體工作之亡羊補牢專案/normal_button.png)
-
-預計用途：
-- `A`：確認 / 互動
-- `B`：返回 / 取消
-- `START`：打開選單
-- `BACK`：返回上一層
-
-這類按鍵接法很單純，可以用 GPIO input 搭配 internal pull-up 或 pull-down。
-目前第一版會先用 internal pull-up，按下時讀到低電位。
+紅線為一條鐵片，為同一端
+  - 一條接 GPIO
+  - 一條接 3.3v / GND
 
 ### Joystick Shield
 ![Joystick Shield](找不到韌體工作之亡羊補牢專案/game_button.png)
@@ -88,64 +82,173 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 
 ---
 ## 輸入系統設計
-這一篇的重點不是「某個 GPIO 有沒有被按下」，而是建立一層 input abstraction。
-
-也就是把實體按鍵：
-
-{% codeblock lang:text line_number:false %}
-GPIO high / low
-{% endcodeblock %}
-
-轉成軟體事件：
-
-{% codeblock lang:text line_number:false %}
-INPUT_UP_SHORT
-INPUT_A_SHORT
-INPUT_B_LONG
-INPUT_MENU_SHORT
-{% endcodeblock %}
-
-之後 `game_task` 不需要知道按鍵接在哪個 GPIO，也不需要自己處理 debounce。
-它只要從 input queue 收到事件，再根據目前遊戲狀態決定要做什麼。
 
 ### 輸入事件資料流
-整體資料流預計如下：
 
-{% codeblock lang:text line_number:false %}
-GPIO input / EXTI
-    |
-    v
-board_input wrapper
-    |
-    v
-input_task debounce
-    |
-    v
-input_service_post_event()
-    |
-    v
-input_event_queue
-    |
-    v
-game_task(之後 Part 6 實作) / input_debug_task
+{% codeblock lang:c line_number:false %}
+🌕Init side:🌕
+    app_main_init()
+        |
+        | input_service_init()
+        |   -> osMessageQueueNew(APP_INPUT_EVENT_QUEUE_DEPTH,
+        |                        sizeof(input_event_t),
+        |                        NULL)
+        v
+    input event queue ready
+------------------------
+🌗Producer side:🌗
+    input_task
+        |
+        v
+    for (;;) polling loop
+        |
+        | every APP_INPUT_SCAN_PERIOD_MS
+        v
+    scan buttonMap[]
+        |
+        | input_task_scan_button(...)
+        |   -> board_input_is_pressed(...)
+        |      -> HAL_GPIO_ReadPin(...)
+        v
+    raw GPIO state
+        |
+        | timestamp debounce
+        | stable pressed detected
+        v
+    input_service_post_event(key, action)
+        |
+        | osMessageQueuePut(inputEventQueueHandle, ...)
+        v
+    input event queue
+        |
+        | osDelay(APP_INPUT_SCAN_PERIOD_MS)
+        v
+    next polling cycle
+------------------------
+🌚Consumer side:🌚
+    input_debug_task
+    game_task，之後 Part 6 實作
+        |
+        | #include "Input/input_service.h"
+        | input_service_get_event(&event, osWaitForever)
+        |   -> osMessageQueueGet(inputEventQueueHandle, ...)
+        v
+    input_event_t
+        |
+        | event.key
+        | event.action
+        | event.timestamp
+        v
+    input_debug_task:
+        LOG_INFO("input", ...)
+    
+    game_task:
+        根據目前遊戲狀態處理 INPUT_KEY_* / INPUT_ACTION_*
 {% endcodeblock %}
 
-目前 Part 4 先不實作真正的 `game_task`，只用 Part 3 的 `logger_task` 印出 input event。
+### 1. GPIO Input 設定
+![Input GPIO 設定](找不到韌體工作之亡羊補牢專案/Input_GPIO.png)
 
-### input 事件設計
-按鈕事件
-{% codeblock lang:c line_number:true %}
+注意一定要選 pull-up / pull-down 其中一個，因為我們的按鍵是最普通的
+- internal pull-up 的話，一端接 GPIO，另一端接 GND；按下後 GPIO 會被接到 GND，所以讀到 LOW。
+{% codeblock lang:text line_number:false %}
+STM32 板子                     按鍵
+
+3.3V
+ │
+[Internal Pull-up]
+ │
+GPIO ------------------------- 按鍵腳1
+                               │
+                               │ 按下才接通
+                               │
+GND  ------------------------- 按鍵腳2
+{% endcodeblock %}
+
+- internal pull-down 的話，一端接 GPIO，另一端接 3.3V；按下後 GPIO 會被接到 3.3V，所以讀到 HIGH。
+{% codeblock lang:text line_number:false %}
+STM32 板子                     按鍵
+
+GPIO ------------------------- 按鍵腳1
+ │                             │
+[Internal Pull-down]           │ 按下才接通
+ │                             │
+GND                            │
+                               │
+3.3V ------------------------- 按鍵腳2
+{% endcodeblock %}
+
+- No pull-up and no pull-down，是給有辦法主動輸出訊號的按鍵板用的
+{% codeblock lang:text line_number:false %}
+STM32 板子                     按鍵擴充板
+
+GPIO  <----------------------- OUT，主動輸出 HIGH 或 LOW
+
+GND   ------------------------ GND
+
+3.3V  ------------------------ VCC
+{% endcodeblock %}
+
+![NUCLEO-F767ZI 接腳圖右-button設定](找不到韌體工作之亡羊補牢專案/board_right_button.png)
+我們這邊綁定到五個 GPIO 腳位
+  - PF13，UP 按鍵
+  - PE9，DOWN 按鍵
+  - PE11，LEFT 按鍵
+  - PF14，RIGHT 按鍵
+  - PE13，OK 按鍵
+
+都選好之後，別忘記按下 Generate Code，接著就可以開始寫對應的韌體了。
+我們將按鍵輸入再歸類成 board_input 資料夾，與 board_gpio(debug用)、board_led 區分開來。
+並實作board_input wrapper
+
+{% codeblock Board/Src/board_input.c/.h lang:c line_number:true %}
 typedef enum
 {
+    BOARD_INPUT_INT_USER = 0,
+    BOARD_INPUT_EXT_UP,
+    BOARD_INPUT_EXT_DOWN,
+    BOARD_INPUT_EXT_LEFT,
+    BOARD_INPUT_EXT_RIGHT,
+    BOARD_INPUT_EXT_OK
+} board_input_t;
+
+bool board_input_is_pressed(board_input_t input)
+{
+    switch (input)
+    {
+        case BOARD_INPUT_INT_USER:
+        return HAL_GPIO_ReadPin(USER_Btn_GPIO_Port, USER_Btn_Pin) == GPIO_PIN_SET;
+        case BOARD_INPUT_EXT_UP:
+        return HAL_GPIO_ReadPin(EXT_UP_Btn_GPIO_Port, EXT_UP_Btn_Pin) == GPIO_PIN_SET;
+        case BOARD_INPUT_EXT_DOWN:
+        return HAL_GPIO_ReadPin(EXT_DOWN_Btn_GPIO_Port, EXT_DOWN_Btn_Pin) == GPIO_PIN_SET;
+        case BOARD_INPUT_EXT_LEFT:
+        return HAL_GPIO_ReadPin(EXT_LEFT_Btn_GPIO_Port, EXT_LEFT_Btn_Pin) == GPIO_PIN_SET;
+        case BOARD_INPUT_EXT_RIGHT:
+        return HAL_GPIO_ReadPin(EXT_RIGHT_Btn_GPIO_Port, EXT_RIGHT_Btn_Pin) == GPIO_PIN_SET;
+        case BOARD_INPUT_EXT_OK:
+        return HAL_GPIO_ReadPin(EXT_OK_Btn_GPIO_Port, EXT_OK_Btn_Pin) == GPIO_PIN_SET;
+        default:
+        return false;
+    }
+}
+{% endcodeblock %}
+
+### 2. Input event 設計
+input event 分成三個部分
+- 按什麼按鍵
+- 觸發長短
+- timestamp
+
+{% codeblock App/Services/Input/input_service.h lang:c line_number:true %}
+typedef enum
+{
+    INPUT_KEY_TEST = 0,
     INPUT_KEY_UP,
     INPUT_KEY_DOWN,
     INPUT_KEY_LEFT,
     INPUT_KEY_RIGHT,
     INPUT_KEY_OK,
-    INPUT_KEY_A,
-    INPUT_KEY_B,
-    INPUT_KEY_START,
-    INPUT_KEY_BACK,
 } input_key_t;
 
 typedef enum
@@ -164,11 +267,11 @@ typedef struct
 } input_event_t;
 {% endcodeblock %}
 
-### input_event_queue 設計
+### 3. Input event queue 設計
 
 按鍵事件會透過 FreeRTOS queue 傳給後續 task。
 
-{% codeblock lang:c line_number:true %}
+{% codeblock lang:c App/Services/Input/input_service.c line_number:true %}
 #define INPUT_EVENT_QUEUE_DEPTH 8
 
 osMessageQueueId_t inputEventQueueHandle;
@@ -185,8 +288,13 @@ void input_service_init(void)
 
 之後當 input task 偵測到按鍵事件時，就把 event 丟進 queue：
 
-{% codeblock lang:c line_number:true %}
-static void input_post_event(input_key_t key, input_action_t action)
+{% codeblock lang:c App/Tasks/Src/input_task.c line_number:true %}
+
+}
+{% endcodeblock %}
+
+{% codeblock lang:c App/Services/Input/input_service.c line_number:true %}
+static void input_service_post_event(input_key_t key, input_action_t action)
 {
     input_event_t event =
     {
@@ -198,9 +306,9 @@ static void input_post_event(input_key_t key, input_action_t action)
 }
 {% endcodeblock %}
 
-Part 4 目前先讓測試用 task 從 `input_event_queue` 取出 event，並用 log 印出來。
+從 `input_event_queue` 取出 event，並用 log 印出來。
 
-{% codeblock lang:c line_number:true %}
+{% codeblock lang:c App/Tasks/Src/input_debug_task.c line_number:true %}
 void input_debug_task(void *argument)
 {
     input_event_t event;

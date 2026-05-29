@@ -139,3 +139,7 @@ IC 設計公司的產品類型很多，不同公司的 firmware / driver 工作�
 | 原型接線   | **MB-102 透明麵包板， 165×55mm，2 片**                               | 模組整合、快速測試、原型接線                       | NT$24    | [淘寶](https://item.taobao.com/item.htm?id=522572405070&mi_id=0000TliBLEr7bitnb1g3BJBtxuk-azyk8G4xW2bLkccPf9A)                                                                    |
 | 原型接線   | **21cm 杜邦線組，40P 彩排線，母對母 / 公對公 / 母對公各 1 組**       | 開發板、麵包板與模組接線                           | NT$58    | [淘寶](https://item.taobao.com/item.htm?id=558182761958&mi_id=0000ZLpDM_1_yXS5i7AO6paFaX3ahsQwG9XXOlAFREM2zi8)                                                                    |
 
+![NUCLEO-F767ZI 接腳圖左](找不到韌體工作之亡羊補牢專案/board_left.png)
+![NUCLEO-F767ZI 接腳圖右](找不到韌體工作之亡羊補牢專案/board_right.png)
+![NUCLEO-F767ZI 接腳圖金屬左](找不到韌體工作之亡羊補牢專案/board_left_hole.png)
+![NUCLEO-F767ZI 接腳圖金屬右](找不到韌體工作之亡羊補牢專案/board_right_hole.png)
