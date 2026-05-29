@@ -189,10 +189,27 @@ body:not(.light) .article .content .rebakery-search-hit {
     box-shadow: 0 0 0 3px rgba(250, 179, 135, 0.24);
 }
 
-.article .content img.rebakery-sized-image {
+.article .content .gallery-item {
     display: block;
+    max-width: 100%;
+    margin: 1rem auto;
+}
+
+.article .content img:not(.avatar):not(.not-gallery-item) {
+    display: block;
+    max-width: 100%;
     height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid rgba(208, 215, 222, 0.9);
     border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+body.night .article .content img:not(.avatar):not(.not-gallery-item),
+body:not(.light) .article .content img:not(.avatar):not(.not-gallery-item) {
+    border-color: rgba(68, 76, 86, 0.9);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
 }
 
 .article .content .rebakery-video-frame {

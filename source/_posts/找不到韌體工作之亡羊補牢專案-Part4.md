@@ -54,7 +54,7 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 
 ### 五向導航按鍵模組
 
-![五向導航按鍵模組](找不到韌體工作之亡羊補牢專案/5d_button.png "w:60%")
+![五向導航按鍵模組](找不到韌體工作之亡羊補牢專案/5d_button.png)
 
 預計用途：
 - `COM`：common pin
@@ -65,7 +65,7 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 
 ### 12×12 輕觸開關
 
-![12×12 輕觸開關](找不到韌體工作之亡羊補牢專案/normal_button.png "w:45%")
+![12×12 輕觸開關](找不到韌體工作之亡羊補牢專案/normal_button.png)
 
 預計用途：
 - `A`：確認 / 互動
@@ -77,7 +77,7 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 目前第一版會先用 internal pull-up，按下時讀到低電位。
 
 ### Joystick Shield
-![Joystick Shield](找不到韌體工作之亡羊補牢專案/game_button.png "w:70%")
+![Joystick Shield](找不到韌體工作之亡羊補牢專案/game_button.png)
 
 這塊原本是 Arduino 用的 Joystick Shield，上面有類比搖桿和多顆按鍵。
 

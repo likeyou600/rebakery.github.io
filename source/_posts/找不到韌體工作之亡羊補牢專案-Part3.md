@@ -61,6 +61,7 @@ Part 2 已經可以透過 USART3 / ST-LINK Virtual COM Port 印出 log。
 - `HAL_UART_Transmit()` 是 blocking，會卡住呼叫它的 task
 - driver、service、task 如果都直接操作 UART，之後會很難管理
 - log 格式、log level、timestamp 不容易統一
+- 後續改 DMA 輸出方式較複雜
 
 所以目前先做一個小型 log service。
 
@@ -68,37 +69,26 @@ Part 2 已經可以透過 USART3 / ST-LINK Virtual COM Port 印出 log。
 雖然 STM32F767ZI 是單核心 MCU，但在 FreeRTOS 裡仍然會有 task 切換。  
 也就是說，同一時間只有一個 task 在跑，不代表共享資源就不需要保護。
 
-UART debug console 就是一種共享資源。  
-如果多個 task 都直接操作 UART，可能會出現 log 交錯、輸出順序混亂，或某個 task 因為 UART blocking transmit 被卡住。
-
-如果只是要保護 UART，可以用 mutex：
-
+如果只是要保護 UART debug console，可以用 mutex 來保護，
+概念是，同一時間只允許一個 task 使用 UART，其他 task 必須等待。
 {% codeblock lang:c line_number:false %}
 osMutexAcquire(uart_mutex, osWaitForever);
 printf("[INFO][game] state=%lu\r\n", state);
 osMutexRelease(uart_mutex);
 {% endcodeblock %}
 
-mutex 的概念是：同一時間只允許一個 task 使用 UART，其他 task 必須等待。
+但這樣會有個缺點，就是每個 task 都知道 UART 的存在，職責切得不太乾淨，
+因此改用 **producer / consumer** 模型，把「產生 log」和「輸出 log」拆開。
+各個 task 只負責產生 log，當 log producer，丟進 `log_queue`。  
+`logger_task`，則作為 log consumer，負責輸出 log。
 
-不過這次我不想讓每個 task 都知道 UART 的存在，所以改用 producer / consumer 模型，把「產生 log」和「輸出 log」拆開。
-
-各個 task 只負責產生 log message，丟進 `log_queue`。  
-真正操作 UART 的只有 `logger_task`。
-
-`logger_task` 本身也可能被 FreeRTOS scheduler 切走。  
+雖然 `logger_task` 本身也可能被 FreeRTOS scheduler 切走。  
 但這時候影響的是 log 輸出時間可能延後，而不是 log 內容互相交錯。
-
-原因是其他 task 不會直接操作 UART，只會繼續把 log message 丟進 `log_queue`。  
 等 scheduler 再切回 `logger_task` 時，它會繼續處理 queue 裡的 log。
 
 簡單來說：
-
 - mutex：保護共享資源，避免多個 task 同時使用 UART
 - producer / consumer：讓其他 task 不直接碰 UART，而是交給 `logger_task` 統一處理
-
-這樣 UART 輸出就被集中管理。  
-後面要調整 log 格式、關閉某些 log，或改成 DMA 輸出，也比較容易。
 
 ### Logger 資料流
 {% codeblock lang:c line_number:false %}
@@ -388,16 +378,16 @@ HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, GPIO_PIN_RESET);
 目前 CubeMX 已經定義好的 GPIO 幾乎都有既定用途，不能隨便拿來當 debug pin。
 以 `PB0、PB7、PB14` 來說，已經被用來控制板子上的 LED，也就是我們前面做的 heartbeat_task LED
 如果直接拿這些 pin 來當 debug marker，可能會影響原本板子上的功能，也會讓觀察結果變得混亂。
-![](找不到韌體工作之亡羊補牢專案/GPIO.png)
+![STM32CubeMX GPIO 腳位設定畫面](找不到韌體工作之亡羊補牢專案/GPIO.png)
 
 
 因此我們需要先打開 `gb_f767zi.ioc`，重新找一個目前沒有被使用的 pin。
 這裡以 `PF12` ( GPIO Port F 的第 12 號腳位 ) 為例，將它設定成 `GPIO_Output`。
 
-> 在 STM32 中，GPIO 腳位會依照不同的 **Port** 分組
-> - 例如 `GPIOA`、`GPIOB`、`GPIOC` 到 `GPIOF` 等
+在 STM32 中，GPIO 腳位會依照不同的 **Port** 分組
+- 例如 `GPIOA`、`GPIOB`、`GPIOC` 到 `GPIOF` 等
 
-![](找不到韌體工作之亡羊補牢專案/GPIO_Output.png)
+![PF12 設定為 GPIO Output](找不到韌體工作之亡羊補牢專案/GPIO_Output.png)
 
 之所以要設定成 `GPIO_Output`，是因為我們要做的是：
   - 讓 MCU 透過程式主動把某個 pin 拉高或拉低。
@@ -413,7 +403,7 @@ HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, GPIO_PIN_RESET);
 - Maximum output speed
 - User Label
 
-![](找不到韌體工作之亡羊補牢專案/PF12_datail.png)
+![PF12 GPIO Output 詳細設定](找不到韌體工作之亡羊補牢專案/PF12_datail.png)
 
 ##### GPIO output level
 

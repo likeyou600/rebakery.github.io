@@ -179,12 +179,12 @@ CubeMX 設定位置：
 2. 切到 Pinout & Configuration
 3. 左側選擇 Connectivity -> USART3
 4. 確認上方 Mode 為 `Asynchronous`
-![](找不到韌體工作之亡羊補牢專案/Asynchronous.png) 
-5. 下方 Parameter Settings
-6. 確認設定為常見的 `115200 8N1`：
-![](找不到韌體工作之亡羊補牢專案/115200.png)
-7. 接著右側的Pinout view
-![](找不到韌體工作之亡羊補牢專案/PD89.png)
+![USART3 設定為 Asynchronous 模式](找不到韌體工作之亡羊補牢專案/Asynchronous.png)
+1. 下方 Parameter Settings
+2. 確認設定為常見的 `115200 8N1`：
+![USART3 設定 115200 8N1](找不到韌體工作之亡羊補牢專案/115200.png)
+1. 接著右側的Pinout view
+![PD8 與 PD9 設定為 USART3 TX RX](找不到韌體工作之亡羊補牢專案/PD89.png)
 ```text
 PD8  -> USART3_TX
 PD9  -> USART3_RX
@@ -233,7 +233,7 @@ printf("[00000000][main][INFO] system boot\r\n");
 #### PC 端 terminal 設定
 電腦端可以使用任一種 serial terminal，例如：
 - vscode extensions - Serial Monitor
-![](找不到韌體工作之亡羊補牢專案/SerialMonitor.png)
+![VS Code Serial Monitor 設定畫面](找不到韌體工作之亡羊補牢專案/SerialMonitor.png)
 - PuTTY
 - MobaXterm
 
@@ -367,7 +367,7 @@ void MX_FREERTOS_Init(void) {
 [00002000][rtos][INFO] debug_task alive counter=1
 [00003000][rtos][INFO] debug_task alive counter=2
 {% endcodeblock %}
-![](找不到韌體工作之亡羊補牢專案/SerialMonitor.png)
+![UART debug log 輸出畫面](找不到韌體工作之亡羊補牢專案/SerialMonitor.png)
 
 
 這樣就代表 Part 2 的基礎環境已經成立。
