@@ -23,29 +23,30 @@ categories:
 - Part 1：專案規劃與準備清單
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part2 'Part 2：開發環境與 FreeRTOS 架構' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
-<!-- - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Debounce 與 Event Queue' %} -->
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Polling Debounce 與 Event Queue' %}
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part5 'Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce' %}
 
 > 以下都是目前幻想出來的
 > 
-> Part 5：顯示系統：ILI9341 TFT 與 SPI 繪圖
+> Part 6：顯示系統：ILI9341 TFT 與 SPI 繪圖
 > SPI 初始化、ILI9341 driver、畫 pixel/rect/bitmap、DMA 或局部更新。
 > 
-> Part 6：Game Task：電子寵物狀態機
+> Part 7：Game Task：電子寵物狀態機
 > 把 input 和 display 串起來，做寵物狀態、飢餓/心情/互動、簡單 animation。
 > 
-> Part 7：感測器整合：MPU-6050 與 BME280
+> Part 8：感測器整合：MPU-6050 與 BME280
 > I2C register driver、校正資料、週期性 sensor task、motion / environment event。timeout、> retry、bus error。
 > 
-> Part 8：通訊模組：BLE 與 NFC 互動
+> Part 9：通訊模組：BLE 與 NFC 互動
 > UART AT command、BLE RSSI / proximity、PN532 UID 讀取。NFC 走 UART / I2C / SPI 哪個比較適合。
 > 
-> Part 9：資料儲存：SPI Flash 與存檔格式
+> Part 10：資料儲存：SPI Flash 與存檔格式
 > W25Q128 erase/write/read、CRC、A/B slot、防止寫到一半斷電。
 > 
-> Part 10：音效、震動與回饋系統
+> Part 11：音效、震動與回饋系統
 > Timer PWM 蜂鳴器、震動馬達、非阻塞 feedback task。
 > 
-> Part 11：系統整合與 Debug 筆記
+> Part 12：系統整合與 Debug 筆記
 > 邏輯分析儀看 SPI/I2C/UART、log 格式、常見 bug、task 卡死、stack 不夠、priority 設錯。
 
 ---
@@ -120,26 +121,26 @@ IC 設計公司的產品類型很多，不同公司的 firmware / driver 工作�
 ---
 ## 準備的物品
 約花 **TWD 4,000**，其中 **NUCLEO-F767ZI 約 TWD 830**，**DSLogic Plus 邏輯分析儀約 TWD 2,100**。
-| 類別       | 名稱與規格                                                           | 技術                                               | 價格     | 連結                                                                                                                                                                              |
-| ---------- | -------------------------------------------------------------------- | -------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 主開發板   | **STM32 Nucleo-144 NUCLEO-F767ZI 開發板，STM32F767ZIT6 MCU**         | STM32、FreeRTOS、SPI、I2C、UART、GPIO、DMA         | NT$831   | [淘寶](https://item.taobao.com/item.htm?id=583380635561&mi_id=0000RMdeV8pkSiinzletEtaWPGkHazcy2VVPjIQ47AACO2k)                                                                    |
-| 顯示器     | **3.2 吋 ILI9341 TFT LCD，320×240，支援 SPI / 16-bit parallel 介面** | SPI、TFT driver、bitmap、tilemap、sprite、DMA      | NT$316   | [淘寶](https://item.taobao.com/item.htm?id=606268548585&mi_id=0000Zc9-ZRRVV7yVcx3mkuX6IJ4hIfQXhPZtoFB8o1q-zVQ) / [spec](找不到韌體工作之亡羊補牢專案/spec/ILI9341_spi_screen.pdf) |
-| BLE 模組   | **E104-BT5032A-TB BLE 5.0 UART 模組，nRF52832**                      | UART、AT command、BLE advertising、scanning、RSSI  | NT$287   | [淘寶](https://item.taobao.com/item.htm?id=680293406829&mi_id=0000SXUQRir-8Dg4lgiYtEcUYPgfcy65ASHsEIYCNFFeuaI) / [spec](找不到韌體工作之亡羊補牢專案/spec/E104-BT5032A-TB.pdf)    |
-| NFC 模組   | **PN532 NFC / RFID 讀寫模組**                                        | UART / I2C / SPI、NFC frame、UID 讀取              | NT$93    | [淘寶](https://item.taobao.com/item.htm?id=1003555893697&mi_id=0000dUqHjZ-jVVNQset-qRyMF-oA0XsbTLhhRvkzSaXKOgQ) / [spec](找不到韌體工作之亡羊補牢專案/spec/PN532_NFC.pdf)         |
-| IMU 感測器 | **MPU-6050 / GY-521 六軸 IMU 模組，加速度計 + 陀螺儀**               | I2C、register driver、motion detect、EXTI          | NT$30    | [淘寶](https://item.taobao.com/item.htm?id=1050364010446&mi_id=0000M0mxSUpmGCAlQPhcoNxcgYrVVborBh1-aIGY0BBwkj8)                                                                   |
-| 環境感測器 | **BME280 3.3V 環境感測模組，溫度 / 濕度 / 氣壓**                     | I2C、sensor calibration、週期性 sensor task        | NT$106   | [淘寶](https://item.taobao.com/item.htm?id=943493996162&mi_id=0000AEM-zEjLt-kQZOz0pYtun3PXTmeIlyVvkxle7LqDxAQ) / [spec](找不到韌體工作之亡羊補牢專案/spec/BME280-3.3V.pdf)        |
-| 外部 Flash | **W25Q128 SPI NOR Flash 模組，128 Mbit / 16 MB**                     | SPI、Flash erase/write、CRC、A/B save slot         | NT$20    | [淘寶](https://item.taobao.com/item.htm?id=953014550610&mi_id=00001RZA5Tcr5u4JsWQL-hdUrpNUTCpT5s5EjdvpsLNyZ6M)                                                                    |
-| 邏輯分析儀 | **DSLogic Plus 個人版，16 通道邏輯分析儀，最高 400 MS/s**            | Protocol decode、timing debug、firmware validation | NT$2,104 | [淘寶](https://item.taobao.com/item.htm?id=43809938149&mi_id=00001lxOP9eS7zxlMeHXEzrbyfajgSorK7RKRDj35p6DkPU)                                                                     |
-| 震動回饋   | **微型直流震動馬達模組，GPIO 控制**                                  | GPIO / PWM、haptic task                            | NT$24    | [淘寶](https://item.taobao.com/item.htm?id=584941055869&mi_id=0000t2_irSNoegzocnOlO9q6ACLuc0ceklWzlw-XOPV2OmM)                                                                    |
-| 音效       | **無源蜂鳴器模組，低電位觸發**                                       | Timer PWM、audio task                              | NT$6     | [淘寶](https://item.taobao.com/item.htm?id=522555899513&mi_id=0000JcheWQ096V7htVrWv97yU8VqJIVP1J01c9aiKqTNNrE)                                                                    |
-| 操作輸入   | **五向導航按鍵模組，方向鍵 + 中央確認鍵**                            | GPIO、debounce、input event queue                  | NT$17    | [淘寶](https://item.taobao.com/item.htm?id=584800322960&mi_id=0000vRwpW49P7md48pxranLfqJqK6iCb8OLfTrDFLnQMEDY)                                                                    |
-| 操作輸入   | **類比搖桿 / 遊戲輸入擴充模組**                                      | GPIO / ADC、按鍵事件                               | NT$32    | [淘寶](https://item.taobao.com/item.htm?id=726753606812&mi_id=00009T3Y2MeVX2nWYHduKFOOXG2Mm6IBU0Suqx9YOAbpPH8)                                                                    |
-| 按鍵       | **12×12×7.3mm 直插式輕觸開關，方頭，20 顆**                          | GPIO、debounce、short / long press                 | NT$14    | [淘寶](https://item.taobao.com/item.htm?id=556956143399&mi_id=00006Z7MgE9Hw_UGpvu1AL7S9KkaBwAS0pwbUHOHOgE7n24)                                                                    |
-| 按鍵配件   | **12×12mm 輕觸開關用圓形按鍵帽，白色，10 顆**                        | 按鍵手感、外觀原型                                 | NT$2     | [淘寶](https://item.taobao.com/item.htm?id=568451377652&mi_id=0000Xy3kQMuSJgE5NFLRbc89pDRqBF3Xknt84E0xToun9F0)                                                                    |
-| 原型接線   | **MB-102 透明麵包板， 165×55mm，2 片**                               | 模組整合、快速測試、原型接線                       | NT$24    | [淘寶](https://item.taobao.com/item.htm?id=522572405070&mi_id=0000TliBLEr7bitnb1g3BJBtxuk-azyk8G4xW2bLkccPf9A)                                                                    |
-| 原型接線   | **21cm 杜邦線組，40P 彩排線，母對母 / 公對公 / 母對公各 1 組**       | 開發板、麵包板與模組接線                           | NT$58    | [淘寶](https://item.taobao.com/item.htm?id=558182761958&mi_id=0000ZLpDM_1_yXS5i7AO6paFaX3ahsQwG9XXOlAFREM2zi8)                                                                    |
+| 類別       | 名稱與規格                                                           | 技術                                               | 價格     | 連結                                                                                                                                                                                                                                              |
+| ---------- | -------------------------------------------------------------------- | -------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 主開發板   | **STM32 Nucleo-144 NUCLEO-F767ZI 開發板，STM32F767ZIT6 MCU**         | STM32、FreeRTOS、SPI、I2C、UART、GPIO、DMA         | NT$831   | [淘寶](https://item.taobao.com/item.htm?id=583380635561&mi_id=0000RMdeV8pkSiinzletEtaWPGkHazcy2VVPjIQ47AACO2k) /[spec] (找不到韌體工作之亡羊補牢專案/spec/rm0410-stm32f76xxx-and-stm32f77xxx-advanced-armbased-32bit-mcus-stmicroelectronics.pdf) |
+| 顯示器     | **3.2 吋 ILI9341 TFT LCD，320×240，支援 SPI / 16-bit parallel 介面** | SPI、TFT driver、bitmap、tilemap、sprite、DMA      | NT$316   | [淘寶](https://item.taobao.com/item.htm?id=606268548585&mi_id=0000Zc9-ZRRVV7yVcx3mkuX6IJ4hIfQXhPZtoFB8o1q-zVQ) / [spec](找不到韌體工作之亡羊補牢專案/spec/ILI9341_spi_screen.pdf)                                                                 |
+| BLE 模組   | **E104-BT5032A-TB BLE 5.0 UART 模組，nRF52832**                      | UART、AT command、BLE advertising、scanning、RSSI  | NT$287   | [淘寶](https://item.taobao.com/item.htm?id=680293406829&mi_id=0000SXUQRir-8Dg4lgiYtEcUYPgfcy65ASHsEIYCNFFeuaI) / [spec](找不到韌體工作之亡羊補牢專案/spec/E104-BT5032A-TB.pdf)                                                                    |
+| NFC 模組   | **PN532 NFC / RFID 讀寫模組**                                        | UART / I2C / SPI、NFC frame、UID 讀取              | NT$93    | [淘寶](https://item.taobao.com/item.htm?id=1003555893697&mi_id=0000dUqHjZ-jVVNQset-qRyMF-oA0XsbTLhhRvkzSaXKOgQ) / [spec](找不到韌體工作之亡羊補牢專案/spec/PN532_NFC.pdf)                                                                         |
+| IMU 感測器 | **MPU-6050 / GY-521 六軸 IMU 模組，加速度計 + 陀螺儀**               | I2C、register driver、motion detect、EXTI          | NT$30    | [淘寶](https://item.taobao.com/item.htm?id=1050364010446&mi_id=0000M0mxSUpmGCAlQPhcoNxcgYrVVborBh1-aIGY0BBwkj8)                                                                                                                                   |
+| 環境感測器 | **BME280 3.3V 環境感測模組，溫度 / 濕度 / 氣壓**                     | I2C、sensor calibration、週期性 sensor task        | NT$106   | [淘寶](https://item.taobao.com/item.htm?id=943493996162&mi_id=0000AEM-zEjLt-kQZOz0pYtun3PXTmeIlyVvkxle7LqDxAQ) / [spec](找不到韌體工作之亡羊補牢專案/spec/BME280-3.3V.pdf)                                                                        |
+| 外部 Flash | **W25Q128 SPI NOR Flash 模組，128 Mbit / 16 MB**                     | SPI、Flash erase/write、CRC、A/B save slot         | NT$20    | [淘寶](https://item.taobao.com/item.htm?id=953014550610&mi_id=00001RZA5Tcr5u4JsWQL-hdUrpNUTCpT5s5EjdvpsLNyZ6M)                                                                                                                                    |
+| 邏輯分析儀 | **DSLogic Plus 個人版，16 通道邏輯分析儀，最高 400 MS/s**            | Protocol decode、timing debug、firmware validation | NT$2,104 | [淘寶](https://item.taobao.com/item.htm?id=43809938149&mi_id=00001lxOP9eS7zxlMeHXEzrbyfajgSorK7RKRDj35p6DkPU)                                                                                                                                     |
+| 震動回饋   | **微型直流震動馬達模組，GPIO 控制**                                  | GPIO / PWM、haptic task                            | NT$24    | [淘寶](https://item.taobao.com/item.htm?id=584941055869&mi_id=0000t2_irSNoegzocnOlO9q6ACLuc0ceklWzlw-XOPV2OmM)                                                                                                                                    |
+| 音效       | **無源蜂鳴器模組，低電位觸發**                                       | Timer PWM、audio task                              | NT$6     | [淘寶](https://item.taobao.com/item.htm?id=522555899513&mi_id=0000JcheWQ096V7htVrWv97yU8VqJIVP1J01c9aiKqTNNrE)                                                                                                                                    |
+| 操作輸入   | **五向導航按鍵模組，方向鍵 + 中央確認鍵**                            | GPIO、debounce、input event queue                  | NT$17    | [淘寶](https://item.taobao.com/item.htm?id=584800322960&mi_id=0000vRwpW49P7md48pxranLfqJqK6iCb8OLfTrDFLnQMEDY)                                                                                                                                    |
+| 操作輸入   | **類比搖桿 / 遊戲輸入擴充模組**                                      | GPIO / ADC、按鍵事件                               | NT$32    | [淘寶](https://item.taobao.com/item.htm?id=726753606812&mi_id=00009T3Y2MeVX2nWYHduKFOOXG2Mm6IBU0Suqx9YOAbpPH8)                                                                                                                                    |
+| 按鍵       | **12×12×7.3mm 直插式輕觸開關，方頭，20 顆**                          | GPIO、debounce、short / long press                 | NT$14    | [淘寶](https://item.taobao.com/item.htm?id=556956143399&mi_id=00006Z7MgE9Hw_UGpvu1AL7S9KkaBwAS0pwbUHOHOgE7n24)                                                                                                                                    |
+| 按鍵配件   | **12×12mm 輕觸開關用圓形按鍵帽，白色，10 顆**                        | 按鍵手感、外觀原型                                 | NT$2     | [淘寶](https://item.taobao.com/item.htm?id=568451377652&mi_id=0000Xy3kQMuSJgE5NFLRbc89pDRqBF3Xknt84E0xToun9F0)                                                                                                                                    |
+| 原型接線   | **MB-102 透明麵包板， 165×55mm，2 片**                               | 模組整合、快速測試、原型接線                       | NT$24    | [淘寶](https://item.taobao.com/item.htm?id=522572405070&mi_id=0000TliBLEr7bitnb1g3BJBtxuk-azyk8G4xW2bLkccPf9A)                                                                                                                                    |
+| 原型接線   | **21cm 杜邦線組，40P 彩排線，母對母 / 公對公 / 母對公各 1 組**       | 開發板、麵包板與模組接線                           | NT$58    | [淘寶](https://item.taobao.com/item.htm?id=558182761958&mi_id=0000ZLpDM_1_yXS5i7AO6paFaX3ahsQwG9XXOlAFREM2zi8)                                                                                                                                    |
 
 ![NUCLEO-F767ZI 接腳圖左](找不到韌體工作之亡羊補牢專案/board_left.png)
 ![NUCLEO-F767ZI 接腳圖右](找不到韌體工作之亡羊補牢專案/board_right.png)
 ![NUCLEO-F767ZI 接腳圖金屬左](找不到韌體工作之亡羊補牢專案/board_left_hole.png)
-![NUCLEO-F767ZI 接腳圖金屬右](找不到韌體工作之亡羊補牢專案/board_right_hole.png)
+![NUCLEO-F767ZI 接腳圖右](找不到韌體工作之亡羊補牢專案/board_right_hole.png)

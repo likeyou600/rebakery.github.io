@@ -35,6 +35,9 @@ textarea,
     --hl-tools-hover-color: #0969da;
     --hl-line-number-color: #8c959f;
     --hl-line-number-border: rgba(208, 215, 222, 0.9);
+    --hl-scrollbar-track: rgba(246, 248, 250, 0.95);
+    --hl-scrollbar-thumb: rgba(87, 96, 106, 0.42);
+    --hl-scrollbar-thumb-hover: rgba(87, 96, 106, 0.68);
 }
 
 body.night {
@@ -59,6 +62,9 @@ body.night {
     --hl-tools-hover-color: #539bf5;
     --hl-line-number-color: #768390;
     --hl-line-number-border: rgba(68, 76, 86, 0.75);
+    --hl-scrollbar-track: rgba(45, 51, 59, 0.95);
+    --hl-scrollbar-thumb: rgba(118, 131, 144, 0.55);
+    --hl-scrollbar-thumb-hover: rgba(118, 131, 144, 0.78);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -84,6 +90,9 @@ body.night {
         --hl-tools-hover-color: #539bf5;
         --hl-line-number-color: #768390;
         --hl-line-number-border: rgba(68, 76, 86, 0.75);
+        --hl-scrollbar-track: rgba(45, 51, 59, 0.95);
+        --hl-scrollbar-thumb: rgba(118, 131, 144, 0.55);
+        --hl-scrollbar-thumb-hover: rgba(118, 131, 144, 0.78);
     }
 }
 
@@ -372,15 +381,24 @@ body.rebakery-scrolled #back-to-top {
     overflow: auto;
     background: var(--rebakery-code-bg);
     scrollbar-width: thin;
+    scrollbar-color: var(--hl-scrollbar-thumb) var(--hl-scrollbar-track);
 }
 
 .article .content figure.highlight .highlight-body::-webkit-scrollbar {
     height: 0.55rem;
 }
 
+.article .content figure.highlight .highlight-body::-webkit-scrollbar-track {
+    background: var(--hl-scrollbar-track);
+}
+
 .article .content figure.highlight .highlight-body::-webkit-scrollbar-thumb {
     border-radius: 999px;
-    background: rgba(135, 144, 163, 0.55);
+    background: var(--hl-scrollbar-thumb);
+}
+
+.article .content figure.highlight .highlight-body::-webkit-scrollbar-thumb:hover {
+    background: var(--hl-scrollbar-thumb-hover);
 }
 
 .article .content figure.highlight table,
@@ -511,15 +529,24 @@ body.rebakery-scrolled #back-to-top {
     overflow: auto;
     background: var(--hl-bg) !important;
     scrollbar-width: thin;
+    scrollbar-color: var(--hl-scrollbar-thumb) var(--hl-scrollbar-track);
 }
 
 .article .content figure.shiki pre.shiki::-webkit-scrollbar {
     height: 0.55rem;
 }
 
+.article .content figure.shiki pre.shiki::-webkit-scrollbar-track {
+    background: var(--hl-scrollbar-track);
+}
+
 .article .content figure.shiki pre.shiki::-webkit-scrollbar-thumb {
     border-radius: 999px;
-    background: rgba(118, 131, 144, 0.55);
+    background: var(--hl-scrollbar-thumb);
+}
+
+.article .content figure.shiki pre.shiki::-webkit-scrollbar-thumb:hover {
+    background: var(--hl-scrollbar-thumb-hover);
 }
 
 .article .content figure.shiki pre.shiki>code {
