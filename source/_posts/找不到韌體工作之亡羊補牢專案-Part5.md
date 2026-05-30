@@ -1,6 +1,6 @@
 ---
 title: 找不到韌體工作之亡羊補牢專案-Part5
-date: 2026-06-01 03:00
+date: 2026-05-31 05:00
 slug: GB-Project-Part5
 permalink: 20260525/GB-Project-Part5/
 asset_folder: 找不到韌體工作之亡羊補牢專案
@@ -17,15 +17,21 @@ Part 4 練習了 Polling 版本的 Input，想當然學過 OS 的各位肯定也
 
 <!-- more -->
 ---
+# Input System：EXTI、ISR Notify 與 Software Timer Debounce
 ## 系列文章
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part1 'Part 1：專案規劃與準備清單' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part2 'Part 2：開發環境與 FreeRTOS 架構' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Polling Debounce 與 Event Queue' %}
 - Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce
+---
+## 前言
+好，既然都把 EXTI 拆出來這章節了，那就來好好研究研究吧。
+畢竟這章節是面試常考題呢，曾經我就被瑞昱問過 UART 的完整 Interrupt 流程呢。
 
 ---
 ## 本篇目標
+- Input Service
   - 使用 NUCLEO-F767ZI User Button + EXTI，練習 interrupt 只負責通知，不直接處理完整按鍵邏輯
   - 實作 EXTI + software timer debounce，將中斷觸發後的按鍵狀態整理成穩定的 input event
 
@@ -38,36 +44,60 @@ Part 4 練習了 Polling 版本的 Input，想當然學過 OS 的各位肯定也
 [🍦下載本篇範例專案-Part 5🍦](https://github.com/likeyou600/gb_project/releases/tag/Part5)
 
 ---
+## 名詞介紹
+在進入實作前，先整理幾個這段會一直出現的名詞。
+
+- `STM32 HAL`
+  - HAL 是 Hardware Abstraction Layer 的縮寫，是 ST 提供的一層硬體抽象 API。
+  - 透過 HAL，我們可以用像 `HAL_XXXX()`、`HAL_XXXXHandler()` 這類函式操作 GPIO、中斷、Timer 等周邊，而不需要一開始就直接操作 register。
+
+- `GPIO HAL Driver`
+  - GPIO HAL Driver 是 STM32 HAL 裡專門負責 GPIO 的 driver。
+  - 例如前面 Polling 版本用到的 `HAL_GPIO_ReadPin()`，以及這裡 EXTI 會用到的 `HAL_GPIO_EXTI_IRQHandler()`、`HAL_GPIO_EXTI_Callback()`，都屬於 GPIO HAL Driver 相關的 API。
+  
+- `EXTI`
+  - External Interrupt/Event Controller，是 MCU 裡負責偵測外部 GPIO 或內部 peripheral event 是否觸發 interrupt / event 的硬體模組。
+  - 以 User Button 為例，按鍵接在 `PC13`，所以 GPIO 狀態變化會對應到 `EXTI13`。
+  - 可以把 EXTI 想成公司各個門口的感應器，負責發現「哪個門口有人進來」、「哪個按鈕被按下」這類事件。
+
+- `IRQ`
+  - Interrupt Request，中斷請求。
+  - 當 EXTI 偵測到指定的 rising edge 或 falling edge 後，就會產生 IRQ，通知 CPU 有中斷事件需要處理。
+  - 可以把 IRQ 想成感應器送出的通知訊號：不是直接處理事情，而是先告訴系統「有事件發生了」。
+
+- `NVIC`
+  - Nested Vectored Interrupt Controller，是 Cortex-M 裡負責管理中斷的控制器。
+  - 它會決定某個 IRQ 是否有被啟用、優先權是多少，以及 CPU 要不要進入對應的中斷處理流程。
+  - 可以把 NVIC 想成公司的總機或櫃台主管，收到各個感應器送來的通知後，判斷這件事要不要處理、優先順序怎麼排，以及要叫誰來處理。
+
+- `ISR`
+  - Interrupt Service Routine，也就是中斷服務程式。
+  - 當 IRQ 被 NVIC 接受後，CPU 會跳到對應的 ISR 執行，例如 `EXTI15_10_IRQHandler()`。
+  - 在 STM32 HAL 架構下，ISR 裡通常會呼叫 HAL 提供的 handler，再進一步呼叫到我們實作的 callback。
+
+
+---
 ## 輸入系統設計 EXTI
 
-前面 Polling 版本的做法，是由 `input_task` 固定週期掃描 GPIO。
-這種方式很適合方向鍵、A/B 鍵、選單鍵這類會持續被玩家操作的按鍵，邏輯單純，也容易和 debounce、event queue 整合。
+前一章節 Polling 版本的做法，是由 `input_task` 固定週期掃描 GPIO，
+這種方式很適合方向鍵、A/B 鍵、選單鍵這類會持續被玩家操作的按鍵，邏輯單純。
 
-不過在 FreeRTOS 專案裡，也很常遇到另一種情境：
-外部事件先透過 interrupt 通知系統，接著再把真正要處理的事情交給 task 執行。
+不過有些輸入不一定適合一直靠 task 週期性掃描。
+例如電源鍵、喚醒鍵、User Button，或是某些外部模組主動通知 MCU 的訊號，通常會希望在狀態變化時可以比較即時地通知系統。
 
-這種做法的好處是 ISR 可以保持很短，只負責「通知有事情發生」，而不是在中斷裡做太多複雜邏輯。
-實際的 debounce、狀態判斷、event queue 發送，仍然可以放回 task 或 software timer 裡處理。
+這種時候就可以使用 EXTI，讓 GPIO 狀態變化先觸發 interrupt。
+但 interrupt 裡不適合做太多事情，所以 ISR 只負責「通知有事件發生」，真正的 debounce、狀態判斷、event queue 發送，還是交給 task 處理
 
-所以這一段先用 NUCLEO-F767ZI 板上的 User Button 練習 EXTI，目標不是把所有按鍵都改成 interrupt，而是先熟悉：
+所以這一段先用 NUCLEO-F767ZI 板上的 User Button 練習 EXTI。
+目標不是把所有按鍵都改成 interrupt，而是先熟悉：
 
 - GPIO 如何設定成 EXTI
 - 中斷發生後如何進入 callback
-- ISR 裡如何通知 `input_task`
+- ISR 裡如何通知 `input_irq_task`
 - 如何搭配 software timer 做 debounce
 - 最後如何把穩定後的按鍵狀態轉成 input event
 
-在進入實作前，先整理幾個這段會一直出現的名詞。
-- `EXTI`
-  - External Interrupt/Event Controller，用來讓外部 GPIO 或內部 peripheral event 觸發 interrupt / event
-- `IRQ`
-  - Interrupt Request，中斷請求。可以把它想成某個硬體或事件對 CPU 發出的「我要中斷」訊號
-- `NVIC` 
-  - Nested Vectored Interrupt Controller，Cortex-M 裡負責管理中斷優先權、啟用/停用中斷的控制器
-- `ISR`
-  - Interrupt Service Routine，也就是中斷服務程式。中斷發生時，CPU 會先跳進 ISR 處理
-
-原因是流程上可以這樣理解：
+流程上可以這樣理解：
 {% codeblock lang:c line_number:false %}
 GPIO 狀態變化
     |
@@ -88,6 +118,22 @@ CPU 進入對應 ISR
 
 {% codeblock lang:c line_number:false %}
 🌕Init side:🌕
+    MX_GPIO_Init()
+        |
+        | 設定 USER_Btn 的 GPIO / EXTI mode
+        |
+        | GPIO_InitStruct.Pin = USER_Btn_Pin;
+        | GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+        | GPIO_InitStruct.Pull = GPIO_NOPULL;
+        | HAL_GPIO_Init(USER_Btn_GPIO_Port, &GPIO_InitStruct);
+        |
+        | 設定 EXTI15_10 的 NVIC priority / enable IRQ
+        |
+        | HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+        | HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+        v
+    USER_Btn EXTI ready
+-----------
     app_main_init()
         |
         | input_service_init() 這邊採用跟 Polling 一樣的
@@ -96,8 +142,29 @@ CPU 進入對應 ISR
         |                        NULL)
         v
     input event queue ready
+-----------   
+    input_irq_task()
+        |
+        | inputIrqTaskHandle = osThreadGetId()
+        |   記住目前 task 的 handle，
+        |   之後 ISR 裡的 osThreadFlagsSet() 才知道要通知哪個 task。
+        |
+        | userButtonDebounceTimerHandle =
+        |   osTimerNew(input_irq_task_user_button_timer_cb,
+        |              osTimerOnce,
+        |              NULL,
+        |              NULL)
+        |   建立一個 one-shot software timer，
+        |   之後收到 EXTI 通知時，會用這個 handle 呼叫 osTimerStart()。
+        |
+        |   timer 到期後會執行：
+        |   input_irq_task_user_button_timer_cb()
+        |
+        v
+    input_irq_task ready
 ------------------------
 🌗Interrupt side:🌗
+
     User Button pressed / released
         |
         | PC13 GPIO level changed
@@ -107,19 +174,12 @@ CPU 進入對應 ISR
         | PC13 -> EXTI13
         | Rising / Falling edge triggered
         |
-        | 設定來源：
-        |   - CubeMX .ioc
-        |   - Core/Src/gpio.c
-        |   - MX_GPIO_Init()
-        |   - HAL_GPIO_Init(USER_Btn_GPIO_Port, &GPIO_InitStruct)
+        | 這段是 EXTI peripheral 硬體行為，
+        | 不是一般 user code function。
         v
     EXTI generates IRQ
         |
         | EXTI13 belongs to EXTI line[15:10]
-        |
-        | 這段是 EXTI peripheral 硬體行為，
-        | 不是一般 user code function。
-        | CubeMX / HAL 會在初始化時設定 EXTI line、trigger edge。
         v
     NVIC receives IRQ
         |
@@ -127,11 +187,8 @@ CPU 進入對應 ISR
         |   - Is EXTI line[15:10] interrupt enabled?
         |   - What is its priority?
         |
-        | 設定來源：
-        |   - Core/Src/gpio.c
-        |   - MX_GPIO_Init()
-        |   - HAL_NVIC_SetPriority(EXTI15_10_IRQn, ...)
-        |   - HAL_NVIC_EnableIRQ(EXTI15_10_IRQn)
+        | 這裡使用的是前面 MX_GPIO_Init()
+        | 已經設定好的 NVIC priority / enable 狀態。
         v
     CPU enters ISR
         |
@@ -139,54 +196,76 @@ CPU 進入對應 ISR
         |   - Core/Src/stm32f7xx_it.c
         |
         | EXTI15_10_IRQHandler()
-        |   -> HAL_GPIO_EXTI_IRQHandler(USER_Btn_Pin)
+        |   - 真正的 ISR 入口
+        |   - 由 NVIC 讓 CPU 跳進來執行
+        |   - 對應 EXTI line[15:10] interrupts
+        |
+        |   -> HAL_GPIO_EXTI_IRQHandler(USER_Btn_Pin) 
+        |       - 是 STM32 HAL GPIO driver 提供的通用 EXTI 處理函式，不是新的 ISR 入口。
+        |       - 它負責處理 GPIO EXTI 的共用流程：
+        |           - 檢查指定 GPIO pin 的 EXTI pending flag
+        |           - 清除 interrupt pending flag
+        |           - 呼叫 HAL_GPIO_EXTI_Callback(GPIO_Pin)
+        |           這樣每個 EXTI IRQ handler 不需要自己重寫檢查 flag、清 flag、呼叫 callback 
+        |
         v
     HAL GPIO EXTI callback
         |
         | 程式碼位置：
-        |   - 自己實作 callback 的檔案
-        |   - 例如 App/Tasks/Src/input_task.c
-        |   - 或 Core/Src/main.c
+        |   - Core/Src/stm32f7xx_it.c
+        |   - 或自己實作 callback 的檔案
         |
         | HAL_GPIO_EXTI_Callback(GPIO_Pin)
         |   -> check GPIO_Pin == USER_Btn_Pin
-        v
-    notify input_task from ISR context
-        |
-        | input_task_notify_user_button_from_isr()
-        |   -> osThreadFlagsSet(inputTaskHandle,
+        |       ->input_irq_task_notify_user_button_from_isr()
+        |           -> osThreadFlagsSet(inputTaskHandle,
         |                       INPUT_THREAD_FLAG_USER_BTN_IRQ)
         v
-    input_task notified
+    input_irq_task notified
 ------------------------
-🌓Debounce side:🌓
-    input_task
+🌓Producer side:🌓
+    input_irq_task
         |
-        | 收到 INPUT_THREAD_FLAG_USER_BTN_IRQ
-        |   -> osTimerStart(userButtonDebounceTimerHandle,
-        |                   APP_INPUT_DEBOUNCE_MS)
+        | osThreadFlagsWait(INPUT_THREAD_FLAG_USER_BTN_IRQ,
+        |                   osFlagsWaitAny,
+        |                   osWaitForever)
         v
-    software timer delay
+    received INPUT_THREAD_FLAG_USER_BTN_IRQ
         |
+        | osTimerStart(userButtonDebounceTimerHandle,
+        |              APP_INPUT_EXTI_DEBOUNCE_MS)
         v
-    input_task_user_button_timer_cb()
+    software timer debounce delay
+        |
+        | timer expired
+        | 代表 debounce 等待時間到了，
+        | 不是 timer 自己判斷按鍵穩定，
+        | 而是準備重新讀一次 GPIO。
+        v
+    input_irq_task_user_button_timer_cb()
         |
         | board_input_is_pressed(BOARD_INPUT_INT_USER)
         |   -> HAL_GPIO_ReadPin(...)
         v
-    stable GPIO state
+    read GPIO again after debounce delay
         |
-        | pressed state changed
+        | if pressed != userButtonStablePressed
         v
-    input_service_post_event(INPUT_KEY_TEST, INPUT_ACTION_SHORT)
+    stable state changed
         |
-        | osMessageQueuePut(inputEventQueueHandle, ...)
+        | userButtonStablePressed = pressed
+        v
+    if userButtonStablePressed == true
+        |
+        | input_service_post_event(INPUT_KEY_TEST,
+        |                          INPUT_ACTION_PRESS)
+        |   -> osMessageQueuePut(inputEventQueueHandle, ...)
         v
     input event queue
 ------------------------
 🌚Consumer side:🌚
     input_debug_task
-    game_task，之後 Part 6 實作
+    game_task，之後 Part 7 實作
         |
         | input_service_get_event(&event, osWaitForever)
         v
@@ -223,8 +302,6 @@ STM32 的 EXTI 不是每一顆 GPIO 都有一條獨立的 interrupt line，而�
 以 NUCLEO-F767ZI 板上的 User Button 為例，這顆按鍵通常已經在 CubeMX 裡被命名成 `USER_Btn`，而且接在 `PC13`。
 因為 `PC13` 對應的是 `EXTI13`，所以如果外部按鍵剛好也接在 `PE13`，就不能同時把 `PC13` 和 `PE13` 都設定成 GPIO EXTI。
 
-這也是為什麼這篇裡外接五向鍵仍然維持 Polling，而 EXTI 只拿板子上的 User Button 來練習。
-
 ![PC13 EXTI 設定](找不到韌體工作之亡羊補牢專案/PC_13_Interrupt.png)
 
 在 CubeMX 裡，選到 `PC13` 之後，可以看到 GPIO mode 有幾種跟 EXTI 有關的選項：
@@ -236,7 +313,7 @@ STM32 的 EXTI 不是每一顆 GPIO 都有一條獨立的 interrupt line，而�
 - `External Event Mode with Falling edge trigger detection`
 - `External Event Mode with Rising/Falling edge trigger detection`
 
-這裡要選的是 **External Interrupt Mode**，因為我們希望 GPIO 狀態變化時可以進到 interrupt handler，後面再透過 ISR 通知 `input_task`。
+這裡要選的是 **External Interrupt Mode**，因為我們希望 GPIO 狀態變化時可以進到 interrupt handler，後面再透過 ISR 通知 `input_irq_task`。
 
 至於 **External Event Mode**，它比較像是產生事件訊號，不一定會進入 CPU 的中斷處理流程。這篇的目標是練習 GPIO interrupt notify task，所以先不使用 Event Mode。
 
@@ -282,44 +359,79 @@ PC13 → EXTI13 → EXTI15_10_IRQHandler
 如果之後把 `PE9` 改成 `GPIO_EXTI9`，NVIC 裡才會出現 `EXTI line[9:5] interrupts`。
 
 設定完成後，CubeMX 產生的 code 裡就會包含對應的 EXTI IRQ handler。
-後面我們只需要在 HAL 提供的 callback 裡判斷是不是 `USER_Btn_Pin` 觸發，再通知 `input_task` 或啟動 software timer debounce。
 
+{% codeblock Core/Src/stm32f7xx_it.c lang:c line_number:true %}
+/**
+  * @brief This function handles EXTI line[15:10] interrupts.
+  */
+void EXTI15_10_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
 
-### 2. ISR 只做通知，不直接處理按鍵
+  /* USER CODE END EXTI15_10_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(USER_Btn_Pin);
+  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
 
-在 interrupt 裡面不適合做太多事情。
+  /* USER CODE END EXTI15_10_IRQn 1 */
+}
+{% endcodeblock %}
 
-例如：
+{% codeblock Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c lang:c line_number:true %}
+/**
+  * @brief  This function handles EXTI interrupt request.
+  * @param  GPIO_Pin Specifies the pins connected EXTI line
+  * @retval None
+  */
+void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin)
+{
+  /* EXTI line interrupt detected */
+  if (__HAL_GPIO_EXTI_GET_IT(GPIO_Pin) != RESET)
+  {
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_Pin);
+    HAL_GPIO_EXTI_Callback(GPIO_Pin);
+  }
+}
+/**
+  * @brief  EXTI line detection callbacks.
+  * @param  GPIO_Pin Specifies the pins connected EXTI line
+  * @retval None
+  */
+__weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
 
-- 不在 ISR 裡做 debounce
-- 不在 ISR 裡印 log
-- 不在 ISR 裡跑遊戲邏輯
-- 不在 ISR 裡直接做複雜的 queue 操作
+  /* NOTE: This function Should not be modified, when the callback is needed,
+           the HAL_GPIO_EXTI_Callback could be implemented in the user file
+   */
+}
+{% endcodeblock %}
 
-這邊的 ISR 只做一件事：通知 `input_irq_task` 有 User Button 的 EXTI 事件發生。
+### 2. ISR, Callback 只做通知，不直接處理按鍵
+HAL_GPIO_EXTI_Callback() 在 HAL driver 裡是 __weak 定義，代表 ST 先提供一個預設的空實作。
+如果我們在自己的程式裡實作同名 function，就可以覆寫掉原本的 weak callback。
 
-HAL 的 EXTI callback 裡面判斷是哪一個 GPIO pin 觸發：
+這裡的 callback 只做一件事：確認是不是 USER_Btn_Pin 觸發，然後通知 input_irq_task 有 User Button 的 EXTI 事件發生。
+
+因為這個 callback 是從 ISR 呼叫鏈裡執行，所以裡面不要直接做 debounce、不要等待、也不要做太多邏輯。
+實際的 debounce 會交給後面的 input_irq_task 和 software timer 處理。
 
 {% codeblock Core/Src/stm32f7xx_it.c lang:c line_number:true %}
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == USER_Btn_Pin)
   {
-    input_task_notify_user_button_from_isr();
+    input_irq_task_notify_user_button_from_isr();
   }
 }
 {% endcodeblock %}
-
-這樣 EXTI callback 不需要知道 input event 的格式，也不需要知道 queue 怎麼運作。  
-它只把「User Button 有 interrupt」這件事往上通知，剩下交給 `input_task`。
-
 
 {% codeblock App/Tasks/Src/input_irq_task.c lang:c line_number:true %}
 #define INPUT_THREAD_FLAG_USER_BTN_IRQ (1UL << 0)
 
 static osThreadId_t inputTaskHandle = NULL;
 
-void input_task_notify_user_button_from_isr(void)
+void input_irq_task_notify_user_button_from_isr(void)
 {
   if (inputTaskHandle != NULL)
   {
@@ -328,31 +440,29 @@ void input_task_notify_user_button_from_isr(void)
 }
 {% endcodeblock %}
 
-### 3. 建立 software timer debounce
-
+### 3. input_irq_task + software timer debounce 設計
 Polling 版本的 debounce 是靠每次掃描 GPIO 時，比對 `HAL_GetTick()` 和上次變化時間。
 
 EXTI 版本的 debounce 則改成：
+  1. EXTI 發生
+  2. 通知 `input_irq_task`
+  3. `input_irq_task` 啟動一次性 software timer
+  4. timer 到期後重新讀 GPIO
+  5. 如果狀態真的改變，再送出 input event
 
-1. EXTI 發生
-2. 通知 `input_task`
-3. `input_task` 啟動一次性 software timer
-4. timer 到期後重新讀 GPIO
-5. 如果狀態真的改變，再送出 input event
-
-先建立 User Button 專用的 debounce timer：
-
-{% codeblock App/Tasks/Src/input_task.c lang:c line_number:true %}
+{% codeblock App/Tasks/Src/input_irq_task.c lang:c line_number:true %}
 #define APP_INPUT_EXTI_DEBOUNCE_MS 30U
 
-static osTimerId_t userButtonDebounceTimerHandle = NULL;
-static bool userButtonStablePressed = false;
+static osTimerId_t userButtonDebounceTimerHandle;
+static bool userButtonStablePressed;
 
-static void input_task_user_button_timer_cb(void *argument)
+static void input_irq_task_user_button_timer_cb(void *argument)
 {
+  bool pressed;
+
   (void)argument;
 
-  bool pressed = board_input_is_pressed(BOARD_INPUT_INT_USER);
+  pressed = board_input_is_pressed(BOARD_INPUT_INT_USER);
 
   if (pressed != userButtonStablePressed)
   {
@@ -360,54 +470,26 @@ static void input_task_user_button_timer_cb(void *argument)
 
     if (userButtonStablePressed)
     {
-      (void)input_service_post_event(INPUT_KEY_TEST, INPUT_ACTION_SHORT);
+      (void)input_service_post_event(INPUT_KEY_TEST, INPUT_ACTION_PRESS);
+    }
+    else
+    {
+      (void)input_service_post_event(INPUT_KEY_TEST, INPUT_ACTION_RELEASE);
     }
   }
 }
-{% endcodeblock %}
 
-這裡的重點是：timer callback 到期後才讀 GPIO。
-
-因為機械按鍵剛觸發 interrupt 的瞬間，訊號可能還在彈跳。  
-如果 ISR 一進來就立刻判斷按鍵狀態，很容易把彈跳誤判成多次輸入。
-
-等 `APP_INPUT_EXTI_DEBOUNCE_MS` 之後再讀一次，就比較有機會拿到穩定狀態。
-
-### 4. input_task 同時保留 Polling 與 EXTI 處理
-
-這一版不把原本 Polling 架構拆掉。
-
-方向鍵、OK 鍵還是照原本的 polling loop 掃描；User Button 則額外支援 EXTI 通知。  
-所以 `input_task` 會做兩件事：
-
-- 固定掃描 `buttonMap[]`
-- 在等待下一次掃描期間，順便接收 EXTI thread flag
-
-{% codeblock App/Tasks/Src/input_task.c lang:c line_number:true %}
-void input_task(void *argument)
+void input_irq_task(void *argument)
 {
   (void)argument;
 
-  inputTaskHandle = osThreadGetId();
-
-  userButtonDebounceTimerHandle = osTimerNew(
-      input_task_user_button_timer_cb,
-      osTimerOnce,
-      NULL,
-      NULL);
+  inputIrqTaskHandle = osThreadGetId();
+  userButtonDebounceTimerHandle = osTimerNew(input_irq_task_user_button_timer_cb, osTimerOnce, NULL, NULL);
+  LOG_INFO("input_irq", "user button debounce timer created");
 
   for (;;)
   {
-    for (size_t i = 0U; i < (sizeof(buttonMap) / sizeof(buttonMap[0])); i++)
-    {
-      bool raw_pressed = board_input_is_pressed(buttonMap[i].board_input);
-      input_task_debounce_button(&buttonMap[i], &buttonState[i], raw_pressed);
-    }
-
-    uint32_t flags = osThreadFlagsWait(
-        INPUT_THREAD_FLAG_USER_BTN_IRQ,
-        osFlagsWaitAny,
-        APP_INPUT_SCAN_PERIOD_MS);
+    uint32_t flags = osThreadFlagsWait(INPUT_THREAD_FLAG_USER_BTN_IRQ, osFlagsWaitAny, osWaitForever);
 
     if ((flags & INPUT_THREAD_FLAG_USER_BTN_IRQ) != 0U)
     {
@@ -418,68 +500,44 @@ void input_task(void *argument)
     }
   }
 }
+
 {% endcodeblock %}
 
-這裡把原本的 `osDelay(APP_INPUT_SCAN_PERIOD_MS)` 換成 `osThreadFlagsWait(..., APP_INPUT_SCAN_PERIOD_MS)`。
+### 4. 測試結果
 
-效果類似：
-
-- 沒有 EXTI 事件時：timeout 到期，繼續下一輪 polling
-- 有 EXTI 事件時：提早醒來，啟動 debounce timer
-
-所以整體仍然保留 Polling 的設計，只是讓 User Button 可以透過 interrupt 提早通知 `input_task`。
-
-### 5. 為什麼不是在 ISR 裡直接送 input event？
-
-一開始很容易想成：
-
-> User Button interrupt 進來了，那就直接 `input_service_post_event()` 不就好了？
-
-但這樣會把幾件事情混在 interrupt 裡：
-
-- button debounce
-- event 判斷
-- queue 操作
-- 可能還會接著印 log 或做更多處理
-
-這會讓 ISR 越來越重，也比較難維護。
-
-這篇先採用比較保守的切法：
-
-| 階段                    | 負責內容                  |
-| ----------------------- | ------------------------- |
-| EXTI ISR                | 只通知 `input_task`       |
-| `input_task`            | 啟動 debounce timer       |
-| software timer callback | 重新讀 GPIO，確認穩定狀態 |
-| Input Service           | 統一送出 input event      |
-| Consumer task           | 取出 input event 並處理   |
-
-這樣底層中斷、debounce、event queue 和遊戲邏輯就不會全部混在一起。
-
-### 6. 測試結果
-
-完成後，按下 User Button 時，預期會看到類似下面的 log：
+完成後開機，且按下 User Button ，預期會看到類似下面的 log：
 
 {% codeblock lang:text line_number:false %}
-[00001800][INFO ][INPUT] user button irq
-[00001832][INFO ][INPUT] key=TEST action=SHORT tick=1832
+[00000020][INFO ][input_irq] user button debounce timer created
+[00265437][INFO ][input] key=TEST action=PRESS tick=265437
+[00266314][INFO ][input] key=TEST action=RELEASE tick=266314
 {% endcodeblock %}
 
-如果有開 Rising/Falling edge，放開按鍵時也會觸發一次 EXTI。  
-不過目前 timer callback 只有在穩定狀態變成 pressed 時才送出 `INPUT_ACTION_SHORT`，所以 release 不會印出 input event。
+### 5. EXTI 與普通 GPIO input 比較
+這邊可以順便比較一下 EXTI 和前一篇 Polling input 的差異。
 
-之後如果要支援更完整的行為，可以再把這裡擴充成：
+Polling 版本是把 GPIO 設成一般 input，然後由 `input_task` 固定週期去讀取目前狀態。  
+也就是說，按下或放開都不是 GPIO 主動通知系統，而是 task 每隔一段時間去問一次：
+這顆按鍵現在是 pressed 還是 released?
+所以 Polling 版本能偵測到 release，是因為下一次掃描時讀到 GPIO 狀態已經從 pressed 變成 released。
 
-- `INPUT_ACTION_PRESS`
-- `INPUT_ACTION_RELEASE`
-- `INPUT_ACTION_SHORT`
-- `INPUT_ACTION_LONG`
+EXTI 版本則不同，GPIO 被設定成 external interrupt mode 後，只要符合設定的 edge，就會觸發一次 interrupt。
+例如這篇使用 `Rising/Falling edge`：
+  - 按下：GPIO 狀態變化，觸發一次 EXTI
+  - 放開：GPIO 狀態變化，也觸發一次 EXTI
 
-目前這篇先做到「User Button 透過 EXTI 觸發，經過 software timer debounce 後，送出一個 short event」就好。
+也就是說，EXTI 的觸發點來自 GPIO 電位變化的 edge，而不是 task 持續掃描。
+不過 EXTI 本身只代表「GPIO 有變化」，不代表可以直接相信當下狀態。
+
+EXTI 觸發後先啟動 software timer，等 debounce 時間到期後，再重新讀一次 GPIO。
+最後還是和 Polling 版本一樣，透過目前讀到的 GPIO 狀態和上一次穩定狀態比較，來判斷這次是 press 還是 release。
 
 ---
 ## 本篇小結
 承接上回，這 Part 理所當然的也是做的一蹋糊塗，
 但我覺得這邊偏向，沒搞太懂 `EXTI` `IRQ` `NVIC` `ISR`，就開始蝦雞巴生程式碼，
 Interrupt 流程跳來跳去，根本看不懂，完全就是當時做 FSW 接 OCI 的慘況。
-該用 .ioc 生成的就該用那邊生成，否則會一團亂
+該用 .ioc 生成的就用 CUBEMX 生成，否則會一團亂
+
+題外話，做到這章節發現 Log queue 因為開機印太多資訊，需要依照情況調整
+APP_LOG_QUEUE_DEPTH
