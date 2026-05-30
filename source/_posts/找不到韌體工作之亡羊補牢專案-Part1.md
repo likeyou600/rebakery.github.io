@@ -2,7 +2,7 @@
 title: 找不到韌體工作之亡羊補牢專案-Part1
 date: 2026-05-25 02:26
 slug: GB-Project-Part1
-permalink: 20260525/GB-Project-Part1/
+permalink: posts/gb-project/part-1/
 asset_folder: 找不到韌體工作之亡羊補牢專案
 cover: '/gallery/cover/part1.png'
 thumbnail: '/gallery/cover/part1.png'
