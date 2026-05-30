@@ -476,3 +476,10 @@ void input_task(void *argument)
 - `INPUT_ACTION_LONG`
 
 目前這篇先做到「User Button 透過 EXTI 觸發，經過 software timer debounce 後，送出一個 short event」就好。
+
+---
+## 本篇小結
+承接上回，這 Part 理所當然的也是做的一蹋糊塗，
+但我覺得這邊偏向，沒搞太懂 `EXTI` `IRQ` `NVIC` `ISR`，就開始蝦雞巴生程式碼，
+Interrupt 流程跳來跳去，根本看不懂，完全就是當時做 FSW 接 OCI 的慘況。
+該用 .ioc 生成的就該用那邊生成，否則會一團亂
