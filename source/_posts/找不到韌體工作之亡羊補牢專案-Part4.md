@@ -550,6 +550,16 @@ void input_task(void *argument)
 [00004507][INFO ][input] key=OK action=LONG tick=4502
 {% endcodeblock %}
 
+從邏輯分析儀可以看到，這顆 OK button 平時維持在 HIGH。  
+因為這個 GPIO 使用 pull-up 設定，所以按鍵沒按時會被拉到高電位。
+
+當按下按鍵時，GPIO 會被接到 GND，因此訊號會變成 LOW。
+
+如果是短按，可以看到低電位只維持一小段時間；  
+如果是長按，訊號則會持續維持在 LOW，直到放開按鍵後才回到 HIGH。
+
+![OK button PE13 邏輯分析儀圖](找不到韌體工作之亡羊補牢專案/OK_button_test_result.png)
+
 ---
 ## 本篇小結
 做這 Part 時真的是多災多難，首先 12×12 輕觸開關都還沒認真搞清楚，就蝦雞巴接上去麵包板，
