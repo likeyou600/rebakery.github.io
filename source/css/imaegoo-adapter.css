@@ -1135,7 +1135,7 @@ body.night.rebakery-post .navbar-main {
     /* 保留左右欄，但加寬整體版面 */
     body.rebakery-post .container {
         width: 96vw !important;
-        max-width: 1500px !important;
+        max-width: 1440px !important;
     }
 
     /* 維持三欄 flex 版面 */

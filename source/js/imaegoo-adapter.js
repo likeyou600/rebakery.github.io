@@ -27,7 +27,7 @@
             body.classList.add('rebakery-collections');
         } else if (path.indexOf('/about') === 0) {
             body.classList.add('rebakery-about');
-        } else if (/^\/\d{8}\//.test(path)) {
+        } else if (/^\/\d{8}\//.test(path) || path.indexOf('/posts/') === 0 || path.indexOf('/projects/') === 0) {
             body.classList.add('rebakery-post');
         }
     }
