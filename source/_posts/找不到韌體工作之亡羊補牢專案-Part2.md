@@ -1,7 +1,6 @@
 ---
 title: 找不到韌體工作之亡羊補牢專案-Part2
 date: 2026-05-26 03:00
-slug: GB-Project-Part2
 permalink: posts/gb-project/part2/
 asset_folder: 找不到韌體工作之亡羊補牢專案
 cover: '/gallery/cover/part2.png'
