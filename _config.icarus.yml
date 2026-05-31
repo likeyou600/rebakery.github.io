@@ -155,7 +155,7 @@ widgets:
     type: toc
     index: false
     collapsed: false
-    depth: 3
+    depth: 4
   # - position: left
   #   type: links
   #   links:
