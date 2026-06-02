@@ -15,7 +15,6 @@ categories:
 
 <!-- more -->
 ---
-# 基礎 DP 題型
 ## 一維 DP 只跟「前面」有關
 - Longest Increasing Subsequence (LIS) O(n^2)
 - Longest Increasing Substring O(n) 

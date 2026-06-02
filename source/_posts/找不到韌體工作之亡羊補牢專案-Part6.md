@@ -38,6 +38,11 @@ categories:
 - 初步規劃像素風畫面更新方式
 - 預留未來 TFT 與 W25Q128 共用 SPI bus 時的 `spi_bus_mutex` 設計
 
+1. CubeMX SPI 設定完成
+2. GPIO 控制腳位設定完成
+3. ILI9341 reset sequence 正常
+4. init command sequence 正常
+5. 可以 fill screen 顯示單色畫面
 ---
 
 ## SPI (Serial Peripheral Interface) 基礎
@@ -172,6 +177,16 @@ B: 5 bits
   - 主要參考 ILI9341 指令命名、BSP component 的分層方式
   - 不直接搬整包，因為官方版本依賴 `LCD_IO_*` 這類 BSP 介面，和目前專案的 `Board/` 架構不完全一樣
 
+### 調整 TFT 模組為 SPI 介面
+
+這塊 TFT 模組同時支援 16-bit parallel bus 和 SPI serial interface。  
+根據賣家提供的說明，預設是 `R12` 焊接，對應 16-bit bus 模式。  
+如果要改成 SPI serial interface，需要改成 `R13` 焊接。
+![模式選擇電路說明](找不到韌體工作之亡羊補牢專案/TFT_16_SPI_wire.png)
+
+![實體板上的電阻跳線位置，焊接的超醜笑死](找不到韌體工作之亡羊補牢專案/TFT_16_SPI.png)
+
+
 ---
 ## 0. TFT 顯示資料流
 
@@ -196,9 +211,9 @@ B: 5 bits
         | PE6 -> SPI4_MOSI
         | PE5 -> SPI4_MISO，可選
         |
-        | ILI9341 目前使用 SPI mode 3：
-        |   CPOL = High
-        |   CPHA = 2Edge
+        | ILI9341 目前使用 SPI mode 0：
+        |   CPOL = Low
+        |   CPHA = 1Edge
         |
         | 資料格式：
         |   8-bit
@@ -222,28 +237,17 @@ B: 5 bits
         |   -> board_lcd_unselect()
         |      -> LCD_CS = HIGH
         |
-        |   -> board_lcd_backlight_on()
+        |   -> board_lcd_backlight_off()
         |      -> LCD_BL = ON
         |
-        |   -> board_lcd_reset()
-        |      -> 目前只 delay
-        |      -> 不再拉 LCD_RST 腳位
-        v
-    LCD board layer ready
-        |
-        | ili9341 software reset
-        |
-        | ili9341_write_command(ILI9341_SWRESET)
-        | board_lcd_delay(...)
-        v
-    ILI9341 reset by command
-        |
         | ILI9341 init sequence
-        |
-        | Sleep Out
-        | Pixel Format = RGB565
-        | Memory Access Control = landscape
-        | Display On
+        |   Software reset
+        |   Power / timing 相關設定
+        |   Pixel Format = RGB565
+        |   Memory Access Control = landscape
+        |   Gamma 設定
+        |   Sleep Out
+        |   Display On
         v
     ILI9341 ready
 
@@ -252,7 +256,6 @@ B: 5 bits
 
     display_task
         |
-        | display_service_fill_screen(color)
         | display_service_draw_test_pattern()
         v
     display_service
@@ -297,9 +300,16 @@ B: 5 bits
 
     ILI9341 controller
         |
-        | 根據 MADCTL 決定畫面方向
+        | 根據 MADCTL 決定 GRAM 對應到面板的方向
         |
-        | 目前設定為 landscape：
+        | 目前設定：
+        |   MADCTL = MY | MV | BGR
+        |
+        |   MY  -> 修正上下/左右方向，讓角落顏色對到你的實際螢幕方向
+        |   MV  -> x/y 軸交換，進入橫向 landscape
+        |   BGR -> 使用 BGR 色彩順序
+        |
+        | 代表目前採用 landscape 座標：
         |   width  = 320
         |   height = 240
         |
@@ -310,134 +320,108 @@ B: 5 bits
     GRAM updated
         |
         | pixel data 寫入 LCD internal memory
+        | 寫入順序由 CASET / PASET / RAMWR 決定
         v
     TFT panel shows image
+    
 {% endcodeblock %}
-
-簡單講這次的分層是：
-- display_task
-  - 負責決定「現在要畫什麼」
-
-- display_service
-  - 負責提供比較高層的畫面 API
-
-- ili9341 driver
-  - 負責 ILI9341 指令、座標視窗、RGB565 pixel data
-
-- board_lcd
-  - 負責 STM32 這塊板子的 SPI / GPIO 實作
-
 ---
-## ILI9341 Bring-up
+## 1. CubeMX SPI 設定
 
-這一段先讓螢幕活起來。
+在 CubeMX 裡先啟用一組 SPI。這邊我選擇使用 `SPI4`，主要原因是 NUCLEO-F767ZI 板子左側排針剛好有一組 SPI4 相關腳位集中在一起，接線比較方便。
 
-Bring-up 的目標是：
-
-1. CubeMX SPI 設定完成
-2. GPIO 控制腳位設定完成
-3. ILI9341 reset sequence 正常
-4. init command sequence 正常
-5. 可以 fill screen 顯示單色畫面
-
-
-### CubeMX SPI 設定
-
-在 CubeMX 裡先啟用一組 SPI。  
-這邊我選擇使用 `SPI4`，主要原因是 NUCLEO-F767ZI 板子左側排針剛好有一組 SPI4 相關腳位集中在一起，接線比較方便。
-
-在 CubeMX 裡的設定位置：
-
-1. 打開 `.ioc`
-2. 進入 `Pinout & Configuration`
-3. 左側選擇：
-   - `Connectivity`
-   - `SPI4`
-
-目前畫面設定大概如下：
-
+在 CubeMX 設定大概如下：
 ![SPI4 CubeMX 設定](找不到韌體工作之亡羊補牢專案/SPI4_setting.png)
 
-這次 SPI4 的主要用途是 STM32 主動把 command / pixel data 傳給 ILI9341 TFT。  
-所以 STM32 會是 SPI Master，ILI9341 會是 SPI Slave。
-
-常見設定如下：
-
 {% codeblock lang:text line_number:false %}
-Mode        : Full-Duplex Master
-Data Size   : 8 Bits
-First Bit   : MSB First
-Clock Mode  : CPOL = High, CPHA = 2 Edge
-NSS         : Software
-Prescaler   : 2
-Baud Rate   : 48.0 MBits/s
+Mode
+    Mode                : Full-Duplex Master
+    Hardware NSS Signal : Disable
+------
+Basic Parameters
+    Frame Format        : Motorola
+    Data Size           : 8 Bits
+    First Bit           : MSB First
+------
+Clock Parameters
+    Prescaler           : 2
+    Clock Mode          : CPOL = Low, CPHA = 1 Edge 或是 CPOL = High, CPHA = 2 Edge
+------
+Advanced Parameters
+    CRC Calculation     : Disabled
+    NSSP Mode           : Enabled
+    NSS Signal Type     : Software
 {% endcodeblock %}
 
-第一版 bring-up 不一定要一開始就追求最快速度。  
-如果螢幕沒有反應，或邏輯分析儀看到 SPI 波形怪怪的，可以先把 prescaler 調大，讓 SPI clock 慢一點，確認初始化流程穩定後再加速。
+### Mode
 
-
-#### Mode
-
-這裡設定為：
-
+這次是 STM32 主動控制 TFT，所以 STM32 要設定成 Master，
+`Full-Duplex Master` 代表 SPI 可以同時送出資料和接收資料。
 {% codeblock lang:text line_number:false %}
 Mode = Full-Duplex Master
 {% endcodeblock %}
 
-SPI 通訊裡通常會有一個 Master 和一個或多個 Slave。  
-Master 負責產生 clock，也負責控制什麼時候開始傳輸。
-
-這次是 STM32 主動控制 TFT，所以 STM32 要設定成 Master。
-
-`Full-Duplex Master` 代表 SPI 可以同時送出資料和接收資料：
-
-- `MOSI`：STM32 傳資料給 TFT
-- `MISO`：TFT 或其他 SPI slave 傳資料回 STM32
-- `SCK`：STM32 產生 clock
-- `CS`：STM32 選擇要操作的 slave
-
-不過對 ILI9341 顯示來說，大部分情況都是 STM32 把 command / pixel data 寫進螢幕，通常只會大量使用 `MOSI`。  
-`MISO` 不一定會用到。
-
 如果只想傳資料給螢幕，也可以選 `Transmit Only Master`。  
 但我這裡先用 `Full-Duplex Master`，之後如果同一條 SPI bus 上還有觸控控制器或其他需要讀資料的裝置，會比較有彈性。
-
 
 #### Hardware NSS Signal
 
 這裡設定為：
-
 {% codeblock lang:text line_number:false %}
 Hardware NSS Signal = Disable
 {% endcodeblock %}
 
-`NSS` 也就是常說的 `CS / SS`，用來選擇目前要通訊的 SPI slave。
+如果啟用 hardware NSS，STM32 的 SPI peripheral 會控制固定的 NSS 腳位。  
+這比較適合一組 SPI 只接一顆 slave 的情況。
 
-這裡不使用硬體 NSS，而是用一般 GPIO 自己控制 LCD 的 `CS` 腳位。  
-原因是之後如果同一條 SPI bus 上有多個裝置，例如：
-
+但這個專案之後可能會在同一條 SPI bus 上接多個裝置，例如：
 - ILI9341 TFT
 - XPT2046 觸控控制器
 - W25Q128 SPI Flash
 
-每個裝置都會有自己的 CS 腳位。  
-用 GPIO 手動控制 CS 會比較直覺，也比較容易管理不同裝置的傳輸流程。
-
-概念會像這樣：
-
-{% codeblock lang:c line_number:false %}
-LCD_CS_LOW();
-HAL_SPI_Transmit(&hspi4, data, len, timeout);
-LCD_CS_HIGH();
-{% endcodeblock %}
-
-所以這裡選擇：
+這些裝置可以共用 `SCK`、`MOSI`、`MISO`，但每顆 slave 都需要自己的 `CS` 腳位：
 
 {% codeblock lang:text line_number:false %}
-NSS Signal Type = Software
+SPI4_SCK  -> TFT / Touch / Flash 共用
+SPI4_MOSI -> TFT / Touch / Flash 共用
+SPI4_MISO -> Touch / Flash 共用
+
+LCD_CS    -> ILI9341 TFT
+TOUCH_CS  -> XPT2046
+FLASH_CS  -> W25Q128
 {% endcodeblock %}
 
+所以這裡不使用 hardware NSS，而是使用 **Software NSS**。  
+也就是把 `CS` 當成一般 GPIO，由 firmware 自己控制。
+
+LCD 的選取和取消選取可以先包成兩個 board-level function：
+
+{% codeblock lang:c line_number:false %}
+void board_lcd_select(void)
+{
+    HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
+}
+
+void board_lcd_unselect(void)
+{
+    HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
+}
+{% endcodeblock %}
+
+之後 ILI9341 driver 在傳送 command 或 data 前，先呼叫 `board_lcd_select()`；  
+傳輸結束後，再呼叫 `board_lcd_unselect()`。
+
+{% codeblock lang:c line_number:false %}
+board_lcd_select();
+
+HAL_SPI_Transmit(&hspi4, data, len, HAL_MAX_DELAY);
+
+board_lcd_unselect();
+{% endcodeblock %}
+
+這樣之後如果要加入 Flash 或 Touch，只要各自再準備不同的 CS 控制函式即可，不需要為了每顆 SPI 裝置都啟用一組新的 SPI peripheral。
+
+### Basic Parameters
 #### Frame Format
 
 這裡設定為：
@@ -446,13 +430,15 @@ NSS Signal Type = Software
 Frame Format = Motorola
 {% endcodeblock %}
 
-SPI 常見的 frame format 就是 Motorola SPI format。  
-一般使用 SPI TFT、SPI Flash、感測器時，大多都是使用這個格式。
+SPI 這個介面最早就是由 Motorola 提出的，所以在一些 MCU 設定工具裡，會把一般標準 SPI 傳輸格式稱為 `Motorola` format。
+對這次的 ILI9341 TFT 來說，它使用的就是一般 SPI serial interface，所以這裡維持 `Motorola` 即可。
+一般使用 SPI TFT、SPI Flash、感測器時，大多也都是使用這個格式。
 
-這個設定通常不需要特別改，維持預設的 `Motorola` 即可。
 
 #### Data Size
-在 datasheet 中提到
+
+ILI9341 datasheet 在 interface mode 的描述中有提到 **4-wire 8-bit serial data interface**，也就是這次要使用的 SPI 顯示介面。
+
 ![Data Size 設定](找不到韌體工作之亡羊補牢專案/ILI9341_SCK.png)
 
 這裡設定為：
@@ -461,24 +447,39 @@ SPI 常見的 frame format 就是 Motorola SPI format。
 Data Size = 8 Bits
 {% endcodeblock %}
 
-ILI9341 的 command 通常是以 8-bit 為單位傳送。  
-Pixel data 雖然是 RGB565，也就是一個 pixel 16-bit，但實際透過 SPI 傳輸時，通常還是拆成兩個 byte 傳：
+這裡的 `8 Bits` 指的是 SPI peripheral 每次傳輸一個 8-bit frame，也就是一個 byte。
+
+ILI9341 的 command 通常就是以 8-bit 為單位傳送，例如：
+
+{% codeblock Components/ili9341/Src/ili9341.c lang:c line_number:false %}
+#define ILI9341_SWRESET 0x01U
+#define ILI9341_DISPON 0x29U
+{% endcodeblock %}
+
+而 pixel data 雖然常用 RGB565，也就是一個 pixel 16-bit，但實際透過 SPI 傳輸時，通常還是拆成兩個 byte 傳：
 
 {% codeblock lang:text line_number:false %}
 RGB565 pixel = 16 bits = high byte + low byte
 {% endcodeblock %}
 
-例如：
+例如紅色 `0xF800`：
 
 {% codeblock lang:c line_number:false %}
 uint16_t color = 0xF800;   // red
 uint8_t data[2];
 
-data[0] = color >> 8;
-data[1] = color & 0xFF;
+data[0] = color >> 8;      // high byte
+data[1] = color & 0xFF;    // low byte
 {% endcodeblock %}
 
-所以 SPI data size 設成 `8 Bits` 最直覺，也比較容易搭配 command / data 傳輸。
+所以 SPI `Data Size` 設成 `8 Bits` 最直覺，也比較容易搭配 ILI9341 的 command / data 傳輸流程。
+
+之後 driver 大概會像這樣送資料：
+
+{% codeblock lang:c line_number:false %}
+ili9341_write_command(0x2C);      // Memory Write
+ili9341_write_data(data, len);    // RGB565 pixel bytes
+{% endcodeblock %}
 
 #### First Bit
 
@@ -501,6 +502,8 @@ First Bit = MSB First
 ILI9341 這類 SPI display controller 通常使用 `MSB First`。  
 如果 bit order 設錯，螢幕收到的 command 會完全不對，常見現象是螢幕沒有反應或顯示異常。
 
+### Clock Parameters
+
 #### Prescaler / Baud Rate
 
 目前畫面上設定為：
@@ -510,29 +513,19 @@ Prescaler = 2
 Baud Rate = 48.0 MBits/s
 {% endcodeblock %}
 
-Prescaler 會影響 SPI clock 速度。  
 Prescaler 越小，SPI clock 越快；Prescaler 越大，SPI clock 越慢。
 
 TFT 顯示需要傳大量 pixel data，所以 SPI 速度越快，畫面更新越快。  
-但是 bring-up 第一版不一定要直接跑最快。
 
-如果遇到以下狀況：
-
-- 螢幕完全沒反應
-- 顏色錯亂
-- 初始化偶爾成功、偶爾失敗
-- 邏輯分析儀看到波形品質不好
-- 杜邦線太長造成訊號不穩
+如果遇到以下狀況：螢幕完全沒反應、顏色錯亂、初始化偶爾成功、偶爾失敗、邏輯分析儀看到波形品質不好、杜邦線太長造成訊號不穩
 
 可以先把 prescaler 調大，例如：
-
 {% codeblock lang:text line_number:false %}
 Prescaler = 8
 Prescaler = 16
 Prescaler = 32
 {% endcodeblock %}
 
-等確認 ILI9341 初始化和基本繪圖都穩定後，再慢慢把 SPI clock 提高。
 
 #### Clock Polarity / Clock Phase
 
@@ -560,6 +553,7 @@ SPI 的 clock mode 如果設錯，資料位元可能會在錯誤的時間點被�
 
 所以如果之後螢幕不亮，除了檢查接線和 CS / DC / RST，也要回來確認 SPI mode 是否符合 driver / 模組需求。
 
+### Advanced Parameters
 #### CRC Calculation
 
 這裡設定為：
@@ -572,34 +566,20 @@ SPI 本身可以選擇啟用 CRC，但一般驅動 ILI9341 TFT 時不會開 SPI 
 
 原因是 ILI9341 的 command / data protocol 本身沒有要求 STM32 SPI peripheral 自動加 CRC。  
 如果開啟 CRC，反而可能讓傳輸內容和 ILI9341 預期的不一樣。
-#### GPIO Settings
 
-SPI4 啟用後，CubeMX 會把對應腳位設定成 Alternate Function。
+### GPIO Settings
+SPI4 啟用後，CubeMX 會自動把對應腳位設定成 Alternate Function。
 
 這些腳位不是一般 GPIO output，而是交給 SPI peripheral 控制。
 
-常見會看到類似：
-
+會看到：
 {% codeblock lang:text line_number:false %}
 SPI4_SCK
 SPI4_MISO
 SPI4_MOSI
 {% endcodeblock %}
-
-實際腳位要依照 CubeMX pinout 和 NUCLEO-F767ZI 板子接線為準。
-
-另外 LCD 的控制腳位，例如：
-
-{% codeblock lang:text line_number:false %}
-LCD_CS
-LCD_DC
-LCD_RST
-LCD_BL
-{% endcodeblock %}
-
-通常不會交給 SPI peripheral，而是設定成一般 GPIO Output，由 driver 手動控制。
-
-#### NVIC Settings
+![SPI4 GPIO Settings](找不到韌體工作之亡羊補牢專案/spi4_gpio_default.png)
+### NVIC Settings
 
 如果第一版使用 blocking transmit：
 
@@ -609,31 +589,18 @@ HAL_SPI_Transmit(&hspi4, data, len, timeout);
 
 那 SPI interrupt 可以先不開。
 
-如果之後要改成 interrupt 或 DMA 傳輸，例如：
+如果之後要改成 interrupt：
 
 {% codeblock lang:c line_number:false %}
 HAL_SPI_Transmit_IT(...)
-HAL_SPI_Transmit_DMA(...)
 {% endcodeblock %}
 
 才需要回到 `NVIC Settings` 開啟對應的 SPI interrupt。
 
-第一版 bring-up 先用 blocking transmit 會比較簡單，也比較容易 debug。
+先用 blocking transmit 會比較簡單，也比較容易 debug。
 
-#### DMA Settings
-
-第一版也先不急著開 DMA。
-
-因為目前最重要的是確認：
-
-- SPI 有 clock
-- MOSI 有資料
-- CS / DC / RST 控制正確
-- ILI9341 init sequence 正確
-- fill screen 可以成功
-
+### DMA Settings
 等 blocking 版本穩定後，再來優化傳輸效能。
-
 之後如果要加速整張圖或 bitmap 傳輸，可以考慮：
 
 {% codeblock lang:c line_number:false %}
@@ -641,16 +608,14 @@ HAL_SPI_Transmit_DMA(&hspi4, data, len);
 {% endcodeblock %}
 
 DMA 比較適合大量 pixel data，例如：
-
 - fill screen
 - draw bitmap
 - 局部畫面更新
 - sprite 更新
 
 但 DMA 會多出同步問題，例如要知道傳輸何時完成，以及 display task 什麼時候可以送下一筆資料。  
-所以 Part 6 先不急著做 DMA。
 
-### GPIO 腳位：CS / DC / RST / BL
+## 2. 額外控制 GPIO 腳位：CS / DC / BL
 
 除了 SPI 本身的 `SCK`、`MOSI`、`MISO` 之外，ILI9341 TFT 還需要幾個額外的 GPIO 控制腳位。
 
@@ -671,11 +636,7 @@ DMA 比較適合大量 pixel data，例如：
 
 ![NUCLEO-F767ZI 接腳圖左 SPI4](找不到韌體工作之亡羊補牢專案/board_left_SPI4.png)
 
-
-這裡 `SCK / MOSI / MISO` 會由 SPI4 peripheral 控制。  
-而 `CS / DC / RST / BL` 則設定成一般 GPIO Output，由 ILI9341 driver 手動控制。
-
-#### CubeMX GPIO 設定建議
+### CubeMX GPIO 設定建議
 
 這幾個控制腳在 CubeMX 裡可以設定成：
 
@@ -688,20 +649,19 @@ DMA 比較適合大量 pixel data，例如：
 ![GPIO 設定](找不到韌體工作之亡羊補牢專案/spi4_gpio.png)
 簡單來說：
 
-- `LCD_CS` 預設 High，避免一開機就選到 LCD
-- `LCD_DC` 預設 Low，先停在 command mode
-- `LCD_RST` 預設 High，避免一直 reset
 - `LCD_BL` 預設 High，讓背光先打開
+- `LCD_CS` 預設 High，避免一開機就選到 LCD，等 driver 要傳 command 或 data 時再拉低。
+- `LCD_DC` 預設 Low，先停在 command mode
 
 `CS` 和 `DC` 會跟著 SPI 傳輸頻繁切換，所以 speed 可以設高一點。  
-`RST` 和 `BL` 只會偶爾切換，所以 speed 用 Low 就可以。
+`BL` 只會偶爾切換，所以 speed 用 Low 就可以。
 
 
-#### CS：Chip Select
+### CS：Chip Select
 
 `CS` 用來選擇目前要通訊的 SPI 裝置。
 
-這次雖然 CubeMX 的 SPI4 有看到 `SPI4_CS`，但我在 SPI 設定裡選擇使用 software NSS。  
+因為前面選擇 Hardware NSS Signal = Disable
 所以 `LCD_CS` 會當作一般 GPIO 手動控制。
 
 {% codeblock lang:text line_number:false %}
@@ -709,17 +669,7 @@ LCD_CS = Low  -> 選取 LCD，開始 SPI 傳輸
 LCD_CS = High -> 取消選取 LCD，結束 SPI 傳輸
 {% endcodeblock %}
 
-目前規劃：
-
-{% codeblock lang:text line_number:false %}
-LCD_CS -> PE4
-{% endcodeblock %}
-
-初始化時建議讓 `LCD_CS` 預設為 High。  
-也就是開機後先不要選到 LCD，等 driver 要傳 command 或 data 時再拉低。
-
-
-#### DC：Data / Command Select
+### DC：Data / Command Select
 
 `DC` 是 ILI9341 driver 裡很重要的控制腳。
 
@@ -730,195 +680,150 @@ LCD_DC = Low  -> 傳 command
 LCD_DC = High -> 傳 data
 {% endcodeblock %}
 
-例如：
-
-{% codeblock lang:text line_number:false %}
-command: 0x2A  -> 設定 column address
-data   : x0/x1 -> column address 的參數
-{% endcodeblock %}
-
-目前規劃：
-
-{% codeblock lang:text line_number:false %}
-LCD_DC -> PE3
-{% endcodeblock %}
-
-也就是說，ILI9341 driver 最核心的兩個底層函式會是：
-
-{% codeblock lang:c line_number:false %}
-static void ili9341_write_command(uint8_t cmd);
-static void ili9341_write_data(const uint8_t *data, size_t len);
-{% endcodeblock %}
-
-概念上會像這樣：
-
-{% codeblock lang:c line_number:false %}
-static void ili9341_write_command(uint8_t cmd)
+{% codeblock Board/Src/board_lcd.c lang:c line_number:true %}
+static void board_lcd_write_bytes(const uint8_t *data, uint32_t size)
 {
-    LCD_CS_LOW();
-    LCD_DC_LOW();
+  while (size > 0U)
+  {
+    uint16_t chunk = (size > 0xFFFFU) ? 0xFFFFU : (uint16_t)size;
 
-    HAL_SPI_Transmit(&hspi4, &cmd, 1, HAL_MAX_DELAY);
-
-    LCD_CS_HIGH();
+    (void)HAL_SPI_Transmit(&hspi4, (uint8_t *)data, chunk, BOARD_LCD_SPI_TIMEOUT_MS);
+    data += chunk;
+    size -= chunk;
+  }
 }
 
-static void ili9341_write_data(const uint8_t *data, size_t len)
+static void board_lcd_write_command_selected(uint8_t command)
 {
-    LCD_CS_LOW();
-    LCD_DC_HIGH();
-
-    HAL_SPI_Transmit(&hspi4, (uint8_t *)data, len, HAL_MAX_DELAY);
-
-    LCD_CS_HIGH();
+  HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_RESET);
+  board_lcd_write_bytes(&command, 1U);
 }
+
+static void board_lcd_write_data_selected(const uint8_t *data, uint32_t size)
+{
+  if ((data == NULL) || (size == 0U))
+  {
+    return;
+  }
+
+  HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
+  board_lcd_write_bytes(data, size);
+}
+
 {% endcodeblock %}
 
 第一版先用 blocking `HAL_SPI_Transmit()`，等 driver 穩定後再考慮改成 DMA。
 
+### BL：Backlight
+`BL` 是背光控制腳位，用來控制 LCD 背光是否打開。
 
-#### RST：LCD Reset
-
-`RST` 用來重置 ILI9341。
-
-目前規劃：
+這塊 TFT 模組實測後發現背光是 **active low**：
 
 {% codeblock lang:text line_number:false %}
-LCD_RST -> PE7
+LCD_BL = Low  -> 背光開啟
+LCD_BL = High -> 背光關閉
 {% endcodeblock %}
 
-初始化時會先把 `RST` 拉低一段時間，再拉高，讓 LCD controller 回到已知狀態。
-
-概念如下：
-
-{% codeblock lang:c line_number:false %}
-HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_RESET);
-osDelay(20);
-
-HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_SET);
-osDelay(120);
+因此設定上要顛倒過來
+{% codeblock Board/Src/board_lcd.c lang:c line_number:false %}
+void board_lcd_backlight_on(void)
+{
+  HAL_GPIO_WritePin(LCD_BL_GPIO_Port, LCD_BL_Pin, GPIO_PIN_RESET);
+}
+void board_lcd_backlight_off(void)
+{
+  HAL_GPIO_WritePin(LCD_BL_GPIO_Port, LCD_BL_Pin, GPIO_PIN_SET);
+}
 {% endcodeblock %}
 
-這個步驟很重要。  
-如果 reset 時序不穩，可能會出現 LCD 偶爾初始化成功、偶爾失敗的情況。
+未來如果想控制亮度，可以把 `LCD_BL` 從 GPIO Output 改成 PWM 輸出。
 
+---
+## 3. Init command sequence
 
-#### BL：Backlight
+ILI9341 不是 SPI 接好就會直接顯示畫面。  
+上電後需要送一串初始化 command，設定 LCD controller 的工作狀態。
 
-`BL` 是背光控制腳位。
+這段主要參考賣家提供的 TFT 範例程式，再整理成目前專案的 `ili9341_init()`。
+程式碼可參考 firmware/gb_f767zi/Components/ili9341/Src/ili9341.c
 
-目前規劃：
+目前初始化流程大致如下：
 
-{% codeblock lang:text line_number:false %}
-LCD_BL -> PE8
-{% endcodeblock %}
+1. Board layer 初始化
+   - 設定 `CS` 預設為不選取狀態
+   - 關閉背光
 
-第一版先把 `BL` 當作一般 GPIO Output 使用：
+2. Software reset
+   - `ILI9341_SWRESET` command 進行 software reset
 
-{% codeblock lang:text line_number:false %}
-LCD_BL = High -> 背光開啟
-LCD_BL = Low  -> 背光關閉
-{% endcodeblock %}
+3. Power / timing 相關設定
+   - Power Control
+   - Power Sequence
+   - Driver Timing Control
+   - Pump Ratio Control
+   - Frame Rate Control
+   - Display Function Control
 
-常見 TFT 模組的背光多半是 High enable，但不同模組不一定完全一樣。  
-如果程式有正常初始化、SPI 也有資料，但螢幕完全黑，可以檢查 `BL` 是否需要拉高或拉低。
+4. Pixel format
+   - 設定成 `RGB565`
+   - 每個 pixel 使用 16-bit 顏色資料
 
-未來如果想控制亮度，可以把 `LCD_BL` 改成 PWM 輸出。  
-目前 Part 6 先不做亮度調整，只要能開關背光即可。
+5. Memory access control
+   - 設定畫面方向
+   - 目前使用 landscape：
+     - width = 320
+     - height = 240
+   - 同時設定 RGB / BGR 色彩順序
 
-#### 小結
+6. Gamma 設定
+   - 設定 positive gamma correction
+   - 設定 negative gamma correction
+   - 這部分先沿用賣家範例提供的參數
 
-這一段設定完成後，LCD driver 大概會用這幾個底層操作：
+7. Sleep out
+   - 送出 `SLEEP_OUT`
+   - 等待 LCD controller 離開 sleep mode
 
-{% codeblock lang:c line_number:false %}
-LCD_CS_LOW();
-LCD_CS_HIGH();
+8. Display on
+   - 送出 `DISPLAY_ON`
+   - 最後開啟背光
 
-LCD_DC_LOW();   // command
-LCD_DC_HIGH();  // data
+---
+## 4. fill screen 測試
 
-LCD_RST_LOW();
-LCD_RST_HIGH();
-
-LCD_BL_ON();
-LCD_BL_OFF();
-{% endcodeblock %}
-
-接下來 ILI9341 driver 就可以透過這些 GPIO 控制腳，搭配 SPI4 傳送 command 和 pixel data。
-
-### Reset sequence
-
-ILI9341 初始化前，通常會先做硬體 reset。
-
-概念如下：
-
-{% codeblock lang:c line_number:false %}
-HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_RESET);
-HAL_Delay(20);
-
-HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_SET);
-HAL_Delay(120);
-{% endcodeblock %}
-
-這裡先用 `HAL_Delay()`，之後如果要更 RTOS 化，可以改成 `osDelay()`。
-
-
-### Init command sequence
-
-ILI9341 需要一串初始化 command，設定：
-
-- power control
-- pixel format
-- memory access control
-- display inversion
-- sleep out
-- display on
-
-這一段最容易出錯，所以建議每個階段都加上 log：
-
-{% codeblock lang:c line_number:false %}
-LOG_INFO("LCD", "ili9341 init start");
-
-ili9341_reset();
-ili9341_write_command(0x01);  // software reset
-osDelay(5);
-
-/* init command sequence */
-
-LOG_INFO("LCD", "ili9341 init done");
-{% endcodeblock %}
-
-如果畫面沒亮，至少可以先知道程式跑到哪一步。
-
-
-### fill screen 測試
-
-bring-up 的第一個目標不是畫圖，而是填滿整個螢幕。
+我們第一個目標不是畫圖，而是填滿整個螢幕以及部分填色。
 
 例如：
 
-{% codeblock lang:c line_number:false %}
-ili9341_fill_screen(RGB565_RED);
-osDelay(500);
+{% codeblock Tasks/Src/display_task.c lang:c line_number:true %}
+LOG_INFO("display", "display_task started");
 
-ili9341_fill_screen(RGB565_GREEN);
-osDelay(500);
+LOG_INFO("display", "display init begin");
+display_service_init();
+LOG_INFO("display", "display init done");
 
-ili9341_fill_screen(RGB565_BLUE);
-osDelay(500);
+LOG_INFO("display", "fill red");
+display_service_fill_screen(ILI9341_COLOR_RED);
+osDelay(500U);
+LOG_INFO("display", "fill green");
+display_service_fill_screen(ILI9341_COLOR_GREEN);
+osDelay(500U);
+LOG_INFO("display", "fill blue");
+display_service_fill_screen(ILI9341_COLOR_BLUE);
+osDelay(500U);
+
+LOG_INFO("display", "draw corner pattern");
+ili9341_fill_rect(0U, 0U, 40U, 40U, ILI9341_COLOR_RED);
+ili9341_fill_rect(280U, 0U, 40U, 40U, ILI9341_COLOR_GREEN);
+ili9341_fill_rect(0U, 200U, 40U, 40U, ILI9341_COLOR_BLUE);
+ili9341_fill_rect(280U, 200U, 40U, 40U, ILI9341_COLOR_WHITE);
+
 {% endcodeblock %}
 
-如果可以看到紅、綠、藍輪流出現，代表：
-
-- SPI 基本可用
-- CS / DC / RST 大致正確
-- ILI9341 init 成功
-- pixel data 可以正確寫入螢幕
-
-
+如果可以看到紅、綠、藍出現，接著四色填螢幕，代表 pixel data 可以正確寫入螢幕
 
 ---
-## 基本繪圖 API
+## 5. 基本繪圖 API
 
 螢幕成功 fill screen 後，再往上做簡單繪圖 API。
 
@@ -949,6 +854,12 @@ void ili9341_fill_rect(uint16_t x,
                        uint16_t w,
                        uint16_t h,
                        uint16_t color);
+
+//四個角落填色
+ili9341_fill_rect(0U, 0U, 40U, 40U, ILI9341_COLOR_RED);
+ili9341_fill_rect(280U, 0U, 40U, 40U, ILI9341_COLOR_GREEN);
+ili9341_fill_rect(0U, 200U, 40U, 40U, ILI9341_COLOR_BLUE);
+ili9341_fill_rect(280U, 200U, 40U, 40U, ILI9341_COLOR_WHITE);
 {% endcodeblock %}
 
 它可以拿來畫：
@@ -962,30 +873,70 @@ void ili9341_fill_rect(uint16_t x,
 
 ### draw_bitmap
 
-像素風畫面會需要 bitmap。
+像素風畫面會需要顯示 bitmap。
 
-第一版可以先用 RGB565 陣列：
+第一版先使用最直覺的 **RGB565 陣列**。  
+也就是每一個 pixel 直接用一個 `uint16_t` 表示顏色。
+
+目前在 ILI9341 driver 裡提供：
 
 {% codeblock lang:c line_number:false %}
 void ili9341_draw_bitmap(uint16_t x,
                          uint16_t y,
-                         uint16_t w,
-                         uint16_t h,
+                         uint16_t width,
+                         uint16_t height,
                          const uint16_t *bitmap);
 {% endcodeblock %}
 
-未來可以再優化成：
+`bitmap` 的資料格式是 row-major：
 
+{% codeblock lang:text line_number:false %}
+bitmap[0] -> row 0, col 0
+bitmap[1] -> row 0, col 1
+bitmap[2] -> row 0, col 2
+...
+下一列接在後面
+{% endcodeblock %}
+
+例如一張 `2 x 2` bitmap：
+
+{% codeblock lang:c line_number:false %}
+static const uint16_t test_bitmap[] = {
+    ILI9341_COLOR_RED,  ILI9341_COLOR_GREEN,
+    ILI9341_COLOR_BLUE, ILI9341_COLOR_WHITE,
+};
+
+ili9341_draw_bitmap(10, 10, 2, 2, test_bitmap);
+{% endcodeblock %}
+
+畫面結果會是：
+
+{% codeblock lang:text line_number:false %}
+RED    GREEN
+BLUE   WHITE
+{% endcodeblock %}
+
+目前 `ili9341_draw_bitmap()` 內部會做幾件事：
+
+- 檢查 `bitmap` 是否為 `NULL`
+- 檢查座標是否超出螢幕
+- 如果 bitmap 超出右邊或下邊，會自動裁切
+- 使用 `ili9341_set_address_window()` 設定寫入範圍
+- 將 `uint16_t RGB565` 轉成 ILI9341 需要的 high byte / low byte 順序
+- 分批透過 SPI 寫入，不使用逐點 `draw_pixel()`
+
+未來可以再優化成：
 - palette index bitmap
 - 1-bit / 2-bit / 4-bit tile
 - RLE 壓縮
 - 從 SPI Flash 讀取素材
+- DMA SPI 傳輸
 
-但 Part 6 先讓 bitmap 顯示出來就好。
+但 Part 6 先讓 RGB565 bitmap 能穩定顯示出來就好。
 
 ---
 
-## 像素風畫面規劃
+## 6. 像素風畫面規劃
 
 這塊 TFT 是 320×240，但如果直接用 320×240 畫像素風，素材會比較大。
 
@@ -1000,60 +951,35 @@ screen output  : 320 x 240
 這樣每個邏輯 pixel 放大成 2×2，畫面就會比較有像素感。
 
 未來 display service 可以提供：
-
 {% codeblock lang:c line_number:false %}
 display_draw_tile(x, y, tile_id);
 display_draw_sprite(x, y, sprite_id);
 display_present();
 {% endcodeblock %}
 
-但 Part 6 先不急著做完整遊戲畫面，只先確認：
-
-- bitmap 可以顯示
-- 區塊更新可以運作
-- 畫面座標系統是正確的
-
+![Chatgpt 示意圖](找不到韌體工作之亡羊補牢專案/logical_canvas.png)
 ---
 
-## SPI Debug 與共用 Bus 規劃
-
-### logger_task 記錄初始化流程
-
-Part 3 做的 `logger_task` 在這裡開始變得很有用。
-
-LCD bring-up 時，建議每個階段都印 log：
-
-{% codeblock lang:text line_number:false %}
-[00001234][INFO ][LCD] spi init done
-[00001250][INFO ][LCD] reset done
-[00001300][INFO ][LCD] init sequence start
-[00001420][INFO ][LCD] display on
-[00001500][INFO ][LCD] fill screen red
-{% endcodeblock %}
-
-這樣如果螢幕沒亮，至少可以先分辨是：
-
-- SPI 沒初始化
-- reset 沒做
-- init sequence 沒跑完
-- fill screen 沒送出
-- 還是硬體接線問題
-
+## 7. SPI Debug 與共用 Bus 規劃
 
 ### 邏輯分析儀觀察 SPI 訊號
 
 這次也可以把 DSLogic 拿出來看 SPI 波形。
 
-最基本可以看：
+![SPI DSLogic](找不到韌體工作之亡羊補牢專案/spi_anasysis.png)
 
-- `SCK` 有沒有 clock
-- `MOSI` 有沒有資料
-- `CS` 是否在傳輸期間被拉低
-- `DC` 是否在 command / data 間切換
-- SPI mode 是否看起來合理
+從這張 DSLogic 波形可以看到，SPI 端確實有在送資料：
 
-如果螢幕沒有反應，但邏輯分析儀上完全沒有 clock，那問題可能在 SPI 初始化或程式流程。  
-如果有 clock 但資料怪怪的，可能是 SPI mode、byte order 或 command sequence 問題。
+- `SCK` 有出現多段 clock burst，代表 MCU 端有啟動 SPI 傳輸。
+- `CS` 在傳輸期間有被拉低，傳輸結束後再拉高，片選行為看起來正常。
+- `MOSI` 在 `SCK` clock 期間有資料變化，代表資料線不是固定卡在 high 或 low。
+- `DC/RS` 一開始有維持在 low，之後切到 high，符合「先送 command，再送 data」的顯示器通訊流程。
+
+若螢幕仍然沒有反應，下一步比較可能要檢查：
+- SPI mode 是否正確，例如 CPOL / CPHA。
+- command sequence 是否符合該 LCD driver。
+- `DC/RS` 切換時機是否和 command / data byte 對齊。
+- CS 是否需要整段初始化期間維持低電位，而不是每幾個 byte 切一次。
 
 
 ### 未來的 spi_bus_mutex
@@ -1086,7 +1012,7 @@ osMutexRelease(spi_bus_mutex);
 
 ---
 
-## Lopaka 與後續 UI 工具
+## 8. Lopaka 與後續 UI 工具
 
 最近看到一個工具叫做 Lopaka，可以用比較視覺化的方式設計 embedded screen UI。
 
@@ -1100,4 +1026,11 @@ osMutexRelease(spi_bus_mutex);
 ---
 
 ## 本篇小結
+怎麼覺得每一篇都比上一篇更多災多難呢，
+這次做 TFT 螢幕好多，除了基本 spi 線四條，還有兩條控制的 GPIO，還有3.3v與 GND。
+為了同時接上邏輯分析儀，已經變得一團亂了🍵
+![](找不到韌體工作之亡羊補牢專案/table.png)
 
+為了改螢幕的顯示模式，還跑去買了75元，40w的烙鐵
+話說本來想買控溫一組接近1000的那種，發現也根本用不太到ㄏㄏ
+![75元的電烙鐵](找不到韌體工作之亡羊補牢專案/hot.png)
