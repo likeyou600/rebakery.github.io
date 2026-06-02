@@ -16,9 +16,10 @@ date: 2026-05-24 21:05
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Polling Debounce 與 Event Queue' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part5 'Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce' %}
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part6 'Part 6：Display System：ILI9341 TFT、SPI 與像素繪圖' %}
+<!-- - {% post_link 找不到韌體工作之亡羊補牢專案-Part7 'Part 7：Lopaka UI 與像素風畫面設計' %} -->
  
 > 以下都是目前幻想出來的
-> - Part 6：顯示系統：ILI9341 TFT、SPI 與像素繪圖
 > - Part 7：Game Task：電子寵物狀態機
 > - Part 8：感測器整合：MPU-6050 與 BME280
 > - Part 9：通訊模組：BLE 與 NFC 互動

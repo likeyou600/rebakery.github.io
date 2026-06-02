@@ -11,11 +11,11 @@ categories:
     - Firmware
 ---
 
-終於結束了兩章痛苦的 Input System，接下來就是我覺得最有趣的顯示系統!!
+終於結束了兩章痛苦的 Input System，接下來就是我覺得最有趣的 Display System!!
 畢竟可以實際的看到成果呢!!
 
 <!-- more -->
-# 顯示系統：ILI9341 TFT、SPI 與像素繪圖
+# Display System：ILI9341 TFT、SPI 與像素繪圖
 ## 系列文章
 
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part1 'Part 1：專案規劃與準備清單' %}
@@ -23,26 +23,27 @@ categories:
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Polling Debounce 與 Event Queue' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part5 'Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce' %}
-- Part 6：顯示系統：ILI9341 TFT、SPI 與像素繪圖
-- {% post_link 找不到韌體工作之亡羊補牢專案-Part7 'Part 7：Lopaka UI 與像素風畫面設計' %}
+- Part 6：Display System：ILI9341 TFT、SPI 與像素繪圖
+<!-- - {% post_link 找不到韌體工作之亡羊補牢專案-Part7 'Part 7：Lopaka UI 與像素風畫面設計' %} -->
 
 ---
 
 ## 本篇目標
 - 使用 SPI 驅動 ILI9341 TFT LCD
-- 設定 TFT 需要的控制腳位：CS、DC、RST、BL
+- 設定 TFT 需要的控制腳位：CS、DC、BL
 - 完成 ILI9341 初始化流程
 - 實作基本繪圖 API：`draw_pixel()`、`fill_rect()`、`draw_bitmap()`
-- 使用 Part 3 的 `logger_task` 記錄 display bring-up 過程
-- 使用邏輯分析儀觀察 SPI 訊號
 - 初步規劃像素風畫面更新方式
 - 預留未來 TFT 與 W25Q128 共用 SPI bus 時的 `spi_bus_mutex` 設計
 
-1. CubeMX SPI 設定完成
-2. GPIO 控制腳位設定完成
-3. ILI9341 reset sequence 正常
-4. init command sequence 正常
-5. 可以 fill screen 顯示單色畫面
+---
+## 專案下載
+
+本篇文章對應的完整範例專案已整理在 GitHub Release 中，
+如果想直接對照程式碼或跳過環境建立流程，可以從以下連結下載
+
+[🍦下載本篇範例專案-Part 6🍦](https://github.com/likeyou600/gb_project/releases/tag/Part6)
+
 ---
 
 ## SPI (Serial Peripheral Interface) 基礎
@@ -100,7 +101,6 @@ SPI 有四種 clock mode，主要由 `CPOL` 和 `CPHA` 決定。
 ![](找不到韌體工作之亡羊補牢專案/spi_4.png)
 
 實際使用哪一種 mode 要看 datasheet 才能確認，就以等等使用的 ILI9341 TFT 舉例。
-[ILI9341 datasheet](找不到韌體工作之亡羊補牢專案/spec/ILI9341_spi_screen.pdf)
 ![ILI9341_SDI](找不到韌體工作之亡羊補牢專案/ILI9341_SDI.png)
 
 `The data is applied on the rising edge of the SCL signal.`
@@ -791,7 +791,7 @@ ILI9341 不是 SPI 接好就會直接顯示畫面。
 ---
 ## 4. fill screen 測試
 
-我們第一個目標不是畫圖，而是填滿整個螢幕以及部分填色。
+剛開始的目標不是畫圖，而是填滿整個螢幕以及部分填色。
 
 例如：
 
@@ -949,6 +949,16 @@ screen output  : 320 x 240
 {% endcodeblock %}
 
 這樣每個邏輯 pixel 放大成 2×2，畫面就會比較有像素感。
+{% codeblock Services/Display/display_service.c lang:c line_number:true %}
+#define DISPLAY_SERVICE_LOGICAL_WIDTH 160U
+#define DISPLAY_SERVICE_LOGICAL_HEIGHT 120U
+#define DISPLAY_SERVICE_LOGICAL_SCALE 2U
+
+display_service_draw_logical_pixel(uint16_t x, uint16_t y, uint16_t color)
+display_service_fill_logical_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color)
+display_service_draw_logical_bitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const uint16_t *bitmap)
+display_service_draw_logical_test_pattern(void)
+{% endcodeblock %}
 
 未來 display service 可以提供：
 {% codeblock lang:c line_number:false %}
@@ -1009,19 +1019,6 @@ osMutexRelease(spi_bus_mutex);
 
 這一篇先不實作 `spi_bus_mutex`，只先把這個需求記下來。  
 等之後接 W25Q128 時再正式整理 SPI bus manager。
-
----
-
-## 8. Lopaka 與後續 UI 工具
-
-最近看到一個工具叫做 Lopaka，可以用比較視覺化的方式設計 embedded screen UI。
-
-- [Lopaka GitHub](https://github.com/sbrin/lopaka)
-
-不過 Part 6 不會一開始就導入這類工具。  
-目前還是先手刻基本繪圖 API，理解 ILI9341、SPI、bitmap 和畫面更新流程。
-
-等 display driver 穩定後，再研究是否用工具輔助產生 UI 或 bitmap data。
 
 ---
 

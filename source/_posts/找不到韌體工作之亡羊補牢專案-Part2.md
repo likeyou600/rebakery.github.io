@@ -24,6 +24,9 @@ Part 1 講了一堆偉大的規劃，越來越覺得做不起來了。
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Polling Debounce 與 Event Queue' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part5 'Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce' %}
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part6 'Part 6：Display System：ILI9341 TFT、SPI 與像素繪圖' %}
+<!-- - {% post_link 找不到韌體工作之亡羊補牢專案-Part7 'Part 7：Lopaka UI 與像素風畫面設計' %} -->
+
 ---
 ## 前言
 通常一開始做的事情都是最無聊的。

@@ -2,6 +2,7 @@
 title: 找不到韌體工作之亡羊補牢專案-Part7
 date: 2026-06-02 03:00
 permalink: posts/gb-project/part7/
+published: false
 asset_folder: 找不到韌體工作之亡羊補牢專案
 cover: '/gallery/cover/part7.png'
 thumbnail: '/gallery/cover/part7.png'
@@ -30,7 +31,7 @@ categories:
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Polling Debounce 與 Event Queue' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part5 'Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce' %}
-- {% post_link 找不到韌體工作之亡羊補牢專案-Part6 'Part 6：顯示系統：ILI9341 TFT、SPI 與像素繪圖' %}
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part6 'Part 6：Display System：ILI9341 TFT、SPI 與像素繪圖' %}
 - Part 7：Lopaka UI 與像素風畫面設計
 
 ---

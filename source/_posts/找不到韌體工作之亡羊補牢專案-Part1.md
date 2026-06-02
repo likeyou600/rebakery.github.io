@@ -24,28 +24,28 @@ categories:
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Polling Debounce 與 Event Queue' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part5 'Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce' %}
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part6 'Part 6：Display System：ILI9341 TFT、SPI 與像素繪圖' %}
+<!-- - {% post_link 找不到韌體工作之亡羊補牢專案-Part7 'Part 7：Lopaka UI 與像素風畫面設計' %} -->
+
 
 > 以下都是目前幻想出來的
-> 
-> Part 6：顯示系統：ILI9341 TFT、SPI 與像素繪圖
-> SPI 初始化、ILI9341 driver、畫 pixel/rect/bitmap、DMA 或局部更新。
-> 
-> Part 7：Game Task：電子寵物狀態機
+
+> Part 8：Game Task：電子寵物狀態機
 > 把 input 和 display 串起來，做寵物狀態、飢餓/心情/互動、簡單 animation。
 > 
-> Part 8：感測器整合：MPU-6050 與 BME280
+> Part 9：感測器整合：MPU-6050 與 BME280
 > I2C register driver、校正資料、週期性 sensor task、motion / environment event。timeout、> retry、bus error。
 > 
-> Part 9：通訊模組：BLE 與 NFC 互動
+> Part 10：通訊模組：BLE 與 NFC 互動
 > UART AT command、BLE RSSI / proximity、PN532 UID 讀取。NFC 走 UART / I2C / SPI 哪個比較適合。
 > 
-> Part 10：資料儲存：SPI Flash 與存檔格式
+> Part 11：資料儲存：SPI Flash 與存檔格式
 > W25Q128 erase/write/read、CRC、A/B slot、防止寫到一半斷電。
 > 
-> Part 11：音效、震動與回饋系統
+> Part 12：音效、震動與回饋系統
 > Timer PWM 蜂鳴器、震動馬達、非阻塞 feedback task。
 > 
-> Part 12：系統整合與 Debug 筆記
+> Part 13：系統整合與 Debug 筆記
 > 邏輯分析儀看 SPI/I2C/UART、log 格式、常見 bug、task 卡死、stack 不夠、priority 設錯。
 
 ---

@@ -23,6 +23,9 @@ Part 4 練習了 Polling 版本的 Input，想當然學過 OS 的各位肯定也
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part3 'Part 3：Logger Service 與 FreeRTOS 除錯觀察' %}
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part4 'Part 4：Input System：GPIO、Polling Debounce 與 Event Queue' %}
 - Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce
+- {% post_link 找不到韌體工作之亡羊補牢專案-Part6 'Part 6：Display System：ILI9341 TFT、SPI 與像素繪圖' %}
+<!-- - {% post_link 找不到韌體工作之亡羊補牢專案-Part7 'Part 7：Lopaka UI 與像素風畫面設計' %} -->
+
 ---
 ## 前言
 好，既然都把 EXTI 拆出來這章節了，那就來好好研究研究吧。
