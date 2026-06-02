@@ -1,5 +1,29 @@
 'use strict';
 
+const productionAnalytics = `
+<script>
+(function () {
+  var hostname = window.location.hostname.toLowerCase();
+
+  if (hostname !== 'rebakery.net' && hostname !== 'www.rebakery.net') {
+    return;
+  }
+
+  var goatcounter = document.createElement('script');
+  goatcounter.async = true;
+  goatcounter.src = 'https://gc.zgo.at/count.js';
+  goatcounter.dataset.goatcounter = 'https://rebakery.goatcounter.com/count';
+  document.head.appendChild(goatcounter);
+
+  var cloudflare = document.createElement('script');
+  cloudflare.defer = true;
+  cloudflare.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  cloudflare.setAttribute('data-cf-beacon', '{"token":"82c49522b87744b79020391148c3329f"}');
+  document.head.appendChild(cloudflare);
+}());
+</script>
+`;
+
 hexo.extend.injector.register('head_end', `
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +46,7 @@ hexo.extend.injector.register('body_begin', `
     className = 'rebakery-collections';
   } else if (path.indexOf('/about') === 0) {
     className = 'rebakery-about';
-  } else if (/^\\/\\d{8}\\//.test(path)) {
+  } else if (/^\\/\\d{8}\\//.test(path) || path.indexOf('/posts/') === 0 || path.indexOf('/projects/') === 0) {
     className = 'rebakery-post';
   }
 
@@ -41,9 +65,5 @@ hexo.extend.injector.register('body_end', `
 <script src="/js/imaegoo/night.js"></script>
 <script src="/js/imaegoo-adapter.js"></script>
 <script src="/js/imaegoo/universe.js"></script>
-<script data-goatcounter="https://rebakery.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
-<!-- Cloudflare Web Analytics -->
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"82c49522b87744b79020391148c3329f"}'></script>
-<!-- End Cloudflare Web Analytics -->
+${productionAnalytics}
 `);

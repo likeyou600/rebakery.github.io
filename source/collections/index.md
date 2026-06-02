@@ -18,7 +18,7 @@ date: 2026-05-24 21:05
 - {% post_link 找不到韌體工作之亡羊補牢專案-Part5 'Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce' %}
  
 > 以下都是目前幻想出來的
-> - Part 6：顯示系統：ILI9341 TFT 與 SPI 繪圖
+> - Part 6：顯示系統：ILI9341 TFT、SPI 與像素繪圖
 > - Part 7：Game Task：電子寵物狀態機
 > - Part 8：感測器整合：MPU-6050 與 BME280
 > - Part 9：通訊模組：BLE 與 NFC 互動

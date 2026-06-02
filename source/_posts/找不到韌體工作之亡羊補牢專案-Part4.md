@@ -92,6 +92,19 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
 ### 0. 輸入事件資料流
 {% codeblock lang:c line_number:false %}
 🌕Init side:🌕
+    MX_GPIO_Init()
+        |
+        | 設定按鍵
+        |
+        | EXT_UP_Btn     -> GPIO Input
+        | EXT_DOWN_Btn   -> GPIO Input
+        | EXT_LEFT_Btn   -> GPIO Input
+        | EXT_RIGHT_Btn  -> GPIO Input
+        | EXT_OK_Btn     -> GPIO Input
+        |
+        v
+    LCD GPIO ready
+-----------
     app_main_init()
         |
         | input_service_init()

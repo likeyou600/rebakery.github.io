@@ -27,7 +27,7 @@ categories:
 
 > 以下都是目前幻想出來的
 > 
-> Part 6：顯示系統：ILI9341 TFT 與 SPI 繪圖
+> Part 6：顯示系統：ILI9341 TFT、SPI 與像素繪圖
 > SPI 初始化、ILI9341 driver、畫 pixel/rect/bitmap、DMA 或局部更新。
 > 
 > Part 7：Game Task：電子寵物狀態機
