@@ -141,9 +141,11 @@ App/
 │     └─ log_service.h
 └─ Tasks/
    ├─ Inc/
-   │  ├─ logger_task.h
+   │  ├─ debug_task.h
+   │  └─ logger_task.h
    └─ Src/
-      ├─ logger_task.c
+      ├─ debug_task.h
+      └─ logger_task.c
 {% endcodeblock %}
 
 ### LOG 格式定義

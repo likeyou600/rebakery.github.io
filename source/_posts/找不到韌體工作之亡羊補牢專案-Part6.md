@@ -325,8 +325,32 @@ B: 5 bits
     TFT panel shows image
     
 {% endcodeblock %}
+
 ---
-## 1. CubeMX SPI 設定
+## 1. 資料夾結構
+{% codeblock lang:sh line_number:false %}
+gb_f767zi/
+    ├─ App/
+    │    ├─ Services/
+    │    │  └─ Display/
+    │    │     ├─ display_service.c
+    │    │     └─ display_service.h
+    │    └─ Tasks/
+    │        ├─ Inc/
+    │        │  └─ display_task.h
+    │        └─ Src/
+    │           └─ display_task.c 
+    │  
+    └─ Components
+           └─ ili9341/
+               ├─ Inc/
+               │  └─ ili9341.h
+               └─ Src/
+                    └─ ili9341.c 
+{% endcodeblock %}
+
+---
+## 2. CubeMX SPI 設定
 
 在 CubeMX 裡先啟用一組 SPI。這邊我選擇使用 `SPI4`，主要原因是 NUCLEO-F767ZI 板子左側排針剛好有一組 SPI4 相關腳位集中在一起，接線比較方便。
 
@@ -615,7 +639,7 @@ DMA 比較適合大量 pixel data，例如：
 
 但 DMA 會多出同步問題，例如要知道傳輸何時完成，以及 display task 什麼時候可以送下一筆資料。  
 
-## 2. 額外控制 GPIO 腳位：CS / DC / BL
+## 3. 額外控制 GPIO 腳位：CS / DC / BL
 
 除了 SPI 本身的 `SCK`、`MOSI`、`MISO` 之外，ILI9341 TFT 還需要幾個額外的 GPIO 控制腳位。
 
@@ -739,7 +763,7 @@ void board_lcd_backlight_off(void)
 未來如果想控制亮度，可以把 `LCD_BL` 從 GPIO Output 改成 PWM 輸出。
 
 ---
-## 3. Init command sequence
+## 4. Init command sequence
 
 ILI9341 不是 SPI 接好就會直接顯示畫面。  
 上電後需要送一串初始化 command，設定 LCD controller 的工作狀態。
@@ -789,7 +813,7 @@ ILI9341 不是 SPI 接好就會直接顯示畫面。
    - 最後開啟背光
 
 ---
-## 4. fill screen 測試
+## 5. fill screen 測試
 
 剛開始的目標不是畫圖，而是填滿整個螢幕以及部分填色。
 
@@ -823,7 +847,7 @@ ili9341_fill_rect(280U, 200U, 40U, 40U, ILI9341_COLOR_WHITE);
 如果可以看到紅、綠、藍出現，接著四色填螢幕，代表 pixel data 可以正確寫入螢幕
 
 ---
-## 5. 基本繪圖 API
+## 6. 基本繪圖 API
 
 螢幕成功 fill screen 後，再往上做簡單繪圖 API。
 
@@ -936,7 +960,7 @@ BLUE   WHITE
 
 ---
 
-## 6. 像素風畫面規劃
+## 7. 像素風畫面規劃
 
 這塊 TFT 是 320×240，但如果直接用 320×240 畫像素風，素材會比較大。
 
@@ -970,7 +994,7 @@ display_present();
 ![Chatgpt 示意圖](找不到韌體工作之亡羊補牢專案/logical_canvas.png)
 ---
 
-## 7. SPI Debug 與共用 Bus 規劃
+## 8. SPI Debug 與共用 Bus 規劃
 
 ### 邏輯分析儀觀察 SPI 訊號
 

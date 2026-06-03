@@ -280,7 +280,23 @@ CPU 進入對應 ISR
     LOG_INFO("input", ...)
 {% endcodeblock %}
 
-### 1. CubeMX EXTI 設定
+### 1. 資料夾結構
+{% codeblock lang:sh line_number:false %}
+App/
+├─ Services/
+│  └─ Input/
+│     ├─ input_service.c
+│     └─ input_service.h
+└─ Tasks/
+   ├─ Inc/
+   │  ├─ input_debug_task.h
+   │  └─ input_irq_task.h
+   └─ Src/
+      ├─ input_debug_task.h
+      └─ input_irq_task.c
+{% endcodeblock %}
+
+### 2. CubeMX EXTI 設定
 
 在開始設定 EXTI 之前，先看一下 STM32F767ZIT6 的 External interrupt/event GPIO mapping。
 
@@ -409,7 +425,7 @@ __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 }
 {% endcodeblock %}
 
-### 2. ISR, Callback 只做通知，不直接處理按鍵
+### 3. ISR, Callback 只做通知，不直接處理按鍵
 HAL_GPIO_EXTI_Callback() 在 HAL driver 裡是 __weak 定義，代表 ST 先提供一個預設的空實作。
 如果我們在自己的程式裡實作同名 function，就可以覆寫掉原本的 weak callback。
 
@@ -442,7 +458,7 @@ void input_irq_task_notify_user_button_from_isr(void)
 }
 {% endcodeblock %}
 
-### 3. input_irq_task + software timer debounce 設計
+### 4. input_irq_task + software timer debounce 設計
 Polling 版本的 debounce 是靠每次掃描 GPIO 時，比對 `HAL_GetTick()` 和上次變化時間。
 
 EXTI 版本的 debounce 則改成：
@@ -505,7 +521,7 @@ void input_irq_task(void *argument)
 
 {% endcodeblock %}
 
-### 4. 測試結果
+### 5. 測試結果
 
 完成後開機，且按下 User Button ，預期會看到類似下面的 log：
 
@@ -515,7 +531,7 @@ void input_irq_task(void *argument)
 [00266314][INFO ][input] key=TEST action=RELEASE tick=266314
 {% endcodeblock %}
 
-### 5. EXTI 與普通 GPIO input 比較
+### 6. EXTI 與普通 GPIO input 比較
 這邊可以順便比較一下 EXTI 和前一篇 Polling input 的差異。
 
 Polling 版本是把 GPIO 設成一般 input，然後由 `input_task` 固定週期去讀取目前狀態。  

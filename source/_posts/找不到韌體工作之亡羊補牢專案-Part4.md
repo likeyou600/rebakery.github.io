@@ -168,7 +168,24 @@ Part 3 練習了 FreeRTOS Queue 和 Logger Service。
         根據目前遊戲狀態處理 INPUT_KEY_- / INPUT_ACTION_*
 {% endcodeblock %}
 
-### 1. GPIO Input (board_input) 設定
+### 1. 資料夾結構
+{% codeblock lang:sh line_number:false %}
+App/
+├─ Services/
+│  └─ Input/
+│     ├─ input_service.c
+│     └─ input_service.h
+└─ Tasks/
+   ├─ Inc/
+   │  ├─ input_debug_task.h
+   │  └─ input_task.h
+   └─ Src/
+      ├─ input_debug_task.h
+      └─ input_task.c
+{% endcodeblock %}
+
+
+### 2. GPIO Input (board_input) 設定
 
 第一步先把實體 GPIO 設定好。  
 這裡還不急著處理 event 或 debounce，先確認每顆按鍵都有穩定的 HIGH / LOW 來源，避免腳位浮動造成誤判。
@@ -260,7 +277,7 @@ bool board_input_is_pressed(board_input_t input)
 }
 {% endcodeblock %}
 
-### 2. Input Service 設計
+### 3. Input Service 設計
 
 GPIO wrapper 只知道硬體按鍵有沒有被按下，但遊戲邏輯不應該直接依賴硬體腳位。  
 所以中間再加一層 Input Service，把硬體輸入轉成上層看得懂的 input event。
@@ -389,7 +406,7 @@ osStatus_t input_service_get_event(input_event_t *event, uint32_t timeout)
 }
 {% endcodeblock %}
 
-### 3. Input Task 設計
+### 4. Input Task 設計
 
 接下來建立真正負責掃描按鍵的 `input_task`。  
 第一版先故意寫得很直覺：每隔一段時間掃一次 `buttonMap[]`，讀取每顆按鍵的 GPIO 狀態，然後把 event 丟進 queue。
@@ -420,7 +437,7 @@ void input_task(void *argument)
 上面這版還沒有真正判斷 `raw_pressed`，所以實際使用時會太吵。  
 但它很適合當成第一步測試：只要 terminal 看得到 event，就代表 queue 和 consumer 的基本流程已經接起來了。
 
-### 4. Consumer input_debug_task 設計
+### 5. Consumer input_debug_task 設計
 
 `input_debug_task` 是目前最簡單的 consumer。  
 它不負責判斷遊戲行為，只是把收到的 input event 印出來，方便先確認按鍵、action 和 timestamp 是否符合預期。
@@ -440,7 +457,7 @@ void input_debug_task(void *argument)
 }
 {% endcodeblock %}
 
-### 5. 按鍵 timestamp debounce + Event 判斷
+### 6. 按鍵 timestamp debounce + Event 判斷
 前面的第一版 input task 可以驗證 queue 流程，但還不能直接拿來當正式輸入。  
 按鍵輸入最麻煩的地方通常不是讀 GPIO，而是按鍵彈跳，
 
@@ -551,7 +568,7 @@ void input_task(void *argument)
 
 {% endcodeblock %}
 
-### 6. 測試結果
+### 7. 測試結果
 接線完成後，預期按下按鍵時可以在 terminal 看到 log。  
 
 {% codeblock lang:text line_number:false %}
@@ -583,7 +600,7 @@ void input_task(void *argument)
 雖然有買五向導航按鍵模組，但覺得方向不太對，一直沒有用，直到輕觸開關用不了，才拿出來接。
 一接上去不得了，也還是沒有任何反應，接了邏輯分析儀也看不太懂，都沒有變化。
 
-後來才發現，自己生成的文章教學都沒有認真看，`1. GPIO Input (board_input) 設定`，
+後來才發現，自己生成的文章教學都沒有認真看，`2. GPIO Input (board_input) 設定`，
 就像這章節所說，如果按鈕沒有很高級，就要把 GPIO 設定成 pull-up / pull-down 的其中一個。
 
 接著又因為把章節目標想得太遠了，想要 timestamp debounce 、 Event 判斷，
