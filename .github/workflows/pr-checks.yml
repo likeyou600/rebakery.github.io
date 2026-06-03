@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,9 +18,14 @@ jobs:
           node-version: 18
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - run: |
+      - name: Check posts
+        run: npm test
+
+      - name: Build Hexo site
+        run: |
           npx hexo clean
           npx hexo generate
         env:
