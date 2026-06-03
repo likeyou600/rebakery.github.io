@@ -45,7 +45,35 @@ categories:
 - 狀態通常分成「持有股票」和「沒有持有股票」
 - 每一天根據前一天的狀態決定要買、賣、或不動
 - LeetCode 121, 122
+### 只能買賣一次 LeetCode 121
+{% codeblock lang:c++ line_number:true %}
+int maxProfit(vector<int>& prices) {
+	int profit = 0;
+	int min = prices[0];
+	for (auto price : prices) {
+		if (min < price)
+			profit = max(profit, price - min);
+		else
+			min = price;
+	}
+	return profit;
+}
+{% endcodeblock %}
+### 買賣無限次 LeetCode 122
+{% codeblock lang:c++ line_number:true %}
 
+int maxProfit(vector<int>& prices) {
+	int profit = 0;
+	int min = prices[0];
+	for (auto price : prices) {
+		if (min < price)
+			profit += price - min;
+
+		min = price;
+	}
+	return profit;
+}
+{% endcodeblock %}
 ---
 ## Sequence DP: Subsequences, Substrings, and Palindromes
 
