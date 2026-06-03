@@ -20,19 +20,52 @@ categories:
 - Longest Increasing Substring O(n) 
 - Maximum Subarray O(n)
 
+---
 ## 二維 DP 兩個方向在比較
 - Longest Common Subsequence (LCS) O(mn)
 - Longest Common Substring O(mn) 相比LCS 少考慮 `text1[i - 1] != text2[j - 1]` 的狀況，因為Substring要連續不能中斷
 - Longest Palindromic Subsequence (LPS)（反轉後，利用LCS來解） O(n^2)
 - Edit Distance
+
+---
 ## 中心擴展 對稱結構
 - palindromic substrings O(n^2)
 - Longest palindromic substrings O(n^2)
+
+---
 ## 背包 DP：選或不選  
 - 01 Knapsack：每個物品只能選一次  
 - 原始：二維 DP，物品 index × 容量  
 - 優化：一維 DP，容量倒序  
 - LeetCode 416, 494, 1049, 474
+### 分兩個背包，重量一樣 LeetCode 416
+{% codeblock lang:c++ line_number:true %}
+bool canPartition(vector<int>& nums) {
+	int n = nums.size();
+	int sum = 0;
+	for (auto num : nums) {
+		sum += num;
+	}
+	if (sum % 2)
+		return false;
+
+	int target = sum / 2;
+
+	vector<bool> dp(target + 1, false);
+	dp[0] = true;
+	
+	for (int num : nums) {
+		//正著跑會讓 01 背包變成「同一個物品可以重複使用」。
+		for (int i = target; i >= num; i--) {
+			//dp[i] 表示目前看過的num中，是否能湊出總和 i
+			dp[i] = dp[i] || dp[i - num]; //看有沒有人可以跟num組成i
+		}
+	}
+	return dp[target];
+}
+{% endcodeblock %}
+
+---
 ## 走方格 DP：從相鄰格轉移
 - Unique Paths：只能往右或往下走，計算有幾種走法 O(mn)
 - Unique Paths II：有障礙物的走方格 O(mn)
@@ -40,6 +73,8 @@ categories:
 - Triangle：從上往下走，找最小路徑和 O(n^2)
 - Minimum Falling Path Sum：從上一列走到下一列，找最小路徑和 O(n^2)
 - LeetCode 62, 63, 64, 120, 931
+
+---
 ## 狀態機 DP：根據狀態轉移
 - Best Time to Buy and Sell Stock：買賣股票
 - 狀態通常分成「持有股票」和「沒有持有股票」
