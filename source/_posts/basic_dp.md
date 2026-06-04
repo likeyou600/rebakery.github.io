@@ -38,7 +38,9 @@ categories:
 - 原始：二維 DP，物品 index × 容量  
 - 優化：一維 DP，容量倒序  
 - LeetCode 416, 494, 1049, 474
-### 分兩個背包，重量一樣 LeetCode 416
+### 01 Knapsack 可行性 LeetCode 416
+分兩個背包，重量一樣
+只問能不能裝滿，不問最大 profit
 {% codeblock lang:c++ line_number:true %}
 bool canPartition(vector<int>& nums) {
 	int n = nums.size();
@@ -62,6 +64,25 @@ bool canPartition(vector<int>& nums) {
 		}
 	}
 	return dp[target];
+}
+{% endcodeblock %}
+
+### 01 Knapsack 最大價值 LeetCode 474
+每個字串只能選一次，限制是 `0` 的數量和 `1` 的數量，價值是選到幾個字串
+{% codeblock lang:c++ line_number:true %}
+int findMaxForm(vector<string>& strs, int m, int n) {
+	vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+	for(string &str : strs){
+		int zeros = count(str.begin(), str.end(), '0');
+		int ones = str.size() - zeros;
+
+		for(int i = m; i >= zeros; i--){
+			for(int j = n; j >= ones; j--){
+				dp[i][j] = max(dp[i][j], dp[i - zeros][j - ones] + 1); // 不拿str, 拿str
+			}
+		}
+	}
+	return dp[m][n];
 }
 {% endcodeblock %}
 

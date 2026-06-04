@@ -12,6 +12,13 @@ if "%BRANCH%"=="" (
   exit /b 1
 )
 
+echo [push] Running post checks...
+call npm.cmd test
+if errorlevel 1 (
+  echo [push] npm test failed. Fix the issues above before pushing.
+  exit /b 1
+)
+
 echo [push] Adding changes...
 git add .
 if errorlevel 1 exit /b 1
