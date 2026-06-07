@@ -992,6 +992,7 @@ display_present();
 {% endcodeblock %}
 
 ![Chatgpt 示意圖](找不到韌體工作之亡羊補牢專案/logical_canvas.png)
+
 ---
 
 ## 8. SPI Debug 與共用 Bus 規劃
