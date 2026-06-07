@@ -1,0 +1,1172 @@
+html,
+body,
+button,
+input,
+select,
+textarea,
+.navbar,
+.card,
+.content,
+.title,
+.subtitle {
+    font-family: "Noto Sans TC", BlinkMacSystemFont, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Heading colors follow AnuPpuccin defaults. */
+:root {
+    --rebakery-heading-h1: rgb(210, 15, 57);
+    --rebakery-heading-h2: rgb(254, 100, 11);
+    --rebakery-heading-h3: rgb(64, 160, 43);
+    --rebakery-heading-h4: rgb(23, 146, 153);
+    --rebakery-heading-h5: rgb(114, 135, 253);
+    --rebakery-code-bg: #1f2430;
+    --rebakery-code-panel: #252b39;
+    --rebakery-code-border: rgba(120, 130, 150, 0.26);
+    --rebakery-code-text: #d7dae0;
+    --rebakery-code-muted: #8790a3;
+    --rebakery-inline-code-bg: rgba(210, 15, 57, 0.08);
+    --rebakery-inline-code-text: #b42343;
+    --hl-border-color: #d0d7de;
+    --hl-bg: #ffffff;
+    --hl-bg1: rgba(246, 248, 250, 0.72);
+    --hl-color: #24292f;
+    --hl-tools-bg: #f6f8fa;
+    --hl-tools-color: #57606a;
+    --hl-tools-hover-color: #0969da;
+    --hl-line-number-color: #8c959f;
+    --hl-line-number-border: rgba(208, 215, 222, 0.9);
+    --hl-scrollbar-track: rgba(246, 248, 250, 0.95);
+    --hl-scrollbar-thumb: rgba(87, 96, 106, 0.42);
+    --hl-scrollbar-thumb-hover: rgba(87, 96, 106, 0.68);
+}
+
+body.night {
+    --rebakery-heading-h1: rgb(243, 139, 168);
+    --rebakery-heading-h2: rgb(250, 179, 135);
+    --rebakery-heading-h3: rgb(166, 227, 161);
+    --rebakery-heading-h4: rgb(148, 226, 213);
+    --rebakery-heading-h5: rgb(180, 190, 254);
+    --rebakery-code-bg: #181c25;
+    --rebakery-code-panel: #202634;
+    --rebakery-code-border: rgba(172, 184, 205, 0.18);
+    --rebakery-code-text: #d7dae0;
+    --rebakery-code-muted: #8d97aa;
+    --rebakery-inline-code-bg: rgba(243, 139, 168, 0.14);
+    --rebakery-inline-code-text: rgb(243, 139, 168);
+    --hl-border-color: #444c56;
+    --hl-bg: #22272e;
+    --hl-bg1: rgba(34, 39, 46, 0.4);
+    --hl-color: #adbac7;
+    --hl-tools-bg: #2d333b;
+    --hl-tools-color: #768390;
+    --hl-tools-hover-color: #539bf5;
+    --hl-line-number-color: #768390;
+    --hl-line-number-border: rgba(68, 76, 86, 0.75);
+    --hl-scrollbar-track: rgba(45, 51, 59, 0.95);
+    --hl-scrollbar-thumb: rgba(118, 131, 144, 0.55);
+    --hl-scrollbar-thumb-hover: rgba(118, 131, 144, 0.78);
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not(.light) {
+        --rebakery-heading-h1: rgb(243, 139, 168);
+        --rebakery-heading-h2: rgb(250, 179, 135);
+        --rebakery-heading-h3: rgb(166, 227, 161);
+        --rebakery-heading-h4: rgb(148, 226, 213);
+        --rebakery-heading-h5: rgb(180, 190, 254);
+        --rebakery-code-bg: #181c25;
+        --rebakery-code-panel: #202634;
+        --rebakery-code-border: rgba(172, 184, 205, 0.18);
+        --rebakery-code-text: #d7dae0;
+        --rebakery-code-muted: #8d97aa;
+        --rebakery-inline-code-bg: rgba(243, 139, 168, 0.14);
+        --rebakery-inline-code-text: rgb(243, 139, 168);
+        --hl-border-color: #444c56;
+        --hl-bg: #22272e;
+        --hl-bg1: rgba(34, 39, 46, 0.4);
+        --hl-color: #adbac7;
+        --hl-tools-bg: #2d333b;
+        --hl-tools-color: #768390;
+        --hl-tools-hover-color: #539bf5;
+        --hl-line-number-color: #768390;
+        --hl-line-number-border: rgba(68, 76, 86, 0.75);
+        --hl-scrollbar-track: rgba(45, 51, 59, 0.95);
+        --hl-scrollbar-thumb: rgba(118, 131, 144, 0.55);
+        --hl-scrollbar-thumb-hover: rgba(118, 131, 144, 0.78);
+    }
+}
+
+.article .content h1,
+.article .content h1 a,
+.article h1.title,
+.article h1.title a,
+.article .article-title,
+.article .article-title a {
+    color: var(--rebakery-heading-h1);
+}
+
+.article .content h2,
+.article .content h2 a {
+    color: var(--rebakery-heading-h2);
+}
+
+.article .content h3,
+.article .content h3 a {
+    color: var(--rebakery-heading-h3);
+}
+
+.article .content h4,
+.article .content h4 a {
+    color: var(--rebakery-heading-h4);
+}
+
+.article .content h5,
+.article .content h5 a {
+    color: var(--rebakery-heading-h5);
+}
+
+body.night .article .content h1,
+body.night .article .content h1 a,
+body.night .article h1.title,
+body.night .article h1.title a,
+body.night .article .article-title,
+body.night .article .article-title a,
+body:not(.light) .article .content h1,
+body:not(.light) .article .content h1 a,
+body:not(.light) .article h1.title,
+body:not(.light) .article h1.title a,
+body:not(.light) .article .article-title,
+body:not(.light) .article .article-title a {
+    color: var(--rebakery-heading-h1);
+}
+
+body.night .article .content h2,
+body.night .article .content h2 a,
+body:not(.light) .article .content h2,
+body:not(.light) .article .content h2 a {
+    color: var(--rebakery-heading-h2);
+}
+
+body.night .article .content h3,
+body.night .article .content h3 a,
+body:not(.light) .article .content h3,
+body:not(.light) .article .content h3 a {
+    color: var(--rebakery-heading-h3);
+}
+
+body.night .article .content h4,
+body.night .article .content h4 a,
+body:not(.light) .article .content h4,
+body:not(.light) .article .content h4 a {
+    color: var(--rebakery-heading-h4);
+}
+
+body.night .article .content h5,
+body.night .article .content h5 a,
+body:not(.light) .article .content h5,
+body:not(.light) .article .content h5 a {
+    color: var(--rebakery-heading-h5);
+}
+
+.article .content p+ul,
+.article .content p+ol {
+    margin-top: -0.6em;
+}
+
+.article .content ul,
+.article .content ol {
+    margin-top: 0.45em;
+    margin-bottom: 0.85em;
+}
+
+.article .content li+li {
+    margin-top: 0.25em;
+}
+
+.article .content .rebakery-search-hit {
+    padding: 0.08em 0.2em;
+    border-radius: 4px;
+    color: #1f2430;
+    background: rgba(255, 221, 87, 0.9);
+    box-shadow: 0 0 0 3px rgba(255, 221, 87, 0.22);
+}
+
+body.night .article .content .rebakery-search-hit,
+body:not(.light) .article .content .rebakery-search-hit {
+    color: #1f2430;
+    background: rgba(250, 179, 135, 0.95);
+    box-shadow: 0 0 0 3px rgba(250, 179, 135, 0.24);
+}
+
+.article .content .gallery-item {
+    display: block;
+    max-width: 100%;
+    margin: 1rem auto;
+}
+
+.article .content img:not(.avatar):not(.not-gallery-item) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid rgba(208, 215, 222, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+body.night .article .content img:not(.avatar):not(.not-gallery-item),
+body:not(.light) .article .content img:not(.avatar):not(.not-gallery-item) {
+    border-color: rgba(68, 76, 86, 0.9);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+.article .content .rebakery-video-frame {
+    position: relative;
+    overflow: hidden;
+    margin: 1.15rem 0;
+    padding: 0.45rem;
+    border: 1px solid rgba(208, 215, 222, 0.9);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(246, 248, 250, 0.96), rgba(255, 255, 255, 0.94));
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14);
+}
+
+.article .content .rebakery-video-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(9, 105, 218, 0.1), transparent 38%);
+}
+
+.article .content video.rebakery-lazy-video {
+    display: block;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    background: #111827;
+    object-fit: contain;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.28) inset;
+}
+
+.article .content .rebakery-video-load {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.36);
+    border-radius: 999px;
+    color: #ffffff;
+    background: rgba(17, 24, 39, 0.72);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+}
+
+.article .content .rebakery-video-load:hover,
+.article .content .rebakery-video-load:focus {
+    background: rgba(17, 24, 39, 0.9);
+    outline: none;
+}
+
+.article .content .rebakery-video-load i {
+    font-size: 0.9rem;
+}
+
+.article .content .rebakery-video-load span {
+    white-space: nowrap;
+}
+
+body.night .article .content .rebakery-video-frame,
+body:not(.light) .article .content .rebakery-video-frame {
+    border-color: rgba(68, 76, 86, 0.9);
+    background: linear-gradient(180deg, rgba(45, 51, 59, 0.96), rgba(34, 39, 46, 0.94));
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
+body.night .article .content .rebakery-video-frame::before,
+body:not(.light) .article .content .rebakery-video-frame::before {
+    background: linear-gradient(135deg, rgba(83, 155, 245, 0.14), transparent 38%);
+}
+
+.card-image .image.is-7by3 {
+    padding-top: 56.25%;
+}
+
+.card-image .image.is-7by3 img.fill {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#back-to-top {
+    z-index: 70;
+    pointer-events: none;
+}
+
+#back-to-top.fade-in,
+body.rebakery-scrolled #back-to-top {
+    pointer-events: auto;
+}
+
+@media screen and (min-width: 1024px) {
+    body.rebakery-scrolled #back-to-top.rise-up {
+        opacity: 0.94;
+    }
+
+    body.rebakery-scrolled #back-to-top.rise-up:hover {
+        opacity: 1;
+    }
+}
+
+.article .content :not(pre)>code {
+    padding: 0.12em 0.38em;
+    border-radius: 5px;
+    color: var(--rebakery-inline-code-text);
+    background: var(--rebakery-inline-code-bg);
+    font-size: 0.92em;
+}
+
+.article .content figure.highlight {
+    overflow: hidden;
+    margin: 1.25rem 0 !important;
+    border: 1px solid var(--rebakery-code-border);
+    border-radius: 8px;
+    background: var(--rebakery-code-bg);
+    box-shadow: 0 12px 28px rgba(15, 18, 25, 0.16);
+}
+
+.article .content figure.highlight figcaption {
+    min-height: 2.15rem;
+    padding: 0.45rem 3rem 0.45rem 0.9rem;
+    border-bottom: 1px solid var(--rebakery-code-border);
+    color: var(--rebakery-code-muted);
+    background: var(--rebakery-code-panel);
+}
+
+.article .content figure.highlight figcaption span {
+    color: var(--rebakery-code-text);
+}
+
+.article .content figure.highlight .copy {
+    position: absolute;
+    top: 0.38rem;
+    right: 0.45rem;
+    z-index: 2;
+    width: 2rem;
+    height: 1.45rem;
+    border: 1px solid var(--rebakery-code-border);
+    border-radius: 6px;
+    color: var(--rebakery-code-muted);
+    background: rgba(255, 255, 255, 0.06);
+    opacity: 1;
+}
+
+.article .content figure.highlight .copy:hover {
+    color: var(--rebakery-code-text);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.article .content figure.highlight .highlight-body {
+    overflow: auto;
+    background: var(--rebakery-code-bg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--hl-scrollbar-thumb) var(--hl-scrollbar-track);
+}
+
+.article .content figure.highlight .highlight-body::-webkit-scrollbar {
+    height: 0.55rem;
+}
+
+.article .content figure.highlight .highlight-body::-webkit-scrollbar-track {
+    background: var(--hl-scrollbar-track);
+}
+
+.article .content figure.highlight .highlight-body::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--hl-scrollbar-thumb);
+}
+
+.article .content figure.highlight .highlight-body::-webkit-scrollbar-thumb:hover {
+    background: var(--hl-scrollbar-thumb-hover);
+}
+
+.article .content figure.highlight table,
+.article .content figure.highlight pre {
+    margin: 0 !important;
+    background: transparent;
+}
+
+.article .content figure.highlight table {
+    width: 100%;
+}
+
+.article .content figure.highlight .code pre,
+.article .content figure.highlight>pre {
+    padding: 1rem 1.15rem;
+}
+
+.article .content figure.highlight .gutter {
+    min-width: 3.1rem;
+    border-right: 1px solid var(--rebakery-code-border);
+    color: var(--rebakery-code-muted);
+    background: var(--rebakery-code-panel);
+    user-select: none;
+}
+
+.article .content figure.highlight .gutter pre {
+    padding: 1rem 0.75rem;
+}
+
+.article .content figure.highlight .line,
+.article .content figure.highlight code .hljs {
+    line-height: 1.62;
+}
+
+.article .content figure.highlight .marked {
+    background: rgba(250, 179, 135, 0.12);
+}
+
+.article .content figure.shiki {
+    overflow: hidden;
+    margin: 1.25rem 0 !important;
+    border: 1px solid var(--hl-border-color) !important;
+    border-radius: 8px !important;
+    background: var(--hl-bg);
+    box-shadow: 0 12px 28px rgba(15, 18, 25, 0.16);
+}
+
+.article .content figure.shiki .shiki-tools {
+    min-height: 2.2rem;
+    padding: 0 0.85rem;
+    border-bottom: 1px solid var(--hl-border-color);
+    font-family: "Noto Sans TC", BlinkMacSystemFont, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 600;
+    background: var(--hl-tools-bg);
+}
+
+.article .content figure.shiki .traffic-light {
+    width: 0.68rem;
+    height: 0.68rem;
+}
+
+.article .content figure.shiki .code-lang,
+.article .content figure.shiki .code-title {
+    font-size: 0.78rem;
+    letter-spacing: 0;
+}
+
+.article .content figure.shiki .code-title {
+    color: var(--hl-color);
+    font-family: "Source Code Pro", Consolas, "SFMono-Regular", monospace;
+}
+
+.article .content figure.shiki .code-lang:empty,
+.article .content figure.shiki .expand {
+    display: none;
+}
+
+.article .content figure.shiki .shiki-tools .right {
+    gap: 0.65rem;
+}
+
+.article .content figure.shiki iconify-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--hl-tools-color);
+    font-family: "Font Awesome 6 Free";
+    font-size: 0.88rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.article .content figure.shiki iconify-icon:hover {
+    color: var(--hl-tools-hover-color);
+}
+
+.article .content figure.shiki iconify-icon.copy-button::before {
+    content: "\f0c5";
+}
+
+.article .content figure.shiki iconify-icon.toggle-wrap::before {
+    content: "\f338";
+}
+
+.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki {
+    overflow-x: hidden;
+    white-space: pre-wrap !important;
+}
+
+.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki>code,
+.article .content figure.shiki:has(.toggle-wrap.wrap-active) pre.shiki>code>span.line {
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+}
+
+.article .content figure.shiki .toggle-wrap.wrap-active {
+    color: var(--hl-tools-hover-color);
+}
+
+.article .content figure.shiki pre.shiki {
+    margin: 0 !important;
+    padding: 1rem 1.15rem;
+    overflow: auto;
+    background: var(--hl-bg) !important;
+    scrollbar-width: thin;
+    scrollbar-color: var(--hl-scrollbar-thumb) var(--hl-scrollbar-track);
+}
+
+.article .content figure.shiki pre.shiki::-webkit-scrollbar {
+    height: 0.55rem;
+}
+
+.article .content figure.shiki pre.shiki::-webkit-scrollbar-track {
+    background: var(--hl-scrollbar-track);
+}
+
+.article .content figure.shiki pre.shiki::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--hl-scrollbar-thumb);
+}
+
+.article .content figure.shiki pre.shiki::-webkit-scrollbar-thumb:hover {
+    background: var(--hl-scrollbar-thumb-hover);
+}
+
+.article .content figure.shiki pre.shiki>code {
+    font-family: "Source Code Pro", Consolas, "SFMono-Regular", Menlo, monospace;
+    font-size: 0.92rem;
+}
+
+.article .content figure.shiki pre.shiki>code>span.line {
+    line-height: 1.62;
+}
+
+.article .content figure.shiki:not(.rebakery-line-numbers) pre.shiki>code>span.line::before {
+    content: none;
+    width: 0;
+    margin-right: 0;
+}
+
+.article .content figure.shiki.rebakery-line-numbers pre.shiki {
+    padding-left: 0;
+}
+
+.article .content figure.shiki.rebakery-line-numbers pre.shiki>code>span.line::before {
+    width: 2.6rem;
+    margin-right: 1rem;
+    padding-right: 0.8rem;
+    color: var(--hl-line-number-color);
+    border-right: 1px solid var(--hl-line-number-border);
+}
+
+.widget[data-type="profile"] .is-size-6.is-block {
+    white-space: pre-line;
+}
+
+.rebakery-deploy-badge {
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.rebakery-published-at {
+    display: block;
+    color: #7a7a7a;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+body.night .rebakery-published-at {
+    color: #a8a8a8;
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not(.light) .rebakery-published-at {
+        color: #a8a8a8;
+    }
+}
+
+#night-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+}
+
+body.night #night-nav {
+    background: transparent;
+    color: #c0c0c0;
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not(.light) #night-nav {
+        background: transparent;
+        color: #c0c0c0;
+    }
+}
+
+body.night .navbar-main {
+    background-color: rgba(40, 44, 52, 0.5);
+}
+
+body.night .navbar-main .navbar-container,
+body.night .navbar-main .navbar-brand,
+body.night .navbar-main .navbar-menu,
+body.night .navbar-main .navbar-start,
+body.night .navbar-main .navbar-end {
+    background-color: transparent;
+}
+
+body.night .navbar-main .navbar-item,
+body.night .navbar-main .navbar-link,
+body.night .navbar-main .navbar-burger {
+    color: #c0c0c0;
+}
+
+body.night .navbar-main .navbar-item:hover,
+body.night .navbar-main .navbar-item:focus,
+body.night .navbar-main .navbar-link:hover,
+body.night .navbar-main .navbar-link:focus,
+body.night .navbar-main .navbar-burger:hover {
+    color: #ffffff;
+    background-color: rgba(63, 69, 82, 0.95);
+}
+
+body.night .navbar-main .navbar-item.is-active {
+    color: #8ab4f8;
+    background-color: rgba(63, 69, 82, 0.7);
+}
+
+body.night.rebakery-post .navbar-main {
+    background-color: rgba(40, 44, 52, 0.82);
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not(.light) .navbar-main {
+        background-color: rgba(40, 44, 52, 0.58);
+    }
+
+    body:not(.light) .navbar-main .navbar-container,
+    body:not(.light) .navbar-main .navbar-brand,
+    body:not(.light) .navbar-main .navbar-menu,
+    body:not(.light) .navbar-main .navbar-start,
+    body:not(.light) .navbar-main .navbar-end {
+        background-color: transparent;
+    }
+
+    body:not(.light) .navbar-main .navbar-item,
+    body:not(.light) .navbar-main .navbar-link,
+    body:not(.light) .navbar-main .navbar-burger {
+        color: #c0c0c0;
+    }
+
+    body:not(.light) .navbar-main .navbar-item:hover,
+    body:not(.light) .navbar-main .navbar-item:focus,
+    body:not(.light) .navbar-main .navbar-link:hover,
+    body:not(.light) .navbar-main .navbar-link:focus,
+    body:not(.light) .navbar-main .navbar-burger:hover {
+        color: #ffffff;
+        background-color: rgba(63, 69, 82, 0.95);
+    }
+
+    body:not(.light) .navbar-main .navbar-item.is-active {
+        color: #8ab4f8;
+        background-color: rgba(63, 69, 82, 0.7);
+    }
+
+    body.rebakery-post:not(.light) .navbar-main {
+        background-color: rgba(40, 44, 52, 0.82);
+    }
+}
+
+#rebakery-floating-toc {
+    display: none;
+}
+
+@media screen and (max-width: 1023px) {
+    body.rebakery-post .navbar-main {
+        position: sticky;
+        top: 0.75rem;
+        z-index: 50;
+        width: min(calc(100% - 1.5rem), 1500px);
+        margin: 0.75rem auto 0;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 8px 24px rgba(10, 10, 10, 0.08);
+    }
+
+    body.rebakery-post .navbar-main .navbar-container {
+        background-color: transparent;
+    }
+
+    body.night.rebakery-post .navbar-main {
+        background-color: rgba(40, 44, 52, 0.82);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        body.rebakery-post:not(.light) .navbar-main {
+            background-color: rgba(40, 44, 52, 0.82);
+        }
+    }
+
+    .columns {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pagination {
+        display: grid;
+        grid-template-columns: 4.25rem minmax(0, 1fr) 4.25rem;
+        justify-items: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pagination-list {
+        display: flex !important;
+        justify-content: center;
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        overflow: hidden;
+        margin: 0;
+        flex-wrap: nowrap;
+    }
+
+    .pagination-list.is-hidden-mobile {
+        display: flex !important;
+    }
+
+    .pagination-previous,
+    .pagination-next {
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .pagination-previous {
+        grid-column: 1;
+        grid-row: 1;
+        justify-self: start;
+    }
+
+    .pagination-next {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    .pagination-link,
+    .pagination-ellipsis {
+        min-width: 1.85rem;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+    }
+
+    .rebakery-pagination-ellipsis {
+        display: flex;
+    }
+
+    .pagination.rebakery-pagination-compact {
+        display: flex;
+        justify-content: center;
+    }
+
+    .pagination.rebakery-pagination-compact .pagination-previous,
+    .pagination.rebakery-pagination-compact .pagination-next {
+        width: auto;
+    }
+
+    .pagination.rebakery-pagination-compact .pagination-list {
+        position: static;
+        width: auto;
+        transform: none;
+    }
+
+    .column-left {
+        order: 1 !important;
+    }
+
+    .column-main {
+        order: 2 !important;
+    }
+
+    .column-right {
+        order: 3 !important;
+    }
+
+    .column-right-shadow {
+        display: none !important;
+    }
+
+    body.rebakery-home .column-right {
+        display: block !important;
+    }
+
+    body.rebakery-home .column-right .widget {
+        display: none;
+    }
+
+    body.rebakery-home .column-right .widget[data-type="tags"],
+    body.rebakery-home .column-right .widget[data-type="categories"],
+    body.rebakery-home .column-right .widget[data-type="recent-posts"] {
+        display: block;
+    }
+
+    body.rebakery-home .column-right .widget[data-type="tags"] {
+        order: 1;
+    }
+
+    body.rebakery-home .column-right .widget[data-type="categories"] {
+        order: 2;
+    }
+
+    body.rebakery-home .column-right .widget[data-type="recent-posts"] {
+        order: 3;
+    }
+
+    body.rebakery-home .column-right {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    body.rebakery-post .navbar-main .catalogue {
+        display: none !important;
+    }
+
+    body.rebakery-post #rebakery-floating-toc {
+        position: fixed;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        top: var(--rebakery-floating-toc-top, calc(env(safe-area-inset-top) + 4.75rem));
+        right: max(1rem, env(safe-area-inset-right));
+        z-index: 80;
+        width: 3rem;
+        height: 3rem;
+        padding: 0;
+        border: 1px solid rgba(198, 204, 214, 0.78);
+        border-radius: 999px;
+        color: #3f4654;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 10px 26px rgba(10, 10, 10, 0.16);
+        backdrop-filter: blur(10px);
+        cursor: pointer;
+    }
+
+    body.rebakery-post #rebakery-floating-toc:hover,
+    body.rebakery-post #rebakery-floating-toc:focus {
+        color: #1f2430;
+        background: rgba(255, 255, 255, 0.98);
+        outline: none;
+    }
+
+    body.night.rebakery-post #rebakery-floating-toc,
+    body.rebakery-post:not(.light) #rebakery-floating-toc {
+        border-color: rgba(40, 44, 52, 0.94);
+        color: #f4f6fb;
+        background: rgba(40, 44, 52, 0.82);
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+    }
+
+    body.night.rebakery-post #rebakery-floating-toc:hover,
+    body.night.rebakery-post #rebakery-floating-toc:focus,
+    body.rebakery-post:not(.light) #rebakery-floating-toc:hover,
+    body.rebakery-post:not(.light) #rebakery-floating-toc:focus {
+        color: #ffffff;
+        background: rgba(40, 44, 52, 0.94);
+    }
+
+    body.rebakery-archives .column-left,
+    body.rebakery-archives .column-right,
+    body.rebakery-collections .column-left,
+    body.rebakery-collections .column-right,
+    body.rebakery-about .column-left,
+    body.rebakery-about .column-right,
+    body.rebakery-post .column-left {
+        display: none !important;
+    }
+
+    body.rebakery-post .column-right {
+        display: contents !important;
+    }
+
+    body.rebakery-post .column-right .widget:not(#toc) {
+        display: none !important;
+    }
+
+    body.rebakery-post .rebakery-post-widgets {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    body.rebakery-post .rebakery-post-widgets .widget {
+        display: block !important;
+        margin: 0;
+    }
+
+    body.rebakery-post .widget.card#toc {
+        display: none !important;
+        position: fixed !important;
+        width: min(calc(100vw - 2rem), 28rem) !important;
+        max-height: calc(100vh - 6rem);
+        margin: 0 !important;
+        left: 50% !important;
+        top: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: translate(-50%, -50%);
+        z-index: 100 !important;
+    }
+
+    body.rebakery-post .widget.card#toc.is-active {
+        display: block !important;
+    }
+
+    body.rebakery-post .widget.card#toc .menu {
+        max-height: calc(100vh - 8rem);
+        overflow-y: auto;
+    }
+
+    body.rebakery-post #toc-mask {
+        display: none !important;
+    }
+
+    body.rebakery-post #toc-mask.is-active {
+        display: none !important;
+    }
+
+    body.rebakery-post #rebakery-toc-mask {
+        position: fixed;
+        inset: 0;
+        z-index: 98;
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    body.rebakery-post #rebakery-toc-modal {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        z-index: 99;
+        width: min(calc(100vw - 2rem), 28rem);
+        max-height: calc(100vh - 6rem);
+        margin: 0;
+        transform: translate(-50%, -50%);
+        overflow: hidden;
+    }
+
+    body.rebakery-post #rebakery-toc-modal .menu {
+        max-height: calc(100vh - 8rem);
+        overflow-y: auto;
+        padding: 1.25rem;
+    }
+
+    body.rebakery-archives .column-main,
+    body.rebakery-collections .column-main,
+    body.rebakery-about .column-main,
+    body.rebakery-post .column-main {
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+
+    body.rebakery-post .post-navigation {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    body.rebakery-post .post-navigation .level-start,
+    body.rebakery-post .post-navigation .level-end {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    body.rebakery-post .post-navigation a {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1.5rem minmax(0, 1fr) 1.5rem;
+        align-items: center;
+        justify-content: stretch;
+        padding: 0.75rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.72);
+        line-height: 1.5;
+        text-align: center;
+    }
+
+    body.rebakery-post .post-navigation .article-nav-prev i {
+        grid-column: 1;
+        justify-self: start;
+    }
+
+    body.rebakery-post .post-navigation .article-nav-prev span {
+        grid-column: 2;
+    }
+
+    body.rebakery-post .post-navigation .article-nav-next span {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    body.rebakery-post .post-navigation .article-nav-next i {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    body.rebakery-post .post-navigation span.level-item {
+        flex-shrink: 1;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    body.night.rebakery-post .post-navigation a {
+        background: rgba(40, 44, 52, 0.72);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        body.rebakery-post:not(.light) .post-navigation a {
+            background: rgba(40, 44, 52, 0.72);
+        }
+    }
+}
+
+@media screen and (min-width: 1024px) {
+
+    .column-left,
+    .column-right {
+        position: sticky;
+        top: 5rem;
+        align-self: flex-start;
+        max-height: calc(100vh - 6rem);
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
+    body.night .column-left,
+    body.night .column-right {
+        scrollbar-color: #5f6673 rgba(40, 44, 52, 0.58);
+    }
+
+    body.night .column-left::-webkit-scrollbar,
+    body.night .column-right::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    body.night .column-left::-webkit-scrollbar-track,
+    body.night .column-right::-webkit-scrollbar-track {
+        background: rgba(40, 44, 52, 0.58);
+    }
+
+    body.night .column-left::-webkit-scrollbar-thumb,
+    body.night .column-right::-webkit-scrollbar-thumb {
+        background: #5f6673;
+        border-radius: 8px;
+    }
+
+    body.night .column-left::-webkit-scrollbar-thumb:hover,
+    body.night .column-right::-webkit-scrollbar-thumb:hover {
+        background: #788191;
+    }
+
+    @media (prefers-color-scheme: dark) {
+
+        body:not(.light) .column-left,
+        body:not(.light) .column-right {
+            scrollbar-color: #5f6673 rgba(40, 44, 52, 0.58);
+        }
+
+        body:not(.light) .column-left::-webkit-scrollbar,
+        body:not(.light) .column-right::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        body:not(.light) .column-left::-webkit-scrollbar-track,
+        body:not(.light) .column-right::-webkit-scrollbar-track {
+            background: rgba(40, 44, 52, 0.58);
+        }
+
+        body:not(.light) .column-left::-webkit-scrollbar-thumb,
+        body:not(.light) .column-right::-webkit-scrollbar-thumb {
+            background: #5f6673;
+            border-radius: 8px;
+        }
+
+        body:not(.light) .column-left::-webkit-scrollbar-thumb:hover,
+        body:not(.light) .column-right::-webkit-scrollbar-thumb:hover {
+            background: #788191;
+        }
+    }
+
+    /* 文章表格：文字不換行，超出時橫向捲動 */
+    body.rebakery-post .article .content table {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    body.rebakery-post .article .content table th,
+    body.rebakery-post .article .content table td {
+        white-space: nowrap;
+    }
+
+    /* 保留左右欄，但加寬整體版面 */
+    body.rebakery-post .container {
+        width: 96vw !important;
+        max-width: 1440px !important;
+    }
+
+    /* 維持三欄 flex 版面 */
+    body.rebakery-post .columns {
+        display: flex !important;
+        align-items: flex-start;
+    }
+
+    /* 左右欄固定寬度，不隱藏 */
+    body.rebakery-post .column-left,
+    body.rebakery-post .column-right {
+        flex: 0 0 340px !important;
+        width: 340px !important;
+        max-width: 340px !important;
+    }
+
+    /* 中間文章欄吃剩餘空間 */
+    body.rebakery-post .column-main {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+
+    /* 文章卡片與內容不要再限制寬度 */
+    body.rebakery-post .column-main .card,
+    body.rebakery-post .column-main .article,
+    body.rebakery-post .column-main .content,
+    body.rebakery-post .column-main .article-entry,
+    body.rebakery-post .column-main .post-body {
+        width: 100% !important;
+        max-width: none !important;
+    }
+}

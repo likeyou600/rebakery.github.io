@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>這個部落格用了哪些神奇小零件 - Bakery&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Bakery&#039;s Blog"><meta name="msapplication-TileImage" content="/img/favicon.ico"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Bakery&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="apple-touch-icon" sizes="16x16" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="32x32" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="48x48" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="64x64" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="128x128" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="256x256" href="/img/favicon.ico"><meta name="description" content="這篇簡單記錄一下這個部落格背後用到的套件，但我想大部分用 Hexo 的人應該都大同小異ʘ‿ʘ"><meta property="og:type" content="blog"><meta property="og:title" content="這個部落格用了哪些神奇小零件"><meta property="og:url" content="https://rebakery.net/posts/blog-components/"><meta property="og:site_name" content="Bakery&#039;s Blog"><meta property="og:description" content="這篇簡單記錄一下這個部落格背後用到的套件，但我想大部分用 Hexo 的人應該都大同小異ʘ‿ʘ"><meta property="og:locale" content="zh_TW"><meta property="og:image" content="https://rebakery.net/img/avatar-transparent.png"><meta property="article:published_time" content="2026-05-24T15:31:00.000Z"><meta property="article:modified_time" content="2026-06-07T21:39:42.639Z"><meta property="article:author" content="Bakery Chen"><meta property="article:tag" content="Hexo"><meta property="article:tag" content="GitHub Actions"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://rebakery.net/img/avatar-transparent.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://rebakery.net/posts/blog-components/"},"headline":"這個部落格用了哪些神奇小零件","image":["https://rebakery.net/img/avatar-transparent.png"],"datePublished":"2026-05-24T15:31:00.000Z","dateModified":"2026-06-07T21:39:42.639Z","author":{"@type":"Person","name":"Bakery Chen"},"publisher":{"@type":"Organization","name":"Bakery's Blog","logo":{"@type":"ImageObject","url":"https://rebakery.net/img/avatar-transparent.png"}},"description":"這篇簡單記錄一下這個部落格背後用到的套件，但我想大部分用 Hexo 的人應該都大同小異ʘ‿ʘ"}</script><link rel="canonical" href="https://rebakery.net/posts/blog-components/"><link rel="alternate" href="/atom.xml" title="Bakery&#039;s Blog" type="application/atom+xml"><link rel="icon" href="/img/favicon.ico"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><link rel="stylesheet" href="/css/code_block/shiki.css"><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/css/imaegoo-night.css">
+<link rel="stylesheet" href="/css/imaegoo-adapter.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><!-- hexo injector body_begin start -->
+<script>
+(function () {
+  var path = window.location.pathname.replace(/\/index\.html$/, '/');
+  var className = '';
+
+  if (path === '/' || path === '') {
+    className = 'rebakery-home';
+  } else if (path.indexOf('/archives') === 0) {
+    className = 'rebakery-archives';
+  } else if (path.indexOf('/collections') === 0) {
+    className = 'rebakery-collections';
+  } else if (path.indexOf('/about') === 0) {
+    className = 'rebakery-about';
+  } else if (/^\/\d{8}\//.test(path) || path.indexOf('/posts/') === 0 || path.indexOf('/projects/') === 0) {
+    className = 'rebakery-post';
+  }
+
+  if (className) {
+    document.body.classList.add(className);
+  }
+}());
+</script>
+<canvas id="universe"></canvas>
+<!-- hexo injector body_begin end --><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Bakery&#039;s Blog</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主頁</a><a class="navbar-item" href="/archives">時光機</a><a class="navbar-item" href="/collections">主題整理</a><a class="navbar-item" href="/about">關於我</a></div><div class="navbar-end"><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="/gallery/cover/smallpart.png" alt="這個部落格用了哪些神奇小零件"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-05-24T15:31:00.000Z" title="5/24/2026, 11:31:00 PM">2026-05-24</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-06-07T21:39:42.639Z" title="6/8/2026, 5:39:42 AM">2026-06-08</time></span><span class="level-item"><a class="link-muted" href="/categories/Web/">Web</a></span></div></div><h1 class="title is-3 is-size-4-mobile">這個部落格用了哪些神奇小零件</h1><div class="content"><p>這篇簡單記錄一下這個部落格背後用到的套件，<br>但我想大部分用 Hexo 的人應該都大同小異ʘ‿ʘ</p>
+<span id="more"></span>
+<h2 id="主要框架"><a href="#主要框架" class="headerlink" title="主要框架"></a>主要框架</h2><h3 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h3><p><a target="_blank" rel="noopener" href="https://hexo.io/zh-tw/">🍇Hexo</a><br>非常多人用的部落格框架</p>
+<h3 id="Hexo-主題-icarus"><a href="#Hexo-主題-icarus" class="headerlink" title="Hexo 主題 - icarus"></a>Hexo 主題 - icarus</h3><p><a target="_blank" rel="noopener" href="https://github.com/ppoffice/hexo-theme-icarus">🍈icarus</a><br>也是非常多人用的Hexo主題</p>
+<p>同時參考這位大大的Blog<br><a target="_blank" rel="noopener" href="https://smilin.net/">smilin</a></p>
+<hr>
+<h2 id="美化用的"><a href="#美化用的" class="headerlink" title="美化用的"></a>美化用的</h2><h3 id="背景-CSS"><a href="#背景-CSS" class="headerlink" title="背景 CSS"></a>背景 CSS</h3><p><a target="_blank" rel="noopener" href="https://github.com/imaegoo/hexo-theme-icarus">🍉imaegoo</a><br>魔改icarus的開源程式碼，深色模式背景很好看</p>
+<h3 id="語法高亮器-Shiki"><a href="#語法高亮器-Shiki" class="headerlink" title="語法高亮器 Shiki"></a>語法高亮器 Shiki</h3><p><a target="_blank" rel="noopener" href="https://shiki.style/">🍻shiki</a><br>夜晚模式使用 <code>github-dark-dimmed</code> 主題<br>還是這個主題看比較順眼，VScode裡面也有同款可以安裝<br>推薦推薦🍵</p>
+<p>白天模式就比較單純 <code>github-light</code> 主題<br>因為我也沒在用淺色模式，就隨便挑了一種🍵</p>
+<figure class="shiki rebakery-line-numbers sh" data_title="<span></span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span></div>
+    <div class="code-lang">SH</div></div><div class="center">
+    <div class="code-title"><span></span></div></div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#F69D50">測試文字，大概就像這樣</span></span></code></pre> </figure>
+
+<hr>
+<h2 id="實用類的"><a href="#實用類的" class="headerlink" title="實用類的"></a>實用類的</h2><h3 id="Giscus"><a href="#Giscus" class="headerlink" title="Giscus"></a>Giscus</h3><p><a target="_blank" rel="noopener" href="https://giscus.app/zh-TW">🍊Giscus</a><br>文章留言板，誰會當第一個留言者呢</p>
+<h3 id="流量追蹤"><a href="#流量追蹤" class="headerlink" title="流量追蹤"></a>流量追蹤</h3><p><a target="_blank" rel="noopener" href="https://www.cloudflare.com/zh-tw/">🎂cloudflare</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.goatcounter.com/">🌽goatcounter</a></p>
+<p>所以如果你正在看這篇文章，<br>代表這裡的數字可能又 +1 了 :&gt;</p>
+<h3 id="Sitemap"><a href="#Sitemap" class="headerlink" title="Sitemap"></a>Sitemap</h3><p><a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-generator-sitemap">🗺️Sitemap</a><br>幫搜尋引擎整理網站有哪些頁面，<br>可以丟給 Google Search Console 用。</p>
+<p>網址 : <a href="https://rebakery.net/sitemap.xml">https://rebakery.net/sitemap.xml</a></p>
+<h3 id="GitHub-Actions-自動部署"><a href="#GitHub-Actions-自動部署" class="headerlink" title="GitHub Actions 自動部署"></a>GitHub Actions 自動部署</h3><p>寫文章 -&gt; git push -&gt; 發 Release -&gt; GitHub Actions build -&gt; GitHub Pages 更新</p>
+<p>可以參考 <a href="/posts/blog-components/deploy.yml">deploy.yml</a></p>
+<hr>
+<h2 id="增添莫名功能用的"><a href="#增添莫名功能用的" class="headerlink" title="增添莫名功能用的"></a>增添莫名功能用的</h2><h3 id="RSS"><a href="#RSS" class="headerlink" title="RSS"></a>RSS</h3><p><a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-generator-feed">🍋‍🟩RSS</a><br>2026年，有人用這個嗎0.0<br>看大家都有用，用一下</p>
+<p>訂閱網址 : <a href="https://rebakery.net/atom.xml">https://rebakery.net/atom.xml</a></p>
+<hr>
+</div><div class="article-licensing box"><div class="licensing-title"><p>這個部落格用了哪些神奇小零件</p><p><a href="https://rebakery.net/posts/blog-components/">https://rebakery.net/posts/blog-components/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Bakery Chen</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-05-24</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-06-08</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Hexo/">Hexo</a><a class="link-muted mr-2" rel="tag" href="/tags/GitHub-Actions/">GitHub Actions</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/posts/gb-project/part1/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">找不到韌體工作之亡羊補牢專案-Part1</span></a></div></nav><div class="card" id="comments"><div class="card-content"><h3 class="title is-5">Comments</h3><script src="https://giscus.app/client.js" repo="likeyou600/rebakery.github.io" data-repo="likeyou600/rebakery.github.io" data-repo-id="R_kgDOSmQ7-w" data-category-id="DIC_kwDOSmQ7-84C9vs8" data-category="Announcements" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="dark" data-lang="zh-TW" data-loading="lazy" crossorigin="anonymous" async></script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/avatar-transparent.png" alt="Bakery Chen"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Bakery Chen</p><p class="is-size-6 is-block">找工作中的 Engineer
+大概不會有啥技術分享，就簡單紀錄一下</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Taiwan</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives/"><p class="title">9</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories/"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags/"><p class="title">4</p></a></div></div></nav><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/likeyou600/rebakery.github.io"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Linkedin" href="https://www.linkedin.com/in/bakery3uu3/"><i class="fab fa-linkedin"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Email" href="mailto:bakery3uu3@gmail.com"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><div class="column-right-shadow is-hidden-widescreen is-sticky"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#主要框架"><span class="level-left"><span class="level-item">主要框架</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Hexo"><span class="level-left"><span class="level-item">Hexo</span></span></a></li><li><a class="level is-mobile" href="#Hexo-主題-icarus"><span class="level-left"><span class="level-item">Hexo 主題 - icarus</span></span></a></li></ul></li><li><a class="level is-mobile" href="#美化用的"><span class="level-left"><span class="level-item">美化用的</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#背景-CSS"><span class="level-left"><span class="level-item">背景 CSS</span></span></a></li><li><a class="level is-mobile" href="#語法高亮器-Shiki"><span class="level-left"><span class="level-item">語法高亮器 Shiki</span></span></a></li></ul></li><li><a class="level is-mobile" href="#實用類的"><span class="level-left"><span class="level-item">實用類的</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Giscus"><span class="level-left"><span class="level-item">Giscus</span></span></a></li><li><a class="level is-mobile" href="#流量追蹤"><span class="level-left"><span class="level-item">流量追蹤</span></span></a></li><li><a class="level is-mobile" href="#Sitemap"><span class="level-left"><span class="level-item">Sitemap</span></span></a></li><li><a class="level is-mobile" href="#GitHub-Actions-自動部署"><span class="level-left"><span class="level-item">GitHub Actions 自動部署</span></span></a></li></ul></li><li><a class="level is-mobile" href="#增添莫名功能用的"><span class="level-left"><span class="level-item">增添莫名功能用的</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#RSS"><span class="level-left"><span class="level-item">RSS</span></span></a></li></ul></li></ul></div></div><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GB-Project/"><span class="tag">GB-Project</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitHub-Actions/"><span class="tag">GitHub Actions</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hexo/"><span class="tag">Hexo</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Firmware/"><span class="level-start"><span class="level-item">Firmware</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Web/"><span class="level-start"><span class="level-item">Web</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><figure class="media-left"><a class="image" href="/posts/gb-project/part7/"><img src="/gallery/cover/part7.png" alt="找不到韌體工作之亡羊補牢專案-Part7"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-06-01T19:00:00.000Z">2026-06-02</time></p><p class="title"><a href="/posts/gb-project/part7/">找不到韌體工作之亡羊補牢專案-Part7</a></p><p class="categories"><a href="/categories/Firmware/">Firmware</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/posts/gb-project/part6/"><img src="/gallery/cover/part6.png" alt="找不到韌體工作之亡羊補牢專案-Part6"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-05-31T19:00:00.000Z">2026-06-01</time></p><p class="title"><a href="/posts/gb-project/part6/">找不到韌體工作之亡羊補牢專案-Part6</a></p><p class="categories"><a href="/categories/Firmware/">Firmware</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/posts/basic_dp/"><img src="/gallery/cover/dp.png" alt="常見 DP 題型｜Dynamic Programming Basics"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-05-31T09:26:00.000Z">2026-05-31</time></p><p class="title"><a href="/posts/basic_dp/">常見 DP 題型｜Dynamic Programming Basics</a></p><p class="categories"><a href="/categories/Software/">Software</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/posts/gb-project/part5/"><img src="/gallery/cover/part5.png" alt="找不到韌體工作之亡羊補牢專案-Part5"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-05-30T21:00:00.000Z">2026-05-31</time></p><p class="title"><a href="/posts/gb-project/part5/">找不到韌體工作之亡羊補牢專案-Part5</a></p><p class="categories"><a href="/categories/Firmware/">Firmware</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/posts/gb-project/part4/"><img src="/gallery/cover/part4.png" alt="找不到韌體工作之亡羊補牢專案-Part4"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-05-30T04:00:00.000Z">2026-05-30</time></p><p class="title"><a href="/posts/gb-project/part4/">找不到韌體工作之亡羊補牢專案-Part4</a></p><p class="categories"><a href="/categories/Firmware/">Firmware</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">Bakery&#039;s Blog</a><p class="is-size-7"><span>&copy; 2026 Bakery Chen</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">灑下香錦葵，喚醒梅林遺留的試煉</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script>moment.locale("zh-tw");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: false,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script><!-- hexo injector body_end start --><script defer src="/js/code_block/shiki.js"></script>
+<a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;">
+  <i class="fas fa-moon" id="night-icon"></i>
+</a>
+<script src="/js/imaegoo/night.js"></script>
+<script src="/js/imaegoo-adapter.js"></script>
+<script src="/js/imaegoo/universe.js"></script>
+
+<script>
+(function () {
+  var hostname = window.location.hostname.toLowerCase();
+
+  if (hostname !== 'rebakery.net' && hostname !== 'www.rebakery.net') {
+    return;
+  }
+
+  var goatcounter = document.createElement('script');
+  goatcounter.async = true;
+  goatcounter.src = 'https://gc.zgo.at/count.js';
+  goatcounter.dataset.goatcounter = 'https://rebakery.goatcounter.com/count';
+  document.head.appendChild(goatcounter);
+
+  var cloudflare = document.createElement('script');
+  cloudflare.defer = true;
+  cloudflare.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  cloudflare.setAttribute('data-cf-beacon', '{"token":"82c49522b87744b79020391148c3329f"}');
+  document.head.appendChild(cloudflare);
+}());
+</script>
+
+<!-- hexo injector body_end end --></body></html>

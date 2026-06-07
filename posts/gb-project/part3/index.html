@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>找不到韌體工作之亡羊補牢專案-Part3 - Bakery&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Bakery&#039;s Blog"><meta name="msapplication-TileImage" content="/img/favicon.ico"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Bakery&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="apple-touch-icon" sizes="16x16" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="32x32" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="48x48" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="64x64" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="128x128" href="/img/favicon.ico"><link rel="apple-touch-icon" sizes="256x256" href="/img/favicon.ico"><meta name="description" content="Part 2 終於把環境搭起來了🍵，接下來就是最無聊最恐怖又有點有趣的練習FreeRTOS"><meta property="og:type" content="blog"><meta property="og:title" content="找不到韌體工作之亡羊補牢專案-Part3"><meta property="og:url" content="https://rebakery.net/posts/gb-project/part3/"><meta property="og:site_name" content="Bakery&#039;s Blog"><meta property="og:description" content="Part 2 終於把環境搭起來了🍵，接下來就是最無聊最恐怖又有點有趣的練習FreeRTOS"><meta property="og:locale" content="zh_TW"><meta property="og:image" content="https://rebakery.net/img/avatar-transparent.png"><meta property="article:published_time" content="2026-05-26T19:00:00.000Z"><meta property="article:modified_time" content="2026-06-07T21:39:42.420Z"><meta property="article:author" content="Bakery Chen"><meta property="article:tag" content="GB-Project"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://rebakery.net/img/avatar-transparent.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://rebakery.net/posts/gb-project/part3/"},"headline":"找不到韌體工作之亡羊補牢專案-Part3","image":["https://rebakery.net/img/avatar-transparent.png"],"datePublished":"2026-05-26T19:00:00.000Z","dateModified":"2026-06-07T21:39:42.420Z","author":{"@type":"Person","name":"Bakery Chen"},"publisher":{"@type":"Organization","name":"Bakery's Blog","logo":{"@type":"ImageObject","url":"https://rebakery.net/img/avatar-transparent.png"}},"description":"Part 2 終於把環境搭起來了🍵，接下來就是最無聊最恐怖又有點有趣的練習FreeRTOS"}</script><link rel="canonical" href="https://rebakery.net/posts/gb-project/part3/"><link rel="alternate" href="/atom.xml" title="Bakery&#039;s Blog" type="application/atom+xml"><link rel="icon" href="/img/favicon.ico"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><link rel="stylesheet" href="/css/code_block/shiki.css"><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/css/imaegoo-night.css">
+<link rel="stylesheet" href="/css/imaegoo-adapter.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><!-- hexo injector body_begin start -->
+<script>
+(function () {
+  var path = window.location.pathname.replace(/\/index\.html$/, '/');
+  var className = '';
+
+  if (path === '/' || path === '') {
+    className = 'rebakery-home';
+  } else if (path.indexOf('/archives') === 0) {
+    className = 'rebakery-archives';
+  } else if (path.indexOf('/collections') === 0) {
+    className = 'rebakery-collections';
+  } else if (path.indexOf('/about') === 0) {
+    className = 'rebakery-about';
+  } else if (/^\/\d{8}\//.test(path) || path.indexOf('/posts/') === 0 || path.indexOf('/projects/') === 0) {
+    className = 'rebakery-post';
+  }
+
+  if (className) {
+    document.body.classList.add(className);
+  }
+}());
+</script>
+<canvas id="universe"></canvas>
+<!-- hexo injector body_begin end --><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Bakery&#039;s Blog</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主頁</a><a class="navbar-item" href="/archives">時光機</a><a class="navbar-item" href="/collections">主題整理</a><a class="navbar-item" href="/about">關於我</a></div><div class="navbar-end"><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="/gallery/cover/part3.png" alt="找不到韌體工作之亡羊補牢專案-Part3"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-05-26T19:00:00.000Z" title="5/27/2026, 3:00:00 AM">2026-05-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-06-07T21:39:42.420Z" title="6/8/2026, 5:39:42 AM">2026-06-08</time></span><span class="level-item"><a class="link-muted" href="/categories/Firmware/">Firmware</a></span></div></div><h1 class="title is-3 is-size-4-mobile">找不到韌體工作之亡羊補牢專案-Part3</h1><div class="content"><p>Part 2 終於把環境搭起來了🍵，接下來就是<br>最無聊最恐怖又有點有趣的練習FreeRTOS</p>
+<span id="more"></span>
+<hr>
+<h1 id="Logger-Service-與-FreeRTOS-除錯觀察"><a href="#Logger-Service-與-FreeRTOS-除錯觀察" class="headerlink" title="Logger Service 與 FreeRTOS 除錯觀察"></a>Logger Service 與 FreeRTOS 除錯觀察</h1><h2 id="系列文章"><a href="#系列文章" class="headerlink" title="系列文章"></a>系列文章</h2><ul>
+<li><a href="/posts/gb-project/part1/" title="找不到韌體工作之亡羊補牢專案-Part1">Part 1：專案規劃與準備清單</a></li>
+<li><a href="/posts/gb-project/part2/" title="找不到韌體工作之亡羊補牢專案-Part2">Part 2：開發環境與 FreeRTOS 架構</a></li>
+<li>Part 3：Logger Service 與 FreeRTOS 除錯觀察</li>
+<li><a href="/posts/gb-project/part4/" title="找不到韌體工作之亡羊補牢專案-Part4">Part 4：Input System：GPIO、Polling Debounce 與 Event Queue</a></li>
+<li><a href="/posts/gb-project/part5/" title="找不到韌體工作之亡羊補牢專案-Part5">Part 5：Input System：EXTI、ISR Notify 與 Software Timer Debounce</a></li>
+<li><a href="/posts/gb-project/part6/" title="找不到韌體工作之亡羊補牢專案-Part6">Part 6：Display System：ILI9341 TFT、SPI 與像素繪圖</a>
+<!-- - <a href="/posts/gb-project/part7/" title="找不到韌體工作之亡羊補牢專案-Part7">Part 7：Lopaka UI 與像素風畫面設計</a> --></li>
+</ul>
+<hr>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>系統跑起來之後，下一個最常做的事情就是印 log，<br>你不印點東西出來，基本上就是在通靈。<br>雖然說當下寫這篇，就算接邏輯分析儀也像在通靈，看不出個所以然ㄏㄏ</p>
+<hr>
+<h2 id="本篇目標"><a href="#本篇目標" class="headerlink" title="本篇目標"></a>本篇目標</h2><ul>
+<li><p>Log service</p>
+<ul>
+<li>建立非同步 <code>logger_task</code>，統一處理 UART log 輸出</li>
+<li>使用 FreeRTOS queue 實作 log 的 producer &#x2F; consumer 模型</li>
+<li>讓各 task 透過 <code>LOG_INFO()</code>、<code>LOG_WARN()</code>、<code>LOG_ERROR()</code> 將 log message 送進 <code>log_queue</code></li>
+</ul>
+</li>
+<li><p>除錯與觀察</p>
+<ul>
+<li>觀察 task priority 對 <code>logger_task</code> 與 <code>heartbeat_task</code> 的影響</li>
+<li>使用 stack high water mark 檢查 task stack 使用量</li>
+<li>Debug GPIO &#x2F; 邏輯分析儀試用</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="專案下載"><a href="#專案下載" class="headerlink" title="專案下載"></a>專案下載</h2><p>本篇文章對應的完整範例專案已整理在 GitHub Release 中，<br>如果想直接對照程式碼或跳過環境建立流程，可以從以下連結下載</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/likeyou600/gb_project/releases/tag/Part3">🍦下載本篇範例專案-Part 3🍦</a></p>
+<hr>
+<h2 id="Log-Service-producer-consumer"><a href="#Log-Service-producer-consumer" class="headerlink" title="Log Service : producer &#x2F; consumer"></a>Log Service : producer &#x2F; consumer</h2><h3 id="為什麼需要-logger-task"><a href="#為什麼需要-logger-task" class="headerlink" title="為什麼需要 logger_task"></a>為什麼需要 logger_task</h3><p>Part 2 已經可以透過 USART3 &#x2F; ST-LINK Virtual COM Port 印出 log。<br>如果每個 task 都直接呼叫 <code>printf()</code> 或 <code>HAL_UART_Transmit()</code>，小範例還可以接受，但專案變大後會有幾個問題：</p>
+<ul>
+<li>多個 task 同時印 log，輸出可能交錯</li>
+<li><code>HAL_UART_Transmit()</code> 是 blocking，會卡住呼叫它的 task</li>
+<li>driver、service、task 如果都直接操作 UART，之後會很難管理</li>
+<li>log 格式、log level、timestamp 不容易統一</li>
+<li>後續改 DMA 輸出方式較複雜</li>
+</ul>
+<p>所以目前先做一個小型 log service。</p>
+<h3 id="為什麼用-producer-consumer-管理-log，而不是-mutex"><a href="#為什麼用-producer-consumer-管理-log，而不是-mutex" class="headerlink" title="為什麼用 producer &#x2F; consumer 管理 log，而不是 mutex"></a>為什麼用 producer &#x2F; consumer 管理 log，而不是 mutex</h3><p>雖然 STM32F767ZI 是單核心 MCU，但在 FreeRTOS 裡仍然會有 task 切換。<br>也就是說，同一時間只有一個 task 在跑，不代表共享資源就不需要保護。</p>
+<p>如果只是要保護 UART debug console，可以用 mutex 來保護，<br>概念是，同一時間只允許一個 task 使用 UART，其他 task 必須等待。</p>
+<figure class="shiki c" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osMutexAcquire</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">uart_mutex,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">osWaitForever</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">printf</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#032F62;--shiki-dark:#96D0FF">"[INFO][game]</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">state=</span><span style="color:#005CC5;--shiki-dark:#F47067">%lu\r\n</span><span style="color:#032F62;--shiki-dark:#96D0FF">"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">state</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osMutexRelease</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">uart_mutex</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span></code></pre> </figure>
+
+<p>但這樣會有個缺點，就是每個 task 都知道 UART 的存在，職責切得不太乾淨，<br>因此改用 <strong>producer &#x2F; consumer</strong> 模型，把「產生 log」和「輸出 log」拆開。<br>各個 task 只負責產生 log，當 log producer，丟進 <code>log_queue</code>。<br><code>logger_task</code>，則作為 log consumer，負責輸出 log。</p>
+<p>雖然 <code>logger_task</code> 本身也可能被 FreeRTOS scheduler 切走。<br>但這時候影響的是 log 輸出時間可能延後，而不是 log 內容互相交錯。<br>等 scheduler 再切回 <code>logger_task</code> 時，它會繼續處理 queue 裡的 log。</p>
+<p>簡單來說：</p>
+<ul>
+<li>mutex：保護共享資源，避免多個 task 同時使用 UART</li>
+<li>producer &#x2F; consumer：讓其他 task 不直接碰 UART，而是交給 <code>logger_task</code> 統一處理</li>
+</ul>
+<h3 id="Logger-資料流"><a href="#Logger-資料流" class="headerlink" title="Logger 資料流"></a>Logger 資料流</h3><figure class="shiki c" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#24292E;--shiki-dark:#ADBAC7">🌕Init</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">side:🌕</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">app_main_init</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">log_service_init</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">-</span><span style="color:#D73A49;--shiki-dark:#F47067">></span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osMessageQueueNew</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">APP_LOG_QUEUE_DEPTH,</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">sizeof</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#005CC5;--shiki-dark:#6CB6FF">log_service_message_t</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">NULL</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">v</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">log</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">queue</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">ready</span></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">------------------------</span></span><span class="line"><span style="color:#24292E;--shiki-dark:#ADBAC7">🌗Producer</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">side:🌗</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">debug_task</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">heartbeat_task</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">其他未來的</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">task</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">#include</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">"Log/log_service.h"</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_INFO</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_WARN</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_ERROR</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">v</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">log_service_submit</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osMessageQueuePut</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">logQueueHandle,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">v</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">log</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">queue</span></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">------------------------</span></span><span class="line"><span style="color:#24292E;--shiki-dark:#ADBAC7">🌚Consumer</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">side:🌚</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">logger_task</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">log_service_process</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">-</span><span style="color:#D73A49;--shiki-dark:#F47067">></span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osMessageQueueGet</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">logQueueHandle,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">-</span><span style="color:#D73A49;--shiki-dark:#F47067">></span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">format</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">log</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">line</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">-</span><span style="color:#D73A49;--shiki-dark:#F47067">></span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">board_uart_write_debug</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">-</span><span style="color:#D73A49;--shiki-dark:#F47067">></span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">HAL_UART_Transmit</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">v</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">USART3</span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">/</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">ST</span><span style="color:#D73A49;--shiki-dark:#F47067">-</span><span style="color:#24292E;--shiki-dark:#ADBAC7">LINK</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">Virtual</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">COM</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">Port</span></span></code></pre> </figure>
+<h3 id="資料夾結構"><a href="#資料夾結構" class="headerlink" title="資料夾結構"></a>資料夾結構</h3><figure class="shiki sh" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">SH</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#F69D50">App/</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#F69D50">├─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">Services/</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#F69D50">│</span><span class="space"> </span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">└─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">Log/</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#F69D50">│</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">├─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">log_service.c</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#F69D50">│</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">└─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">log_service.h</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#F69D50">└─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">Tasks/</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#F69D50">├─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">Inc/</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#F69D50">│</span><span class="space"> </span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">├─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">debug_task.h</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#F69D50">│</span><span class="space"> </span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">└─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">logger_task.h</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#F69D50">└─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">Src/</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#F69D50">├─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">debug_task.h</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#F69D50">└─</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">logger_task.c</span></span></code></pre> </figure>
+
+<h3 id="LOG-格式定義"><a href="#LOG-格式定義" class="headerlink" title="LOG 格式定義"></a>LOG 格式定義</h3><figure class="shiki text" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">TEXT</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span>[00001234][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=0</span></span><span class="line"><span>[00001240][WARN</span><span class="space"> </span><span>][game]</span><span class="space"> </span><span>state=IDLE</span><span class="space"> </span><span>action=FEED</span></span><span class="line"><span>[00001255][ERROR][lcd]</span><span class="space"> </span><span>spi_timeout</span><span class="space"> </span><span>retry=1</span></span></code></pre> </figure>
+
+<p>欄位如下：</p>
+<ul>
+<li><code>timestamp</code>：系統時間，目前使用 <code>HAL_GetTick()</code>，單位是 ms</li>
+<li><code>level</code>：log 等級，目前有 <code>INFO</code>、<code>WARN</code>、<code>ERROR</code></li>
+<li><code>module</code>：log 來源，例如 <code>MAIN</code>、<code>RTOS</code>、<code>LCD</code>、<code>GAME</code>…</li>
+<li><code>message</code>：實際訊息內容</li>
+</ul>
+<h3 id="Logger-參數設定"><a href="#Logger-參數設定" class="headerlink" title="Logger 參數設定"></a>Logger 參數設定</h3><figure class="shiki c" data_title="<span>App/Inc/app_config.h</span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    <div class="code-title"><span>App/Inc/app_config.h</span></div>
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#6A737D;--shiki-dark:#768390">//是否啟用</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">log</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">service</span></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">APP_LOG_ENABLE</span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">1</span></span><span class="line"></span><span class="line"><span style="color:#6A737D;--shiki-dark:#768390">//log</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">queue</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">最多暫存幾筆</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">log</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">message</span></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">APP_LOG_QUEUE_DEPTH</span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">8</span></span><span class="line"></span><span class="line"><span style="color:#6A737D;--shiki-dark:#768390">//module</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">名稱最大長度，包含字串結尾</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">'\0'</span></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">APP_LOG_MODULE_NAME_MAX_LEN</span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">32</span></span><span class="line"></span><span class="line"><span style="color:#6A737D;--shiki-dark:#768390">//message</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">最大長度，包含字串結尾</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">'\0'</span></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">APP_LOG_MESSAGE_MAX_LEN</span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">80</span></span></code></pre> </figure>
+
+<h3 id="LOG-INFO-LOG-WARN-LOG-ERROR-巨集"><a href="#LOG-INFO-LOG-WARN-LOG-ERROR-巨集" class="headerlink" title="LOG_INFO &#x2F; LOG_WARN &#x2F; LOG_ERROR 巨集"></a>LOG_INFO &#x2F; LOG_WARN &#x2F; LOG_ERROR 巨集</h3><p>目前在 <code>log_service.h</code> 裡定義：</p>
+<figure class="shiki c" data_title="<span>Services/Log/log_service.h</span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    <div class="code-title"><span>Services/Log/log_service.h</span></div>
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_INFO</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#E36209;--shiki-dark:#F69D50">module</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#E36209;--shiki-dark:#F69D50">format</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7"> </span><span style="color:#005CC5;--shiki-dark:#F47067">\</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">log_service_submit</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">APP_LOG_LEVEL_INFO,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">module,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">format,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">##</span><span style="color:#6F42C1;--shiki-dark:#F69D50">__VA_ARGS__</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_WARN</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#E36209;--shiki-dark:#F69D50">module</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#E36209;--shiki-dark:#F69D50">format</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7"> </span><span style="color:#005CC5;--shiki-dark:#F47067">\</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">log_service_submit</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">APP_LOG_LEVEL_WARN,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">module,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">format,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">##</span><span style="color:#6F42C1;--shiki-dark:#F69D50">__VA_ARGS__</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_ERROR</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#E36209;--shiki-dark:#F69D50">module</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#E36209;--shiki-dark:#F69D50">format</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7"> </span><span style="color:#005CC5;--shiki-dark:#F47067">\</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">log_service_submit</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">APP_LOG_LEVEL_ERROR,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">module,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">format,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">##</span><span style="color:#6F42C1;--shiki-dark:#F69D50">__VA_ARGS__</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span></code></pre> </figure>
+
+<figure class="shiki c" data_title="<span>anywhere</span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    <div class="code-title"><span>anywhere</span></div>
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#include</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">"Log/log_service.h"</span></span><span class="line"></span><span class="line"><span style="color:#24292E;--shiki-dark:#ADBAC7">使用方式：</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_INFO</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#032F62;--shiki-dark:#96D0FF">"RTOS-log_service"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">"debug_task</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">alive</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">counter=</span><span style="color:#005CC5;--shiki-dark:#F47067">%lu</span><span style="color:#032F62;--shiki-dark:#96D0FF">"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">counter</span><span style="color:#D73A49;--shiki-dark:#F47067">++</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_WARN</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#032F62;--shiki-dark:#96D0FF">"LCD"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">"spi_timeout</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">retry=</span><span style="color:#005CC5;--shiki-dark:#F47067">%lu</span><span style="color:#032F62;--shiki-dark:#96D0FF">"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">retry</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_ERROR</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#032F62;--shiki-dark:#96D0FF">"GAME"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">"invalid_state=</span><span style="color:#005CC5;--shiki-dark:#F47067">%lu</span><span style="color:#032F62;--shiki-dark:#96D0FF">"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">state</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"></span></code></pre> </figure>
+
+<hr>
+<h2 id="除錯與觀察"><a href="#除錯與觀察" class="headerlink" title="除錯與觀察"></a>除錯與觀察</h2><p>除了真正實作 Task、Service，<br>最無聊的事情就是除錯與觀察🍵</p>
+<h3 id="Task-Priority：先用-log-timestamp-觀察"><a href="#Task-Priority：先用-log-timestamp-觀察" class="headerlink" title="Task Priority：先用 log timestamp 觀察"></a>Task Priority：先用 log timestamp 觀察</h3><p>FreeRTOS scheduler 會根據 task priority 和 task 狀態決定目前要執行哪個 task。<br>我們創立一個 <code>busy_task</code> 製造 CPU 壓力，再透過 log timestamp 觀察不同 priority 的差異。</p>
+<p>目前測試的 task：</p>
+<figure class="shiki c" data_title="<span>App/Tasks/Src/app_tasks.c</span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    <div class="code-title"><span>App/Tasks/Src/app_tasks.c</span></div>
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#24292E;--shiki-dark:#ADBAC7">logger_task</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">:</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">osPriorityNormal</span></span><span class="line"><span style="color:#24292E;--shiki-dark:#ADBAC7">debug_task</span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">:</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">osPriorityLow</span></span><span class="line"><span style="color:#24292E;--shiki-dark:#ADBAC7">heartbeat_task</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">:</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">osPriorityLow</span></span></code></pre> </figure>
+
+
+<p><code>busy_task</code> 用來做對照測試：</p>
+<ul>
+<li>測試 A：busy_task : osPriorityNormal</li>
+<li>測試 B：busy_task : osPriorityLow</li>
+</ul>
+<p><code>busy_task</code> 會故意做一段 busy loop，跑完後印出 log，接著短暫 delay</p>
+<figure class="shiki rebakery-line-numbers c" data_title="<span>App/Tasks/Src/busy_tasks.c </span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span></div>
+    <div class="code-lang">C</div></div><div class="center">
+    <div class="code-title"><span>App/Tasks/Src/busy_tasks.c </span></div></div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">for</span><span style="color:#24292E;--shiki-dark:#ADBAC7"> </span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;;</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span style="color:#005cc5;--shiki-dark:#6cb6ff">&#123;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">//此迴圈約花</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">900ms~1100ms</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">for</span><span style="color:#24292E;--shiki-dark:#ADBAC7"> </span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#D73A49;--shiki-dark:#F47067">volatile</span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">uint32_t</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">i</span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">=</span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">0</span><span style="color:#D73A49;--shiki-dark:#F47067">U</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">i</span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">&#x3C;</span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">5000000</span><span style="color:#D73A49;--shiki-dark:#F47067">UL</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">i</span><span style="color:#D73A49;--shiki-dark:#F47067">++</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#e36209;--shiki-dark:#6bc46d">&#123;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#e36209;--shiki-dark:#6bc46d">&#125;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_INFO</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#032F62;--shiki-dark:#96D0FF">"busy"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">"busy</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">loop</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">done</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">counter=</span><span style="color:#005CC5;--shiki-dark:#F47067">%lu</span><span style="color:#032F62;--shiki-dark:#96D0FF">"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">counter</span><span style="color:#D73A49;--shiki-dark:#F47067">++</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osDelay</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#005CC5;--shiki-dark:#6CB6FF">10</span><span style="color:#D73A49;--shiki-dark:#F47067">U</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span style="color:#005cc5;--shiki-dark:#6cb6ff">&#125;</span></span></code></pre> </figure>
+
+
+<p><code>debug_task</code> 則維持每 1 秒印一次 log：</p>
+<figure class="shiki rebakery-line-numbers c" data_title="<span>App/Tasks/Src/debug_tasks.c </span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span></div>
+    <div class="code-lang">C</div></div><div class="center">
+    <div class="code-title"><span>App/Tasks/Src/debug_tasks.c </span></div></div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">for</span><span style="color:#24292E;--shiki-dark:#ADBAC7"> </span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;;</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span style="color:#005cc5;--shiki-dark:#6cb6ff">&#123;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_INFO</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#032F62;--shiki-dark:#96D0FF">"RTOS-debug_task"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">"debug_task</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">alive</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">counter=</span><span style="color:#005CC5;--shiki-dark:#F47067">%lu</span><span style="color:#032F62;--shiki-dark:#96D0FF">"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">counter</span><span style="color:#D73A49;--shiki-dark:#F47067">++</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osDelay</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#005CC5;--shiki-dark:#6CB6FF">1000</span><span style="color:#D73A49;--shiki-dark:#F47067">U</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span style="color:#005cc5;--shiki-dark:#6cb6ff">&#125;</span></span></code></pre> </figure>
+
+
+<h4 id="測試-A：busy-task-是-normal-priority"><a href="#測試-A：busy-task-是-normal-priority" class="headerlink" title="測試 A：busy_task 是 normal priority"></a>測試 A：<code>busy_task</code> 是 normal priority</h4><p>這時候 <code>busy_task</code> priority 比 <code>debug_task</code>、<code>heartbeat_task</code> 高。  </p>
+<figure class="shiki text" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">TEXT</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span>[00000019][INFO</span><span class="space"> </span><span>][RTOS-log_service]</span><span class="space"> </span><span>log_service_init</span><span class="space"> </span><span>called</span></span><span class="line"><span>[00000833][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=0</span></span><span class="line"><span>[00000838][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=0</span></span><span class="line"><span>[00001653][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=1</span></span><span class="line"><span>[00002471][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=2</span></span><span class="line"><span>[00003289][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=3</span></span><span class="line"><span>[00003294][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=1</span></span><span class="line"><span>[00004108][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=4</span></span><span class="line"><span>[00004926][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=5</span></span><span class="line"><span>[00005744][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=6</span></span><span class="line"><span>[00005749][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=2</span></span></code></pre> </figure>
+
+<p>且此時的 heartbeat_task 出現延遲 Toggle。</p>
+<p>這代表：</p>
+<ul>
+<li>較高 priority 的 busy_task 長時間佔用 CPU</li>
+<li>低 priority 的 debug_task 只能等 busy_task 進入 delay 後才有機會跑</li>
+</ul>
+<h4 id="測試-B：busy-task-是-low-priority"><a href="#測試-B：busy-task-是-low-priority" class="headerlink" title="測試 B：busy_task 是 low priority"></a>測試 B：<code>busy_task</code> 是 low priority</h4><p>這時候 <code>busy_task</code> 和 <code>debug_task</code>、<code>heartbeat_task</code> priority 一樣。  </p>
+<p>觀察到的 log 會比較接近，debug_task 大約每 1000 ms 執行一次，busy_task 也持續執行。<br>且此時的 heartbeat_task 沒有延遲 Toggle，<br>系統沒有明顯卡住。</p>
+<figure class="shiki text" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">TEXT</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span>[00000019][INFO</span><span class="space"> </span><span>][RTOS-log_service]</span><span class="space"> </span><span>log_service_init</span><span class="space"> </span><span>called</span></span><span class="line"><span>[00000025][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=0</span></span><span class="line"><span>[00000845][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=0</span></span><span class="line"><span>[00001032][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=1</span></span><span class="line"><span>[00001680][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=1</span></span><span class="line"><span>[00002038][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=2</span></span><span class="line"><span>[00002514][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=2</span></span><span class="line"><span>[00003044][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=3</span></span><span class="line"><span>[00003348][INFO</span><span class="space"> </span><span>][busy]</span><span class="space"> </span><span>busy</span><span class="space"> </span><span>loop</span><span class="space"> </span><span>done</span><span class="space"> </span><span>counter=3</span></span><span class="line"><span>[00004050][INFO</span><span class="space"> </span><span>][RTOS-debug_task]</span><span class="space"> </span><span>debug_task</span><span class="space"> </span><span>alive</span><span class="space"> </span><span>counter=4</span></span></code></pre> </figure>
+
+<h4 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h4><p>priority 較高的 task 會優先被排程</p>
+<p>如果高 priority task 長時間不 block &#x2F; delay<br>低 priority task 會被延後，甚至可能餓死</p>
+<p>如果 task 有適當呼叫 osDelay()<br>其他 task 才有機會執行</p>
+<h3 id="Stack-High-Water-Mark：觀察-task-stack-使用量"><a href="#Stack-High-Water-Mark：觀察-task-stack-使用量" class="headerlink" title="Stack High Water Mark：觀察 task stack 使用量"></a>Stack High Water Mark：觀察 task stack 使用量</h3><p>每個 FreeRTOS task 都有自己的 stack。</p>
+<p>如果 stack 設太小，程式可能會出現很難追的錯誤；<br>如果 stack 設太大，又會浪費 RAM。</p>
+<p>FreeRTOS 提供 high water mark，可以用來觀察某個 task 還剩下多少 stack 空間。<br>在 CMSIS-RTOS v2 裡，可以使用：</p>
+<figure class="shiki c" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">uint32_t</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">stack_space</span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">=</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osThreadGetStackSpace</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osThreadGetId</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span></code></pre> </figure>
+
+<p>但這樣每個 task 都要自己加一段 log，之後會變得很散，<br>所以這邊加入一個 <code>monitor_task</code>，定期觀察各個 task 還剩下多少 stack 空間，<br>這樣所有 task 的 stack 狀態都可以集中觀察。</p>
+<figure class="shiki c" data_title="<span>App/Tasks/Src/monitor_task.c</span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    <div class="code-title"><span>App/Tasks/Src/monitor_task.c</span></div>
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#24292E;--shiki-dark:#ADBAC7">monitor_task</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">app_tasks_get_logger_handle</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">app_tasks_get_debug_handle</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">app_tasks_get_heartbeat_handle</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">app_tasks_get_busy_handle</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">app_tasks_get_monitor_handle</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">v</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osThreadGetStackSpace</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">thread_id</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">|</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">v</span></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">LOG_INFO</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#032F62;--shiki-dark:#96D0FF">"monitor"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">"</span><span style="color:#005CC5;--shiki-dark:#F47067">%s</span><span class="space"> </span><span style="color:#032F62;--shiki-dark:#96D0FF">stack_space=</span><span style="color:#005CC5;--shiki-dark:#F47067">%lu</span><span style="color:#032F62;--shiki-dark:#96D0FF">"</span><span style="color:#24292E;--shiki-dark:#ADBAC7">,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">...</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span></code></pre> </figure>
+
+<p>開啟 monitor_task 後，UART terminal 會定期看到類似：</p>
+<figure class="shiki text" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">TEXT</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span>[00015110][INFO</span><span class="space"> </span><span>][RTOS-monitor_task]</span><span class="space"> </span><span>logger</span><span class="space"> </span><span>stack_space=250</span></span><span class="line"><span>[00015116][INFO</span><span class="space"> </span><span>][RTOS-monitor_task]</span><span class="space"> </span><span>debug</span><span class="space"> </span><span>stack_space=314</span></span><span class="line"><span>[00015122][INFO</span><span class="space"> </span><span>][RTOS-monitor_task]</span><span class="space"> </span><span>heartbeat</span><span class="space"> </span><span>stack_space=222</span></span><span class="line"><span>[00015128][INFO</span><span class="space"> </span><span>][RTOS-monitor_task]</span><span class="space"> </span><span>monitor</span><span class="space"> </span><span>stack_space=310</span></span></code></pre> </figure>
+
+<p>這些數值代表「該 task 曾經剩下的最小 stack 空間」，<br>數值越小，代表 stack 越接近用完。</p>
+<p>之後如果 task 裡面有：</p>
+<ul>
+<li>較大的 local buffer</li>
+<li><code>printf()</code> &#x2F; <code>snprintf()</code></li>
+<li>字串格式化</li>
+<li>driver 暫存資料</li>
+<li>較深的 function call</li>
+</ul>
+<p>就要特別注意 stack 使用量。</p>
+<h3 id="Debug-GPIO-邏輯分析儀試用"><a href="#Debug-GPIO-邏輯分析儀試用" class="headerlink" title="Debug GPIO &#x2F; 邏輯分析儀試用"></a>Debug GPIO &#x2F; 邏輯分析儀試用</h3><p>除了透過 UART log 觀察程式狀態之外，我們也可以使用 GPIO 當作 debug marker（除錯標記）。</p>
+<p>做法是在想量測的程式片段前後切換 GPIO：</p>
+<figure class="shiki c" data_title=""> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">HAL_GPIO_WritePin</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">DEBUG_GPIO_Port,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">DEBUG_Pin,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">GPIO_PIN_SET</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"></span><span class="line"><span style="color:#6A737D;--shiki-dark:#768390">/*</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">code</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">section</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">to</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">measure</span><span class="space"> </span><span style="color:#6A737D;--shiki-dark:#768390">*/</span></span><span class="line"></span><span class="line"><span style="color:#6F42C1;--shiki-dark:#DCBDFB">HAL_GPIO_WritePin</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">DEBUG_GPIO_Port,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">DEBUG_Pin,</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">GPIO_PIN_RESET</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span></code></pre> </figure>
+
+<p>當程式執行到 <code>HAL_GPIO_WritePin(..., GPIO_PIN_SET)</code> 時，debug pin 會被拉高。</p>
+<p>當程式執行到 <code>HAL_GPIO_WritePin(..., GPIO_PIN_RESET)</code> 時，debug pin 會被拉低。</p>
+<p>如此一來，只要用邏輯分析儀觀察高電位寬度，就能知道這段程式大約執行了多久。</p>
+<h4 id="選擇一個可用的-GPIO"><a href="#選擇一個可用的-GPIO" class="headerlink" title="選擇一個可用的 GPIO"></a>選擇一個可用的 GPIO</h4><p>但!!!<br>目前 CubeMX 已經定義好的 GPIO 幾乎都有既定用途，不能隨便拿來當 debug pin。<br>以 <code>PB0、PB7、PB14</code> 來說，已經被用來控制板子上的 LED，也就是我們前面做的 heartbeat_task LED<br>如果直接拿這些 pin 來當 debug marker，可能會影響原本板子上的功能，也會讓觀察結果變得混亂。<br><img src="/posts/gb-project/part3/GPIO.png" alt="STM32CubeMX GPIO 腳位設定畫面"></p>
+<p>因此我們需要先打開 <code>gb_f767zi.ioc</code>，重新找一個目前沒有被使用的 pin。<br>這裡以 <code>PF12</code> ( GPIO Port F 的第 12 號腳位 ) 為例，將它設定成 <code>GPIO_Output</code>。</p>
+<p>在 STM32 中，GPIO 腳位會依照不同的 <strong>Port</strong> 分組</p>
+<ul>
+<li>例如 <code>GPIOA</code>、<code>GPIOB</code>、<code>GPIOC</code> 到 <code>GPIOF</code> 等</li>
+</ul>
+<p><img src="/posts/gb-project/part3/GPIO_Output.png" alt="PF12 設定為 GPIO Output"></p>
+<p>之所以要設定成 <code>GPIO_Output</code>，是因為我們要做的是：</p>
+<ul>
+<li>讓 MCU 透過程式主動把某個 pin 拉高或拉低。</li>
+<li>這個 pin 不是 MCU 拿來讀取外部訊號，而是由 MCU 自己輸出 High &#x2F; Low 給邏輯分析儀觀察。</li>
+</ul>
+<h4 id="GPIO-詳細設定"><a href="#GPIO-詳細設定" class="headerlink" title="GPIO 詳細設定"></a>GPIO 詳細設定</h4><p>這裡主要會設定幾個項目：</p>
+<ul>
+<li>GPIO output level</li>
+<li>GPIO mode</li>
+<li>Pull-up &#x2F; Pull-down</li>
+<li>Maximum output speed</li>
+<li>User Label</li>
+</ul>
+<p><img src="/posts/gb-project/part3/PF12_datail.png" alt="PF12 GPIO Output 詳細設定"></p>
+<h5 id="GPIO-output-level"><a href="#GPIO-output-level" class="headerlink" title="GPIO output level"></a>GPIO output level</h5><p>這個選項決定 GPIO 初始化完成後，預設要輸出高電位還是低電位。</p>
+<p>這裡設定為：<code>GPIO output level = Low</code></p>
+<p>也就是開機初始化時，先讓 debug pin 輸出低電位。<br>這樣可以避免 debug pin 一開機就維持高電位，讓後續用邏輯分析儀觀察時比較清楚。</p>
+<p>常見選項：</p>
+<ul>
+<li><p><code>Low</code></p>
+<ul>
+<li>初始化後輸出低電位</li>
+<li>適合 debug marker、LED 預設關閉、控制腳位預設不啟動的情境</li>
+</ul>
+</li>
+<li><p><code>High</code></p>
+<ul>
+<li>初始化後輸出高電位</li>
+<li>適合外部電路需要 MCU 一開機就拉高控制腳的情境</li>
+</ul>
+</li>
+</ul>
+<p>以 debug GPIO 來說，通常會選 <code>Low</code>。<br>因為我們希望只有被量測的程式區段執行時，pin 才會被拉高。</p>
+<h5 id="GPIO-mode"><a href="#GPIO-mode" class="headerlink" title="GPIO mode"></a>GPIO mode</h5><p>這個選項決定 GPIO 的輸出型態。</p>
+<p>這裡設定為：<code>GPIO mode = Output Push Pull</code></p>
+<p><code>Output Push Pull</code> 是一般 GPIO 輸出高低電位時最常用的模式。</p>
+<ul>
+<li>輸出 High 時，MCU 主動把 pin 拉到高電位</li>
+<li>輸出 Low 時，MCU 主動把 pin 拉到低電位</li>
+</ul>
+<p>也就是說，High 和 Low 都是由 MCU 主動驅動。<br>這很適合拿來做 debug marker，因為邏輯分析儀可以很清楚地看到電位切換。</p>
+<p>常見選項：</p>
+<ul>
+<li><p><code>Output Push Pull</code></p>
+<ul>
+<li>一般 GPIO 輸出模式</li>
+<li>適合 LED 控制、debug pin、chip select、reset pin 等需要明確輸出高低電位的情境</li>
+</ul>
+</li>
+<li><p><code>Output Open Drain</code>（開漏輸出）</p>
+<ul>
+<li>只能主動拉低，不能主動輸出高電位</li>
+<li>如果要看到高電位，通常需要外部或內部 pull-up</li>
+<li>常見於 I2C、共享訊號線，或多個裝置可能一起控制同一條線的情況</li>
+</ul>
+</li>
+</ul>
+<p>以 debug GPIO 來說，通常不需要 Open Drain（開漏輸出）。<br>因為我們只是要讓 MCU 自己輸出清楚的 High &#x2F; Low，所以選 <code>Output Push Pull</code> 比較直覺。</p>
+<h5 id="Pull-up-Pull-down"><a href="#Pull-up-Pull-down" class="headerlink" title="Pull-up &#x2F; Pull-down"></a>Pull-up &#x2F; Pull-down</h5><p>這個選項決定是否啟用 MCU 內部的上拉或下拉電阻。</p>
+<p>這裡設定為：<code>Pull-up/Pull-down = No pull-up and no pull-down</code></p>
+<p>因為這個 pin 是由 MCU 主動輸出電位，不是浮接輸入，所以不需要額外開啟內部上拉或下拉。</p>
+<p>常見選項：</p>
+<ul>
+<li><p><code>No pull-up and no pull-down</code></p>
+<ul>
+<li>不啟用內部上拉或下拉</li>
+<li>適合 GPIO output，或外部電路已經有明確電位的情況</li>
+</ul>
+</li>
+<li><p><code>Pull-up</code></p>
+<ul>
+<li>啟用內部上拉</li>
+<li>當 pin 沒有被外部訊號主動拉高或拉低時，會預設偏向高電位</li>
+<li>常用在按鍵輸入、開漏輸出訊號，或需要避免輸入腳浮接的情況</li>
+</ul>
+</li>
+<li><p><code>Pull-down</code></p>
+<ul>
+<li>啟用內部下拉</li>
+<li>當 pin 沒有被外部訊號主動拉高或拉低時，會預設偏向低電位</li>
+<li>常用在按鍵輸入，或希望訊號預設為 Low 的情況</li>
+</ul>
+</li>
+</ul>
+<p>以 debug GPIO 來說，因為 MCU 已經會主動輸出 High &#x2F; Low，所以選 <code>No pull-up and no pull-down</code> 就可以了。</p>
+<h5 id="Maximum-output-speed"><a href="#Maximum-output-speed" class="headerlink" title="Maximum output speed"></a>Maximum output speed</h5><p>這個選項決定 GPIO 輸出切換時的速度能力。</p>
+<p>這裡設定為：<code>Maximum output speed = Low</code></p>
+<p>目前只是用來量測 task 裡某段程式的執行時間，GPIO 切換頻率不高，所以 <code>Low</code> 就足夠。</p>
+<p>常見選項：</p>
+<ul>
+<li><code>Low</code><ul>
+<li>切換速度較慢</li>
+<li>雜訊較少，功耗也較低</li>
+<li>適合 LED、一般控制腳、debug marker 等不需要高速切換的用途</li>
+</ul>
+</li>
+<li><code>Medium</code><ul>
+<li>速度比 Low 高一些</li>
+<li>適合稍微頻繁切換的 GPIO 訊號</li>
+</ul>
+</li>
+<li><code>High</code><ul>
+<li>適合比較高速的 GPIO 訊號</li>
+<li>例如較快的控制訊號，或需要較短上升 &#x2F; 下降時間的情境</li>
+</ul>
+</li>
+<li><code>Very High</code><ul>
+<li>速度最高</li>
+<li>通常用在高速訊號，或對時序要求比較嚴格的情境</li>
+</ul>
+</li>
+</ul>
+<p>不過速度越高不代表一定越好。<br>GPIO 切換越快，訊號邊緣越陡，也比較容易帶來 EMI 或雜訊問題。<br>所以一般 debug marker 如果只是量測 task 區段、driver 執行時間，通常先用 <code>Low</code> 就好。<br>如果之後要量測非常短的時間，或是邏輯分析儀看到的邊緣不夠清楚，再考慮改成 <code>High</code> 或 <code>Very High</code>。</p>
+<h5 id="User-Label"><a href="#User-Label" class="headerlink" title="User Label"></a>User Label</h5><p>這個選項可以幫 GPIO 取一個比較好讀的名稱。</p>
+<p>這裡設定為：<code>User Label = DEBUG</code></p>
+<p>設定 User Label 之後，CubeMX 產生程式碼時，就會自動產生對應的 pin 名稱。</p>
+<p>之後程式就可以使用：</p>
+<ul>
+<li><code>DEBUG_Pin</code></li>
+<li><code>DEBUG_GPIO_Port</code></li>
+</ul>
+<p>來操作這個 GPIO。<br>這樣比直接在程式裡寫 <code>GPIO_PIN_12</code> 或 <code>GPIOF</code> 更清楚。<br>因為看到 <code>DEBUG_Pin</code> 時，就能直接知道這支 pin 是拿來做 debug marker 用的。</p>
+<h4 id="產生程式碼"><a href="#產生程式碼" class="headerlink" title="產生程式碼"></a>產生程式碼</h4><p>設定完成後按下 Generate Code。</p>
+<p>產生程式碼之後，可以打開 <code>Core/Inc/main.h</code> 確認，應該會看到：</p>
+<figure class="shiki c" data_title="<span>Core/Inc/main.h</span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span>
+    </div>
+    <div class="code-lang">C</div>
+  </div><div class="center">
+    <div class="code-title"><span>Core/Inc/main.h</span></div>
+  </div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">DEBUG_Pin</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">GPIO_PIN_12</span></span><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">#define</span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">DEBUG_GPIO_Port</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">GPIOF</span></span></code></pre> </figure>
+
+<p>這代表 CubeMX 已經幫我們把 PF12 對應到 <code>DEBUG_Pin</code> 和 <code>DEBUG_GPIO_Port</code>。</p>
+<p>之後只要在程式中操作這兩個 define，就可以控制 PF12 的高低電位。</p>
+<h4 id="確認實際接腳位置"><a href="#確認實際接腳位置" class="headerlink" title="確認實際接腳位置"></a>確認實際接腳位置</h4><p>接著可以從 NUCLEO-F767ZI 的接腳圖確認 PF12 的實際位置。</p>
+<p>找到 PF12 之後，將邏輯分析儀的其中一個 channel 接到 PF12。<br>同時也要記得將邏輯分析儀的 GND 接到開發板的 GND。</p>
+<p>這樣邏輯分析儀才有共同參考電位，量到的 High &#x2F; Low 才會正確。</p>
+<p><img src="/posts/gb-project/part3/board_right_pf12.png" alt="NUCLEO-F767ZI 接腳圖右-PF12"></p>
+<h4 id="使用邏輯分析儀觀察執行時間"><a href="#使用邏輯分析儀觀察執行時間" class="headerlink" title="使用邏輯分析儀觀察執行時間"></a>使用邏輯分析儀觀察執行時間</h4><p>搭配 <code>busy_task</code> 測試：</p>
+<figure class="shiki rebakery-line-numbers c" data_title="<span>App/Tasks/Src/busy_tasks.c </span>"> <div class="shiki-tools closed"><div class="left">
+    <div class="traffic-lights">
+      <span class="traffic-light red"></span>
+      <span class="traffic-light yellow"></span>
+      <span class="traffic-light green"></span></div>
+    <div class="code-lang">C</div></div><div class="center">
+    <div class="code-title"><span>App/Tasks/Src/busy_tasks.c </span></div></div><div class="right"><iconify-icon icon="fa6-solid:arrow-down-wide-short" class="toggle-wrap" title="Toggle Wrap"></iconify-icon><div class="copy-notice"></div><iconify-icon icon="fa6-solid:paste" class="copy-button"></iconify-icon><iconify-icon icon="fa6-solid:angle-down" class="expand closed"></iconify-icon></div></div> <pre class="shiki shiki-themes github-light github-dark-dimmed"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F47067">for</span><span style="color:#24292E;--shiki-dark:#ADBAC7"> </span><span style="color:#005cc5;--shiki-dark:#6cb6ff">(</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;;</span><span style="color:#005cc5;--shiki-dark:#6cb6ff">)</span></span><span class="line"><span style="color:#005cc5;--shiki-dark:#6cb6ff">&#123;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">board_debug_pin_set</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">for</span><span style="color:#24292E;--shiki-dark:#ADBAC7"> </span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#D73A49;--shiki-dark:#F47067">volatile</span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">uint32_t</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">i</span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">=</span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">0</span><span style="color:#D73A49;--shiki-dark:#F47067">U</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">i</span><span class="space"> </span><span style="color:#D73A49;--shiki-dark:#F47067">&#x3C;</span><span class="space"> </span><span style="color:#005CC5;--shiki-dark:#6CB6FF">5000000</span><span style="color:#D73A49;--shiki-dark:#F47067">UL</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span><span class="space"> </span><span style="color:#24292E;--shiki-dark:#ADBAC7">i</span><span style="color:#D73A49;--shiki-dark:#F47067">++</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#e36209;--shiki-dark:#6bc46d">&#123;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#e36209;--shiki-dark:#6bc46d">&#125;</span></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">board_debug_pin_reset</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"></span><span class="line"><span class="space"> </span><span class="space"> </span><span class="space"> </span><span class="space"> </span><span style="color:#6F42C1;--shiki-dark:#DCBDFB">osDelay</span><span style="color:#e36209;--shiki-dark:#6bc46d">(</span><span style="color:#005CC5;--shiki-dark:#6CB6FF">200</span><span style="color:#D73A49;--shiki-dark:#F47067">U</span><span style="color:#e36209;--shiki-dark:#6bc46d">)</span><span style="color:#24292E;--shiki-dark:#ADBAC7">;</span></span><span class="line"><span style="color:#005cc5;--shiki-dark:#6cb6ff">&#125;</span></span></code></pre> </figure>
+
+<p>在這個例子中，<code>board_debug_pin_set()</code> 會先把 debug GPIO 拉高。<br>接著程式會進入一個空的 busy loop<br>等這個迴圈跑完之後，再透過 <code>board_debug_pin_reset()</code> 把 GPIO 拉低。</p>
+<p>因此在邏輯分析儀上看到的高電位寬度，就是這個 busy loop 大約花費的時間。</p>
+<h5 id="觀察-busy-loop-時間"><a href="#觀察-busy-loop-時間" class="headerlink" title="觀察 busy loop 時間"></a>觀察 busy loop 時間</h5><p>實際觀察可以看到，GPIO 被拉高後，迴圈大約執行了 970 ms。<br>這個數值不是固定不變的。</p>
+<p>它可能會受到以下因素影響：</p>
+<ul>
+<li>編譯最佳化設定</li>
+<li>是否開啟 UART log</li>
+<li>目前系統中其他 task 的執行情況</li>
+<li>interrupt 發生的頻率</li>
+<li>RTOS scheduler 切換時機<br>所以這裡量到的 970 ms，比較適合當成目前程式狀態下的觀察結果，而不是絕對不變的執行時間。</li>
+</ul>
+<p><img src="/posts/gb-project/part3/DSVIEW_BUSY.png" alt="busy loop 時間"></p>
+<h5 id="觀察-osDelay-時間"><a href="#觀察-osDelay-時間" class="headerlink" title="觀察 osDelay 時間"></a>觀察 osDelay 時間</h5><p>當 GPIO 被拉低之後，程式會進入<code>osDelay(200U)</code>，<br>因此低電位維持的時間，大約就是當初設定的 200 ms。</p>
+<p><img src="/posts/gb-project/part3/DSVIEW_DELAY.png" alt="osDelay 時間"></p>
+<p>這也剛好可以驗證：</p>
+<p>高電位代表 busy loop 執行時間。<br>低電位代表 task delay 的時間。</p>
+<p>透過這種方式，我們可以很直覺地看到 task 在什麼時候忙碌、什麼時候進入 delay。</p>
+<h4 id="適合使用的情境"><a href="#適合使用的情境" class="headerlink" title="適合使用的情境"></a>適合使用的情境</h4><p>不過這裡先不把它拿來精準分析 task priority。</p>
+<p>因為 task priority 對執行結果的影響，還會牽涉到很多因素，例如：</p>
+<ul>
+<li>RTOS tick</li>
+<li>task 是否進入 blocking 狀態</li>
+<li>queue 是否有資料</li>
+<li>semaphore &#x2F; mutex 是否被卡住</li>
+<li>interrupt 是否頻繁發生</li>
+<li>scheduler 實際切換時機</li>
+</ul>
+<p>之後在開發 driver 或分析程式執行時間時，這種方式會很常用。</p>
+<p>例如：</p>
+<ul>
+<li>SPI 傳輸時間</li>
+<li>I2C sensor read 時間</li>
+<li>UART parser 處理時間</li>
+<li>display update 時間</li>
+<li>某個 task 中重要區段的執行時間</li>
+</ul>
+<p>只要把想觀察的程式片段用 debug GPIO 包起來，就可以透過邏輯分析儀看到它大約花了多少時間。</p>
+<hr>
+<h2 id="本篇小結"><a href="#本篇小結" class="headerlink" title="本篇小結"></a>本篇小結</h2><p>開發板到貨了，也就代表最痛苦無聊的邏輯分析儀也到貨了，<br>不得不說，在寫這 Part 的 <strong>除錯與觀察</strong> 是最痛苦的，<br>有 AI 輔助的情況下，logger_task 其實花一點點時間就完成了，除了整體架構，例如 Log 要放在 Service 之類的設計，又多花了一些時間討論。</p>
+<p>但邏輯分析儀量 GPIO 高低電位、再配合 task priority 做實驗，真的花了大概多 4 到 5 倍的時間吧 &#x3D;&#x3D;</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>找不到韌體工作之亡羊補牢專案-Part3</p><p><a href="https://rebakery.net/posts/gb-project/part3/">https://rebakery.net/posts/gb-project/part3/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Bakery Chen</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-05-27</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-06-08</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/GB-Project/">GB-Project</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/posts/gb-project/part4/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">找不到韌體工作之亡羊補牢專案-Part4</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/posts/gb-project/part2/"><span class="level-item">找不到韌體工作之亡羊補牢專案-Part2</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card" id="comments"><div class="card-content"><h3 class="title is-5">Comments</h3><script src="https://giscus.app/client.js" repo="likeyou600/rebakery.github.io" data-repo="likeyou600/rebakery.github.io" data-repo-id="R_kgDOSmQ7-w" data-category-id="DIC_kwDOSmQ7-84C9vs8" data-category="Announcements" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="dark" data-lang="zh-TW" data-loading="lazy" crossorigin="anonymous" async></script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/avatar-transparent.png" alt="Bakery Chen"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Bakery Chen</p><p class="is-size-6 is-block">找工作中的 Engineer
+大概不會有啥技術分享，就簡單紀錄一下</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Taiwan</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives/"><p class="title">9</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories/"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags/"><p class="title">4</p></a></div></div></nav><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/likeyou600/rebakery.github.io"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Linkedin" href="https://www.linkedin.com/in/bakery3uu3/"><i class="fab fa-linkedin"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Email" href="mailto:bakery3uu3@gmail.com"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><div class="column-right-shadow is-hidden-widescreen is-sticky"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Logger-Service-與-FreeRTOS-除錯觀察"><span class="level-left"><span class="level-item">Logger Service 與 FreeRTOS 除錯觀察</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#系列文章"><span class="level-left"><span class="level-item">系列文章</span></span></a></li><li><a class="level is-mobile" href="#前言"><span class="level-left"><span class="level-item">前言</span></span></a></li><li><a class="level is-mobile" href="#本篇目標"><span class="level-left"><span class="level-item">本篇目標</span></span></a></li><li><a class="level is-mobile" href="#專案下載"><span class="level-left"><span class="level-item">專案下載</span></span></a></li><li><a class="level is-mobile" href="#Log-Service-producer-consumer"><span class="level-left"><span class="level-item">Log Service : producer / consumer</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#為什麼需要-logger-task"><span class="level-left"><span class="level-item">為什麼需要 logger_task</span></span></a></li><li><a class="level is-mobile" href="#為什麼用-producer-consumer-管理-log，而不是-mutex"><span class="level-left"><span class="level-item">為什麼用 producer / consumer 管理 log，而不是 mutex</span></span></a></li><li><a class="level is-mobile" href="#Logger-資料流"><span class="level-left"><span class="level-item">Logger 資料流</span></span></a></li><li><a class="level is-mobile" href="#資料夾結構"><span class="level-left"><span class="level-item">資料夾結構</span></span></a></li><li><a class="level is-mobile" href="#LOG-格式定義"><span class="level-left"><span class="level-item">LOG 格式定義</span></span></a></li><li><a class="level is-mobile" href="#Logger-參數設定"><span class="level-left"><span class="level-item">Logger 參數設定</span></span></a></li><li><a class="level is-mobile" href="#LOG-INFO-LOG-WARN-LOG-ERROR-巨集"><span class="level-left"><span class="level-item">LOG_INFO / LOG_WARN / LOG_ERROR 巨集</span></span></a></li></ul></li><li><a class="level is-mobile" href="#除錯與觀察"><span class="level-left"><span class="level-item">除錯與觀察</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Task-Priority：先用-log-timestamp-觀察"><span class="level-left"><span class="level-item">Task Priority：先用 log timestamp 觀察</span></span></a></li><li><a class="level is-mobile" href="#Stack-High-Water-Mark：觀察-task-stack-使用量"><span class="level-left"><span class="level-item">Stack High Water Mark：觀察 task stack 使用量</span></span></a></li><li><a class="level is-mobile" href="#Debug-GPIO-邏輯分析儀試用"><span class="level-left"><span class="level-item">Debug GPIO / 邏輯分析儀試用</span></span></a></li></ul></li><li><a class="level is-mobile" href="#本篇小結"><span class="level-left"><span class="level-item">本篇小結</span></span></a></li></ul></li></ul></div></div><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GB-Project/"><span class="tag">GB-Project</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitHub-Actions/"><span class="tag">GitHub Actions</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hexo/"><span class="tag">Hexo</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Firmware/"><span class="level-start"><span class="level-item">Firmware</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Web/"><span class="level-start"><span class="level-item">Web</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><figure class="media-left"><a class="image" href="/posts/gb-project/part7/"><img src="/gallery/cover/part7.png" alt="找不到韌體工作之亡羊補牢專案-Part7"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-06-01T19:00:00.000Z">2026-06-02</time></p><p class="title"><a href="/posts/gb-project/part7/">找不到韌體工作之亡羊補牢專案-Part7</a></p><p class="categories"><a href="/categories/Firmware/">Firmware</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/posts/gb-project/part6/"><img src="/gallery/cover/part6.png" alt="找不到韌體工作之亡羊補牢專案-Part6"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-05-31T19:00:00.000Z">2026-06-01</time></p><p class="title"><a href="/posts/gb-project/part6/">找不到韌體工作之亡羊補牢專案-Part6</a></p><p class="categories"><a href="/categories/Firmware/">Firmware</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/posts/basic_dp/"><img src="/gallery/cover/dp.png" alt="常見 DP 題型｜Dynamic Programming Basics"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-05-31T09:26:00.000Z">2026-05-31</time></p><p class="title"><a href="/posts/basic_dp/">常見 DP 題型｜Dynamic Programming Basics</a></p><p class="categories"><a href="/categories/Software/">Software</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/posts/gb-project/part5/"><img src="/gallery/cover/part5.png" alt="找不到韌體工作之亡羊補牢專案-Part5"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-05-30T21:00:00.000Z">2026-05-31</time></p><p class="title"><a href="/posts/gb-project/part5/">找不到韌體工作之亡羊補牢專案-Part5</a></p><p class="categories"><a href="/categories/Firmware/">Firmware</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/posts/gb-project/part4/"><img src="/gallery/cover/part4.png" alt="找不到韌體工作之亡羊補牢專案-Part4"></a></figure><div class="media-content"><p class="date"><time dateTime="2026-05-30T04:00:00.000Z">2026-05-30</time></p><p class="title"><a href="/posts/gb-project/part4/">找不到韌體工作之亡羊補牢專案-Part4</a></p><p class="categories"><a href="/categories/Firmware/">Firmware</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">Bakery&#039;s Blog</a><p class="is-size-7"><span>&copy; 2026 Bakery Chen</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">灑下香錦葵，喚醒梅林遺留的試煉</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script>moment.locale("zh-tw");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: false,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script><!-- hexo injector body_end start --><script defer src="/js/code_block/shiki.js"></script>
+<a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;">
+  <i class="fas fa-moon" id="night-icon"></i>
+</a>
+<script src="/js/imaegoo/night.js"></script>
+<script src="/js/imaegoo-adapter.js"></script>
+<script src="/js/imaegoo/universe.js"></script>
+
+<script>
+(function () {
+  var hostname = window.location.hostname.toLowerCase();
+
+  if (hostname !== 'rebakery.net' && hostname !== 'www.rebakery.net') {
+    return;
+  }
+
+  var goatcounter = document.createElement('script');
+  goatcounter.async = true;
+  goatcounter.src = 'https://gc.zgo.at/count.js';
+  goatcounter.dataset.goatcounter = 'https://rebakery.goatcounter.com/count';
+  document.head.appendChild(goatcounter);
+
+  var cloudflare = document.createElement('script');
+  cloudflare.defer = true;
+  cloudflare.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  cloudflare.setAttribute('data-cf-beacon', '{"token":"82c49522b87744b79020391148c3329f"}');
+  document.head.appendChild(cloudflare);
+}());
+</script>
+
+<!-- hexo injector body_end end --></body></html>
